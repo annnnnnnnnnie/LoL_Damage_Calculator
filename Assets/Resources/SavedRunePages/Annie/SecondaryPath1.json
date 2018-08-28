@@ -1,0 +1,41 @@
+{
+    "pathName": "Sorcery",
+    "keyStone": {
+        "strName": "keyStone_Sorcery",
+        "stoneChoices": [
+            "SummonAery",
+            "ArcaneComet",
+            "PhaseRush"
+        ],
+        "stoneChoiced": ""
+    },
+    "runeStones": [
+        {
+            "strName": "SorceryStone_1",
+            "stoneChoices": [
+                "NullifyingOrb",
+                "ManaflowBand",
+                "NimbusCloak"
+            ],
+            "stoneChoiced": "NullifyingOrb"
+        },
+        {
+            "strName": "SorceryStone_2",
+            "stoneChoices": [
+                "Transcendence",
+                "Celerity",
+                "AbsoluteFocus"
+            ],
+            "stoneChoiced": "AbsoluteFocus"
+        },
+        {
+            "strName": "SorceryStone_3",
+            "stoneChoices": [
+                "Scorch",
+                "Waterwalking",
+                "GatheringStorm"
+            ],
+            "stoneChoiced": ""
+        }
+    ]
+}

@@ -1,0 +1,49 @@
+{
+	"pathName":"Resolve",
+
+	"keyStone":
+	{
+		"strName":"keyStone_Resolve",
+		"stoneChoices":
+		[
+			"GraspOfTheUndying",
+			"Aftershock",
+			"Guardian"
+		],
+		"stoneChoiced":""
+	},
+
+	"runeStones":
+	[
+		{
+			"strName":"ResolveStone_1",
+			"stoneChoices":
+			[
+				"Demolish",
+				"FontOfLife",
+				"BonePlating"
+			],
+			"stoneChoiced":""
+		},
+		{
+			"strName":"ResolveStone_2",
+			"stoneChoices":
+			[
+				"Conditioning",
+				"SecondWind",
+				"Chrysalis"
+			],
+			"stoneChoiced":""
+		},
+		{
+			"strName":"ResolveStone_3",
+			"stoneChoices":
+			[
+				"Overgrowth",
+				"Revitalize",
+				"Unflinching"
+			],
+			"stoneChoiced":""
+		}
+	]
+}

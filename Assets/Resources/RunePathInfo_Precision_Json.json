@@ -1,0 +1,50 @@
+{
+	"pathName":"Precision",
+
+	"keyStone":
+	{
+		"strName":"keyStone_Precision",
+		"stoneChoices":
+		[
+			"PressTheAttack",
+			"LethalTempo",
+			"FleetFootwork",
+			"Conqueror"
+		],
+		"stoneChoiced":""
+	},
+
+	"runeStones":
+	[
+		{
+			"strName":"PrecisionStone_1",
+			"stoneChoices":
+			[
+				"Overheal",
+				"Triumph",
+				"PresenceOfMind"
+			],
+			"stoneChoiced":""
+		},
+		{
+			"strName":"PrecisionStone_2",
+			"stoneChoices":
+			[
+				"Legend_Alacrity",
+				"Legend_Tenacity",
+				"Legend_Bloodline"
+			],
+			"stoneChoiced":""
+		},
+		{
+			"strName":"PrecisionStone_3",
+			"stoneChoices":
+			[
+				"CoupDeGrace",
+				"CutDown",
+				"LastStand"
+			],
+			"stoneChoiced":""
+		}
+	]
+}

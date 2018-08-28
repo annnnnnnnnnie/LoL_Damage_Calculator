@@ -1,0 +1,43 @@
+{
+    "pathName": "Domination",
+    "keyStone": {
+        "strName": "keyStone_Domination",
+        "stoneChoices": [
+            "Electrocute",
+            "Predator",
+            "DarkHarvest",
+            "HailOfBlades"
+        ],
+        "stoneChoiced": "Electrocute"
+    },
+    "runeStones": [
+        {
+            "strName": "DominationStone_1",
+            "stoneChoices": [
+                "CheapShot",
+                "TasteOfBlood",
+                "SuddenImpact"
+            ],
+            "stoneChoiced": "TasteOfBlood"
+        },
+        {
+            "strName": "DominationStone_2",
+            "stoneChoices": [
+                "ZombieWard",
+                "GhostPoro",
+                "EyeballCollection"
+            ],
+            "stoneChoiced": "GhostPoro"
+        },
+        {
+            "strName": "DominationStone_3",
+            "stoneChoices": [
+                "RavenousHunter",
+                "IngeniousHunter",
+                "RelentlessHunter",
+                "UltimateHunter"
+            ],
+            "stoneChoiced": "IngeniousHunter"
+        }
+    ]
+}

@@ -1,0 +1,1225 @@
+{
+	"itemListDatas":[
+	{
+		"strItemName" : "DoransRing",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "400"
+			},
+			{
+			"key":"AP",
+			"value": "15"
+			},
+			{
+			"key":"health",
+			"value": "60"
+			}
+		]
+	},
+	{
+		"strItemName" : "TheDarkSeal",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "350"
+			},
+			{
+			"key":"AP",
+			"value": "15"
+			},
+			{
+			"key":"mana",
+			"value": "100"
+			},
+			{
+			"key":"Unique_Passive_Dread",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_DoOrDie",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "CorruptingPotion",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "500"
+			},
+			{
+			"key":"AP",
+			"value": "0"
+			},
+			{
+			"key":"mana",
+			"value": "0"
+			},{
+			"key":"Unique_Passive_TouchOfCorruption",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "Null_MagicMantle",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "450"
+			},
+			{
+			"key":"MR",
+			"value": "25"
+			}
+		]
+	},
+	{
+		"strItemName" : "ElixirOfSorcery",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "500"
+			},
+			{
+			"key":"AP",
+			"value": "50"
+			},
+			{
+			"key":"manaRegen",
+			"value": "15"
+			},{
+			"key":"Unique_Passive_Sorcery",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "AmplifyingTome",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "435"
+			},
+			{
+			"key":"AP",
+			"value": "20"
+			}
+		]
+	},
+	{
+		"strItemName" : "BlastingWand",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "850"
+			},
+			{
+			"key":"AP",
+			"value": "40"
+			}
+		]
+	},
+	{
+		"strItemName" : "NeedlesslyLargeRod",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1250"
+			},
+			{
+			"key":"AP",
+			"value": "60"
+			}
+		]
+	},
+	{
+		"strItemName" : "TimewornSpellthiefsEdge",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "350"
+			},
+			{
+			"key":"AP",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Passive_Tribute",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "AegisOfTheLegion",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1100"
+			},
+			{
+			"key":"MR",
+			"value": "30"
+			},
+			{
+			"key":"armor",
+			"value": "30"
+			}
+		]
+	},
+	{
+		"strItemName" : "AetherWisp",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "850"
+			},
+			{
+			"key":"AP",
+			"value": "30"
+			},
+			{
+			"key":"Unique_MovementSpeed",
+			"value": "5percent"
+			}
+		]
+	},
+	{
+		"strItemName" : "ChaliceOfHarmony",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "800"
+			},
+			{
+			"key":"MR",
+			"value": "30"
+			},
+			{
+			"key":"Unique_Passive_Tribute",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "FiendishCodex",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "900"
+			},
+			{
+			"key":"AP",
+			"value": "35"
+			},
+			{
+			"key":"Unique_CDR",
+			"value": "10"
+			}
+		]
+	},
+	{
+		"strItemName" : "Frostfang",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "850"
+			},
+			{
+			"key":"AP",
+			"value": "20"
+			},
+			{
+			"key":"Unique_CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Passive_Tribute",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "EyeOfFrost",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "850"
+			},
+			{
+			"key":"AP",
+			"value": "20"
+			},
+			{
+			"key":"Unique_CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Passive_Tribute",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "HauntingGuise",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1500"
+			},
+			{
+			"key":"AP",
+			"value": "35"
+			},
+			{
+			"key":"health",
+			"value": "200"
+			},
+			{
+			"key":"Unique_Passive_Madness",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "Hexdrinker",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1300"
+			},
+			{
+			"key":"MR",
+			"value": "35"
+			},
+			{
+			"key":"AD",
+			"value": "20"
+			},
+			{
+			"key":"Unique_Passive_Lifeline",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "HextechRevolver",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1050"
+			},
+			{
+			"key":"AP",
+			"value": "40"
+			},
+			{
+			"key":"Unique_Passive_MagicBolt",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "LostChapter",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1300"
+			},
+			{
+			"key":"AP",
+			"value": "40"
+			},
+			{
+			"key":"Unique_CDR",
+			"value": "10"
+			},
+			{
+			"key":"mana",
+			"value": "300"
+			}
+		]
+	},
+	{
+		"strItemName" : "NegatronCloak",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "720"
+			},
+			{
+			"key":"MR",
+			"value": "40"
+			}
+		]
+	},
+	{
+		"strItemName" : "OblivionOrb",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1500"
+			},
+			{
+			"key":"AP",
+			"value": "25"
+			},
+			{
+			"key":"health",
+			"value": "200"
+			},
+			{
+			"key":"Unique_Passive_TouchOfDeath",
+			"value": "15"
+			}
+		]
+	},
+	{
+		"strItemName" : "QuicksilverSash",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1300"
+			},
+			{
+			"key":"MR",
+			"value": "30"
+			},
+			{
+			"key":"Unique_Active_Quicksilver",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "SeekersArmguard",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1100"
+			},
+			{
+			"key":"AP",
+			"value": "20"
+			},
+			{
+			"key":"armor",
+			"value": "30"
+			},
+			{
+			"key":"Unique_Passive_SeekersArmguard",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "SkirmishersSabre",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1000"
+			},
+			{
+			"key":"Unique_Active_ChallengingSmite",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "SpectresCowl",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1200"
+			},
+			{
+			"key":"health",
+			"value": "250"
+			},
+			{
+			"key":"MR",
+			"value": "25"
+			}
+		]
+	},
+	{
+		"strItemName" : "TearOfTheGoddess",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "850"
+			},
+			{
+			"key":"Unique_Passive_ManaCharge",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_Awe",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "AbyssalMask",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3000"
+			},
+			{
+			"key":"health",
+			"value": "350"
+			},
+			{
+			"key":"MR",
+			"value": "55"
+			},
+			{
+			"key":"mana",
+			"value": "300"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Passive_Eternity",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "AdaptiveHelm",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2800"
+			},
+			{
+			"key":"health",
+			"value": "350"
+			},
+			{
+			"key":"MR",
+			"value": "55"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Passive_AdaptiveHelm",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "ArchangelsStaff",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3200"
+			},
+			{
+			"key":"AP",
+			"value": "50"
+			},
+			{
+			"key":"mana",
+			"value": "650"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Passive_Awe",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_AweAP",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_Haste",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "BansheesVeil",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3000"
+			},
+			{
+			"key":"AP",
+			"value": "75"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"MR",
+			"value": "60"
+			},
+			{
+			"key":"Unique_Passive_BansheesVeil",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "GargoyleStonePlate",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2500"
+			},
+			{
+			"key":"armor",
+			"value": "40"
+			},
+			{
+			"key":"MR",
+			"value": "40"
+			},
+			{
+			"key":"Unique_Passive_GargoyleStonePlate",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Active_GargoyleStonePlate",
+			"value": "1"
+			}
+		]
+	},	
+	{
+		"strItemName" : "HextechGLP_800",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2800"
+			},
+			{
+			"key":"AP",
+			"value": "80"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"mana",
+			"value": "600"
+			},
+			{
+			"key":"Unique_Passive_Haste",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Active_FrostBolt",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "HextechGunblade",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3400"
+			},
+			{
+			"key":"AP",
+			"value": "80"
+			},
+			{
+			"key":"AD",
+			"value": "40"
+			},
+			{
+			"key":"mana",
+			"value": "600"
+			},
+			{
+			"key":"Unique_Active_LightningBolt",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "HextechProtobelt_01",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2500"
+			},
+			{
+			"key":"AP",
+			"value": "60"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Active_FireBolt",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "KnightsVow",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2200"
+			},
+			{
+			"key":"armor",
+			"value": "40"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"health",
+			"value": "250"
+			},
+			{
+			"key":"Unique_Passive_KnightsVow",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "LiandrysTorment",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3100"
+			},
+			{
+			"key":"AP",
+			"value": "80"
+			},
+			{
+			"key":"health",
+			"value": "300"
+			},
+			{
+			"key":"Unique_Passive_Madness",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_Torment",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "LichBane",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3200"
+			},
+			{
+			"key":"AP",
+			"value": "80"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"MSpercent",
+			"value": "7"
+			},
+			{
+			"key":"Unique_Passive_SpellBlade",
+			"value": "1"
+			}
+		]
+	},	
+	{
+		"strItemName" : "LocketOfTheIronSolari",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2200"
+			},
+			{
+			"key":"armor",
+			"value": "30"
+			},
+			{
+			"key":"MR",
+			"value": "60"
+			},
+			{
+			"key":"Unique_Active_LocketOfTheIronSolari",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "LudensEcho",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3200"
+			},
+			{
+			"key":"AP",
+			"value": "90"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"mana",
+			"value": "600"
+			},
+			{
+			"key":"Unique_Passive_Haste",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_Echo",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "MawOfMalmortius",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3250"
+			},
+			{
+			"key":"AD",
+			"value": "50"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"MR",
+			"value": "50"
+			},
+			{
+			"key":"Unique_Passive_Lifeline",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_Lifegrip",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "MejaisSoulstealer",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1400"
+			},
+			{
+			"key":"AP",
+			"value": "20"
+			},
+			{
+			"key":"mana",
+			"value": "200"
+			},
+			{
+			"key":"Unique_Passive_Dread",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_DoOrDie",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "MercurialScimitar",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3600"
+			},
+			{
+			"key":"AD",
+			"value": "65"
+			},
+			{
+			"key":"MR",
+			"value": "35"
+			},
+			{
+			"key":"lifeStealpercent",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Active_Quicksilver",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "MercurysTreads",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1100"
+			},
+			{
+			"key":"Unique_Passive_EnchancedMovement",
+			"value": "45"
+			},
+			{
+			"key":"MR",
+			"value": "25"
+			},
+			{
+			"key":"Unique_Passive_Tenacity",
+			"value": "30"
+			}
+		]
+	},
+	{
+		"strItemName" : "MikaelsCrucible",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2100"
+			},
+			{
+			"key":"Unique_Passive_HealAndShieldPower",
+			"value": "15"
+			},
+			{
+			"key":"MR",
+			"value": "40"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Active_MikaelsCrucible",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "Morellonomicon",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3000"
+			},
+			{
+			"key":"AP",
+			"value": "80"
+			},
+			{
+			"key":"health",
+			"value": "300"
+			},
+			{
+			"key":"Unique_Passive_TouchOfDeath",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_CursedStrike",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "RabadonsDeathcap",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3600"
+			},
+			{
+			"key":"AP",
+			"value": "120"
+			},
+			{
+			"key":"Unique_Passive_RabadonsDeathcap",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "RodOfAges",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2700"
+			},
+			{
+			"key":"AP",
+			"value": "60"
+			},
+			{
+			"key":"health",
+			"value": "300"
+			},
+			{
+			"key":"mana",
+			"value": "300"
+			},
+			{
+			"key":"Unique_Passive_RodOfAges",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "RylaisCrystalScepter",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2600"
+			},
+			{
+			"key":"AP",
+			"value": "90"
+			},
+			{
+			"key":"health",
+			"value": "300"
+			},
+			{
+			"key":"Unique_Passive_Icy",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "SeraphsEmbrace",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3200"
+			},
+			{
+			"key":"AP",
+			"value": "50"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"mana",
+			"value": "1400"
+			},
+			{
+			"key":"Unique_Passive_Haste",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_AweAP",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Active_ManaShield",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "ShurelyasReverie",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2250"
+			},
+			{
+			"key":"AP",
+			"value": "40"
+			},
+			{
+			"key":"health",
+			"value": "200"
+			},
+			{
+			"key":"Unique_CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Passive_MovementSpeed",
+			"value": "5"
+			},
+			{
+			"key":"Unique_Active_ShurelyasReverie",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "SorcerersShoes",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "1100"
+			},
+			{
+			"key":"Unique_Passive_SorcerersShoes",
+			"value": "18"
+			},
+			{
+			"key":"Unique_Passive_EnchancedMovement",
+			"value": "45"
+			}
+		]
+	},
+	{
+		"strItemName" : "Spellbinder",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2900"
+			},
+			{
+			"key":"AP",
+			"value": "120"
+			},
+			{
+			"key":"MSpercent",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Active_Spellbinder",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "SpiritVisage",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2800"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"health",
+			"value": "450"
+			},
+			{
+			"key":"MR",
+			"value": "55"
+			},
+			{
+			"key":"Unique_Passive_SpiritVisage",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "SteraksGage",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "3200"
+			},
+			{
+			"key":"health",
+			"value": "450"
+			},
+			{
+			"key":"Unique_Passive_GainStrength",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_Lifeline",
+			"value": "1"
+			},
+			{
+			"key":"Unique_Passive_SteraksFury",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "VoidStaff",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2650"
+			},
+			{
+			"key":"Unique_Passive_VoidStaff",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "ZhongyasHourglass",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "2900"
+			},
+			{
+			"key":"AP",
+			"value": "75"
+			},
+			{
+			"key":"armor",
+			"value": "45"
+			},
+			{
+			"key":"CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Active_Stasis",
+			"value": "1"
+			}
+		]
+	},
+	{
+		"strItemName" : "ItemStillLoading",
+		"itemAttributes" : [
+			{
+			"key":"price",
+			"value": "850"
+			},
+			{
+			"key":"AP",
+			"value": "20"
+			},
+			{
+			"key":"Unique_CDR",
+			"value": "10"
+			},
+			{
+			"key":"Unique_Passive_Tribute",
+			"value": "1"
+			}
+		]
+	}
+
+
+	]
+}

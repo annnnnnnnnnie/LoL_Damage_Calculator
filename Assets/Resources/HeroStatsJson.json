@@ -1,0 +1,38 @@
+{
+	"heroStatsData":[
+	{
+		"strHeroName": "Annie",
+		"fBaseHP": 524,
+		"fHPGrowth": 88,
+		"fBaseAD":50.41,
+		"fADGrowth":2.625,
+		"fBaseHPRegen": 5.5,
+		"fHPRegenGrowth":0.55,
+		"fBaseAttackSpeed":0.579,
+		"fAttackSpeedGrowth":1.36,
+		"fBaseMana": 418,
+		"fManaGrowth":25,
+		"fBaseMR": 30,
+		"fMRGrowth": 0.5,
+		"fBaseMS": 335,
+		"fMSGrowth": 0
+	},
+	{
+		"strHeroName": "Enemy",
+		"fBaseHP": 524,
+		"fHPGrowth": 88,
+		"fBaseAD":50.41,
+		"fADGrowth":2.625,
+		"fBaseHPRegen": 5.5,
+		"fHPRegenGrowth":0.55,
+		"fBaseAttackSpeed":0.579,
+		"fAttackSpeedGrowth":1.36,
+		"fBaseMana": 418,
+		"fManaGrowth":25,
+		"fBaseMR": 30,
+		"fMRGrowth": 0.5,
+		"fBaseMS": 335,
+		"fMSGrowth": 0
+	}
+	]
+}
