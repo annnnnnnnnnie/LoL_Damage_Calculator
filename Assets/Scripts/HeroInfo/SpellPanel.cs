@@ -5,25 +5,25 @@ using UnityEngine.UI;
 
 public class SpellPanel : MonoBehaviour {
 
-    public Button skillButton;
+    public Button spellButton;
     public Button BackSpaceBtn;
     public Button ClearAllBtn;
     public GameObject DisplayPanel;
     public GameObject DisplayText;
     private List<GameObject> DisplayedText;
     private List<string> spellList;
-    [HideInInspector]
-    public List<string> skillList;
+    private Dictionary<string, GameObject> newSpellBtns;
 
-	public void Initialize(List<string> skills)
+	public void Initialize(List<string> spells)
     {
         DisplayedText = new List<GameObject>();
         spellList = new List<string>();
-        foreach (string skill in skills)
+        newSpellBtns = new Dictionary<string, GameObject>();
+        foreach (string spell in spells)
         {
-            GameObject sklBtnGO = GameObjectUtility.CustomInstantiate(skillButton.gameObject, transform);
-            SpellButton sklBtn = sklBtnGO.GetComponent<SpellButton>();
-            sklBtn.Initialize(skill, this);
+            GameObject splBtnGo = GameObjectUtility.CustomInstantiate(spellButton.gameObject, transform);
+            SpellButton splBtn = splBtnGo.GetComponent<SpellButton>();
+            splBtn.Initialize(spell, this);
         }
 
 
@@ -61,6 +61,21 @@ public class SpellPanel : MonoBehaviour {
         displayText.GetComponent<Text>().text = spell;
         DisplayedText.Add(displayText);
         spellList.Add(spell);
+    }
+
+    public void NewSpell(string spell)
+    {
+        GameObject splBtnGo = GameObjectUtility.CustomInstantiate(spellButton.gameObject, transform);
+        SpellButton splBtn = splBtnGo.GetComponent<SpellButton>();
+        splBtn.Initialize(spell, this);
+        newSpellBtns.Add(spell, splBtnGo);
+    }
+
+    public void RemoveSpell(string spell)
+    {
+        GameObject spellToBeRemoved = newSpellBtns[spell];
+        newSpellBtns.Remove(spell);
+        GameObjectUtility.CustomDestroy(spellToBeRemoved);
     }
 
     public List<string> SubmitSpells()

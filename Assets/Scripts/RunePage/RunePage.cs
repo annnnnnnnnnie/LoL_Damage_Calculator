@@ -48,7 +48,9 @@ public class RunePage : MonoBehaviour {
         runePathData_1 = LoadRunePathData(true);
         RunePathData runePathData_2;
         runePathData_2 = LoadRunePathData(false);
+
         DisplaySecondaryRunePathSelector(runePathData_1.pathName);
+
         DisplayRunePath(runePathData_1, runePathData_2);
     }
 
@@ -65,7 +67,7 @@ public class RunePage : MonoBehaviour {
         }
     }
 
-    private RunePathData LoadRunePathData(string pathName, bool isPrimary)
+    private RunePathData LoadRunePathData(string pathName, bool isPrimary)//for generating an empty runePage
     {
         TextAsset dataAsJson = new TextAsset();
         string jsonPath = pathName;
@@ -75,7 +77,7 @@ public class RunePage : MonoBehaviour {
         return runePathData;
     }
 
-    private RunePathData LoadRunePathData(bool isPrimary)
+    private RunePathData LoadRunePathData(bool isPrimary)//for saved data
     {
         string path = "SavedRunePages/" + userName + "/" + (isPrimary ? "Primary" : "Secondary") + "Path" + runePageSeletor.value;
         if (System.IO.File.Exists("Assets/Resources/" + path + ".json"))

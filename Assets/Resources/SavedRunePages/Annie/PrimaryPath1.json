@@ -1,43 +1,42 @@
 {
-    "pathName": "Domination",
+    "pathName": "Precision",
     "keyStone": {
-        "strName": "keyStone_Domination",
+        "strName": "keyStone_Precision",
         "stoneChoices": [
-            "Electrocute",
-            "Predator",
-            "DarkHarvest",
-            "HailOfBlades"
+            "PressTheAttack",
+            "LethalTempo",
+            "FleetFootwork",
+            "Conqueror"
         ],
-        "stoneChoiced": "Predator"
+        "stoneChoiced": "PressTheAttack"
     },
     "runeStones": [
         {
-            "strName": "DominationStone_1",
+            "strName": "PrecisionStone_1",
             "stoneChoices": [
-                "CheapShot",
-                "TasteOfBlood",
-                "SuddenImpact"
+                "Overheal",
+                "Triumph",
+                "PresenceOfMind"
             ],
-            "stoneChoiced": "SuddenImpact"
+            "stoneChoiced": "Triumph"
         },
         {
-            "strName": "DominationStone_2",
+            "strName": "PrecisionStone_2",
             "stoneChoices": [
-                "ZombieWard",
-                "GhostPoro",
-                "EyeballCollection"
+                "Legend_Alacrity",
+                "Legend_Tenacity",
+                "Legend_Bloodline"
             ],
-            "stoneChoiced": ""
+            "stoneChoiced": "Legend_Alacrity"
         },
         {
-            "strName": "DominationStone_3",
+            "strName": "PrecisionStone_3",
             "stoneChoices": [
-                "RavenousHunter",
-                "IngeniousHunter",
-                "RelentlessHunter",
-                "UltimateHunter"
+                "CoupDeGrace",
+                "CutDown",
+                "LastStand"
             ],
-            "stoneChoiced": ""
+            "stoneChoiced": "CutDown"
         }
     ]
 }

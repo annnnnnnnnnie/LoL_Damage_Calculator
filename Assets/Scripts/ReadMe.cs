@@ -9,6 +9,11 @@ public class ReadMe : MonoBehaviour {
  * Overall Workflow of this programme:
  * Start => AnniePanel Initialize, enemy panel initialize
  * 
+ * ---Calculation---
+ * hero contains a function called Update(Spellcast = null)
+ * 
+ * The processor determines whether a Spellcast is pass to the hero on each update
+ * 
  *
  * ---RunePage---
  * public class RunePathData is the data structure between the app and json files

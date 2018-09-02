@@ -1,39 +1,39 @@
 {
-    "pathName": "Sorcery",
+    "pathName": "Resolve",
     "keyStone": {
-        "strName": "keyStone_Sorcery",
+        "strName": "keyStone_Resolve",
         "stoneChoices": [
-            "SummonAery",
-            "ArcaneComet",
-            "PhaseRush"
+            "GraspOfTheUndying",
+            "Aftershock",
+            "Guardian"
         ],
         "stoneChoiced": ""
     },
     "runeStones": [
         {
-            "strName": "SorceryStone_1",
+            "strName": "ResolveStone_1",
             "stoneChoices": [
-                "NullifyingOrb",
-                "ManaflowBand",
-                "NimbusCloak"
+                "Demolish",
+                "FontOfLife",
+                "BonePlating"
             ],
-            "stoneChoiced": "NullifyingOrb"
+            "stoneChoiced": "Demolish"
         },
         {
-            "strName": "SorceryStone_2",
+            "strName": "ResolveStone_2",
             "stoneChoices": [
-                "Transcendence",
-                "Celerity",
-                "AbsoluteFocus"
+                "Conditioning",
+                "SecondWind",
+                "Chrysalis"
             ],
-            "stoneChoiced": "AbsoluteFocus"
+            "stoneChoiced": "SecondWind"
         },
         {
-            "strName": "SorceryStone_3",
+            "strName": "ResolveStone_3",
             "stoneChoices": [
-                "Scorch",
-                "Waterwalking",
-                "GatheringStorm"
+                "Overgrowth",
+                "Revitalize",
+                "Unflinching"
             ],
             "stoneChoiced": ""
         }

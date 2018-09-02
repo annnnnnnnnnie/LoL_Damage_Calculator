@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class HeroInfo : MonoBehaviour {
+public abstract class HeroInfo : MonoBehaviour {
 
     /*
      * prefab for selection of hero
@@ -14,8 +14,8 @@ public class HeroInfo : MonoBehaviour {
      * prefab for selection of runes;
      * prefab for selection of items;
      */
-    
-    public bool isShowingHeroLevelOnly; 
+
+    public bool isShowingHeroLevelOnly;
     public GameObject levelComponent;
     public Toggle isRanged;
     public List<int> initialLevels = new List<int> { 1, 0, 0, 0, 0 };
@@ -27,15 +27,77 @@ public class HeroInfo : MonoBehaviour {
     private Dictionary<string, float> Attributes = new Dictionary<string, float>();
 
 
-    private LevelComponent[] levelComponentsScript = new LevelComponent[5]; 
+    private LevelComponent[] levelComponentsScript = new LevelComponent[5];
     private List<string> levelNames = new List<string> { "Level", "Q", "W", "E", "R" };
     private readonly List<int> leastLevels = new List<int> { 1, 0, 0, 0, 0 };
     private readonly List<int> mostLevels = new List<int> { 18, 5, 5, 5, 5 };
 
+    public abstract string heroName { get; set; }
+
+    public RuneInfo LoadRuneInfo(string heroName)
+    {
+        RuneInfo runeInfo = new RuneInfo();
+
+        string priP;
+        string secP;
+        string keyStone;
+        List<string> runeStones = new List<string>();
+
+        string path_pri = "SavedRunePages/" + heroName + "/" + "Primary" + "Path" + "0";
+        if (System.IO.File.Exists("Assets/Resources/" + path_pri + ".json"))
+        {
+            TextAsset dataAsJson = new TextAsset();
+            dataAsJson = Resources.Load<TextAsset>(path_pri);
+            RunePathData runePathData = new RunePathData();
+            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson.text);
+            Debug.Log("Found Saved RunePage at " + path_pri);
+
+            priP = runePathData.pathName;
+            keyStone=runePathData.keyStone.stoneChoiced;
+            foreach(RuneStone rs in runePathData.runeStones)
+            {
+                runeStones.Add(rs.stoneChoiced);
+            }
+        }
+        else
+        {
+            throw new System.Exception("No saved RunePage");
+        }
+
+        string path_sec = "SavedRunePages/" + heroName + "/" + "Secondary" + "Path" + "0";
+        if (System.IO.File.Exists("Assets/Resources/" + path_sec + ".json"))
+        {
+            TextAsset dataAsJson = new TextAsset();
+            dataAsJson = Resources.Load<TextAsset>(path_sec);
+            RunePathData runePathData = new RunePathData();
+            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson.text);
+            Debug.Log("Found Saved RunePage at " + path_sec);
+
+            secP = runePathData.pathName;
+            foreach (RuneStone rs in runePathData.runeStones)
+            {
+                runeStones.Add(rs.stoneChoiced);
+            }
+        }
+        else
+        {
+            throw new System.Exception("No saved RunePage");
+        }
+
+        runeInfo.Initialize(priP, secP);
+        runeInfo.AddRuneStone(keyStone);
+        foreach(string s in runeStones)
+        {
+            runeInfo.AddRuneStone(s);
+        }
+
+        return runeInfo;
+    } 
+
     public void Start()
     {
         GenerateSpellButtons(isShowingHeroLevelOnly);
-        
+        runeInfo = LoadRuneInfo(heroName);
     }
 
     public void Update()
@@ -55,6 +117,7 @@ public class HeroInfo : MonoBehaviour {
             levelComponentsScript[i].Initialize(levelNames[i], initialLevels[i], leastLevels[i], mostLevels[i]);
         }
     }
+
     public void SetRuneInfo(RuneInfo runeInfo)
     {
         this.runeInfo = runeInfo;

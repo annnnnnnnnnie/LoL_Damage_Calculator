@@ -14,7 +14,9 @@ public abstract class Hero {
     public Dictionary<string, float> Attributes;
 
     public float fCurrentHealth;
-    public Buff buff;
+    public List<Buff> buffs;
+
+    protected int intTime;// 1=10ms
 
     public abstract List<Item> GetItems();
     public abstract int GetHeroLevel();
@@ -61,14 +63,14 @@ public abstract class Hero {
         return GameStatsUtility.CalculateEffectiveAttributes(tempDic);
     }
 
+    public abstract void Update(SpellCast spellCast = null);
+
 }
 
 public class Enemy : Hero
 {
     private EnemyInfo enemyInfo;
     private Inventory inventory;
-
-    private float fTime;
     
     public void Refresh()
     {
@@ -113,13 +115,79 @@ public class Enemy : Hero
 
     public void PrepareToReceiveSpells()
     {
-        fTime = 0f;
+        intTime = 0;
         Attributes = CalculateAttributes();
         fCurrentHealth = Attributes["HP"];
+        buffs = new List<Buff>();
+    }
+
+    public override void Update(SpellCast spellCast = null)
+    {
+        if (spellCast != null)
+        {
+            Debug.Log("Receiving spell");
+            ReceiveSpell(spellCast);
+        }
+        //Debug.Log("Normal update");
+        double dmg = NormalUpdate();
+        if (dmg > 0)
+            Debug.Log("Damage is " + dmg.ToString());
+        intTime += 10;
+    }
+
+    public double NormalUpdate()
+    {
+        double damage = 0f;
+        List<Buff> buffsToBeRemoved = new List<Buff>();
+        foreach (Buff buff in buffs)
+        {
+            if (buff.intDuration == 0)
+            {
+                Debug.Log(buff.strName + " has ended");
+                buffsToBeRemoved.Add(buff);
+            }
+            else
+            {
+                if (buff is DoT)
+                {
+                    DoT dot = (DoT)buff;
+                    Debug.Log("Time: "+ (intTime).ToString()+dot.strName + " DoT damage detected" + dot.ToString());
+
+                    if ((intTime-dot.intTimeOfStart)%dot.intInterval == 0)
+                    {
+                        switch (dot.strDmgType)
+                        {
+                            case "True":
+                                damage = dot.fDmgPerTick;
+                                break;
+
+                        }
+                        dot.intDuration -= dot.intInterval;
+                        dot.intTickNumber -= 1;
+                    }
+                }
+            }
+        }
+
+        foreach(Buff buff in buffsToBeRemoved)
+        {
+            buffs.Remove(buff);
+        }
+
+        //---Health and mana regen---
+        //Update every 0.5 second(intTime%50 ==0)
+        if(intTime % 50 == 0)
+        {
+            //Attributes[]
+        }
+
+        return damage;
     }
 
     public double ReceiveSpell(SpellCast spellReceived)
     {
+        double damage = 0f;
+
         switch (spellReceived.strDmgType)
         {
             case "AP":
@@ -129,20 +197,56 @@ public class Enemy : Hero
                 fMR = Mathf.Clamp(fMR, 0, 9999);
                 fMR -= spellReceived.amplifier.fMRreduction;
 
-                double damage = spellReceived.dDamage * (100 / (100 + fMR));
+                damage = spellReceived.dDamage * (100 / (100 + fMR));
                 Debug.Log("Damage is: " + damage + ", with effective enemy MR of " + fMR);
-                return damage;
+                break;
             default:
-                Debug.LogError("Damage Type not recognized");
-                return 0;
+                Debug.Log("Damage Type not recognized");
+                damage = 0f;
+                break;
+        }
+        ReceiveBuff(spellReceived.debuff);
+        ReceiveDamage(damage);
+        return damage;
+    }
+
+    private void ReceiveBuff(Buff buff)
+    {
+        if (buff == null) return;
+        bool isNewBuff = true;
+        foreach (Buff existingBuff in buffs)
+        {
+            if (existingBuff.Equals(buff))
+            {
+                isNewBuff = false;
+                if (buff.intTimeOfStart == 0)
+                {
+                    Debug.Log(buff.strName + " has been refreshed");
+                    existingBuff.intTimeOfStart = intTime;
+                }
+                else
+                {
+                    Debug.LogError("Unknown bug in refreshing buffs");
+                }
+            }
+        }
+        if (isNewBuff)
+        {
+            buff.intTimeOfStart = intTime;
+            buffs.Add(buff);
         }
     }
 
-    public void Update()
+    private void ReceiveDamage(double dmg)
     {
-        
+        fCurrentHealth -= (float)dmg;
     }
-    
+
+    private void ReceiveHealing(double healing)
+    {
+        fCurrentHealth += (float)healing;
+    }
+
 }
 
 
@@ -202,17 +306,30 @@ public class Annie : Hero
         items = GetItems();
         rune = GetRune();
         Attributes = CalculateAttributes();
+        buffs = new List<Buff>();
+        intTime = 0;
 
         intElectrocuteCount = 0;
 
     }
-    
+
+    public override void Update(SpellCast spellCast = null)
+    {
+        if(spellCast == null)
+        {
+            //Debug.Log("NormalUpdate");
+        }
+        else
+        {
+            Debug.Log("Receiving spell");
+        }
+
+        intTime += 10;
+    }
+
     public SpellCast CastSpell(string spell)
     {
         int[] levels = new int[4] { annieInfo.GetLevel("Q"), annieInfo.GetLevel("W"), annieInfo.GetLevel("E"), annieInfo.GetLevel("R") };//0=Q 5=HeroLevel
-
-        bool isThunderLoad = annieInfo.testThunder.isOn;
-
 
         GameDebugUtility.Debug_ShowDictionary("Cast Skill \n",Attributes);
 
@@ -258,6 +375,19 @@ public class Annie : Hero
                 spellcast.strDmgType = "AP";
                 Debug.Log("Casting Electrocute of level " + annieInfo.GetLevel("Level") + ", Raw Damage is: " + spellcast.dDamage);
                 break;
+            case "Ignite":
+                spellcast.debuff = new DoT()
+                {
+                    isDamage = true,
+                    intDuration = 500,
+                    intInterval = 100,
+                    intTickNumber = 5,
+                    strDmgType = "True",
+                    fDmgPerTick = (float)0.2 * (70 + 20 * annieInfo.GetLevel("Level")),
+                    strDescription = "Ignite: deal 70 + 20 * level true damage in 5 seconds",
+                    strName = "Ignite"
+                };
+                break;
             default:
                 Debug.LogError("SkillCastNotRecognized");
                 break;
@@ -274,10 +404,15 @@ public class Annie : Hero
         }
 
         float f;
-        if (Attributes.TryGetValue("APPenetration", out f)) spellcast.amplifier.fMRpenetration = f;
-        if (Attributes.TryGetValue("APPPenetration", out f)) spellcast.amplifier.fMRpercentagePenetration = f;
+        if (Attributes.TryGetValue("APPenetration", out f)) spellcast.amplifier = new Amplifier() { fMRpenetration = f };
+        if (Attributes.TryGetValue("APPPenetration", out f)) spellcast.amplifier = new Amplifier() { fMRpercentagePenetration = f };
 
         return spellcast;
+    }
+
+    public void ReceiveSpell(SpellCast spellCast)
+    {
+
     }
 
     private void GenerateSpellPanel()
@@ -287,7 +422,8 @@ public class Annie : Hero
             "Q",
             "W",
             "E",
-            "R"
+            "R",
+            "Ignite"
         };
         spellPanel.Initialize(spellList);
     }

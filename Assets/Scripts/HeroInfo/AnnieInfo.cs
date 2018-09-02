@@ -5,8 +5,18 @@ using UnityEngine.UI;
 
 public class AnnieInfo : HeroInfo
 {
-    public string HeroName = "Annie";
-    public Toggle testThunder;
+    public override string heroName
+    {
+        get
+        {
+            return "Annie";
+        }
+
+        set
+        {
+            
+        }
+    }
 }
 
 
