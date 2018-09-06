@@ -159,11 +159,11 @@ public static class GameStatsUtility
 
         float rhp = 0f;
         float rhpBase;
-        float rhpIncreament;
+        float rhpIncrement;
         if(d0.TryGetValue("ScalingHealthBase", out rhpBase))
         {
-            rhpIncreament = d0["ScalingHealthIncrement"];
-            rhp = rhpBase + rhpIncreament * d0["level"];
+            rhpIncrement = d0["ScalingHealthIncrement"];
+            rhp = rhpBase + rhpIncrement * d0["level"];
         }
         else
         {
@@ -171,7 +171,34 @@ public static class GameStatsUtility
         }
         Debug.Log("HP: " + (bhp + ihp + rhp).ToString());
         //---Health-------------------------------------------------------
+        //---HealthRegen---------------------------------------------------
+        float ihr = 0f;
+        if (d0.TryGetValue("healthRegen", out ihr))
+        {
+            Debug.Log("Item healthRegen: " + ihr);
+        }
+        else
+        {
+            Debug.Log("No healthRegen From items");
+        }
+        float bhr = 0f;
+        float bhrBase;
+        float bhrIncrement;
+        if (d0.TryGetValue("fBaseHPRegen", out bhrBase))
+        {
+            if (d0.TryGetValue("fHPRegenGrowth", out bhrIncrement))
+            {
+                bhr = GameStatsUtility.CalculateStats(bhrBase, bhrIncrement, (int)d0["level"]);
+                Debug.Log("Base health regen: " + bhr.ToString());
+            }
+        }
+        else
+        {
+            Debug.Log("No HPRegen From BaseAttributes");
+        }
 
+        float rhr = 0f;
+        //---HealthRegen---------------------------------------------------
         //---mana--------------------------------------------------------
         float imn = 0f;
         if (d0.TryGetValue("mana", out imn))
@@ -238,6 +265,7 @@ public static class GameStatsUtility
         d1.Add("APPenetration", apPene);
         d1.Add("APPPenetration", apPercentPene);
         d1.Add("CurrentHealth", bhp + ihp);
+        d1.Add("HealthRegen", ihr + bhr + rhr);
         return d1;
     }
 

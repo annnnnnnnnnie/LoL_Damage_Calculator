@@ -18,6 +18,11 @@ public class EnemyInfo : HeroInfo
 
         }
     }
+    public override void HandleOnClick()
+    {
+        runePage.gameObject.SetActive(true);
+        runePage.Initialize(this);
+    }
 }
 
 

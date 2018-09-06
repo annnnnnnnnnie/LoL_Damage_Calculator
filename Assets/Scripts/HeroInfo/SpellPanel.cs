@@ -43,6 +43,21 @@ public class SpellPanel : MonoBehaviour {
         spellList.RemoveAt(spellList.Count - 1);
     }
 
+    private void BackSpace(string spell)
+    {
+        GameObject displayedTextToBeRemoved = null;
+        foreach(GameObject go in DisplayedText)
+        {
+            if (go.GetComponent<Text>().text.Equals(spell))
+            {
+                displayedTextToBeRemoved = go;
+            }
+        }
+        DisplayedText.Remove(displayedTextToBeRemoved);
+        GameObjectUtility.CustomDestroy(displayedTextToBeRemoved);
+        spellList.Remove(spell);
+    }
+
     private void ClearAll()
     {
         Debug.Log("ClearAll");
@@ -65,17 +80,33 @@ public class SpellPanel : MonoBehaviour {
 
     public void NewSpell(string spell)
     {
-        GameObject splBtnGo = GameObjectUtility.CustomInstantiate(spellButton.gameObject, transform);
-        SpellButton splBtn = splBtnGo.GetComponent<SpellButton>();
-        splBtn.Initialize(spell, this);
-        newSpellBtns.Add(spell, splBtnGo);
+        GameObject spellToBeAdded;
+        if (newSpellBtns.TryGetValue(spell, out spellToBeAdded))
+        {
+            Debug.Log("Spell already exists");
+        }
+        else
+        {
+            GameObject splBtnGo = GameObjectUtility.CustomInstantiate(spellButton.gameObject, transform);
+            SpellButton splBtn = splBtnGo.GetComponent<SpellButton>();
+            splBtn.Initialize(spell, this);
+            newSpellBtns.Add(spell, splBtnGo);
+        }
     }
 
     public void RemoveSpell(string spell)
     {
-        GameObject spellToBeRemoved = newSpellBtns[spell];
-        newSpellBtns.Remove(spell);
-        GameObjectUtility.CustomDestroy(spellToBeRemoved);
+        GameObject spellToBeRemoved;
+        if (newSpellBtns.TryGetValue(spell, out spellToBeRemoved))
+        {
+            newSpellBtns.Remove(spell);
+            GameObjectUtility.CustomDestroy(spellToBeRemoved);
+            BackSpace(spell);
+        }
+        else
+        {
+            Debug.Log("No spell removed");
+        }
     }
 
     public List<string> SubmitSpells()

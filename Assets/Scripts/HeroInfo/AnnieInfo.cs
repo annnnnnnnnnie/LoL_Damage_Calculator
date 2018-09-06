@@ -17,6 +17,12 @@ public class AnnieInfo : HeroInfo
             
         }
     }
+
+    public override void HandleOnClick()
+    {
+        runePage.gameObject.SetActive(true);
+        runePage.Initialize(this);
+    }
 }
 
 

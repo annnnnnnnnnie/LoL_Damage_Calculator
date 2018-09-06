@@ -20,4 +20,14 @@ public class Inventory : MonoBehaviour {
             itemSlots.Add(itemSlot);
         }
     }
+
+    public List<Item> GetItems()
+    {
+        List<Item> items = new List<Item>();
+        for(int i = 0; i < 6; i++)
+        {
+            items.Add(itemSlots[i].item);
+        }
+        return items;
+    }
 }

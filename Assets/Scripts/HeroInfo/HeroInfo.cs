@@ -15,17 +15,16 @@ public abstract class HeroInfo : MonoBehaviour {
      * prefab for selection of items;
      */
 
+    public Inventory inventory;
+
     public bool isShowingHeroLevelOnly;
     public GameObject levelComponent;
-    public Toggle isRanged;
+    
     public List<int> initialLevels = new List<int> { 1, 0, 0, 0, 0 };
+    public GameObject openRunePageBtnPrefab;
 
     public RunePage runePage;
     private RuneInfo runeInfo = null;
-
-
-    private Dictionary<string, float> Attributes = new Dictionary<string, float>();
-
 
     private LevelComponent[] levelComponentsScript = new LevelComponent[5];
     private List<string> levelNames = new List<string> { "Level", "Q", "W", "E", "R" };
@@ -33,6 +32,7 @@ public abstract class HeroInfo : MonoBehaviour {
     private readonly List<int> mostLevels = new List<int> { 18, 5, 5, 5, 5 };
 
     public abstract string heroName { get; set; }
+    public abstract void HandleOnClick();
 
     public RuneInfo LoadRuneInfo(string heroName)
     {
@@ -97,7 +97,12 @@ public abstract class HeroInfo : MonoBehaviour {
     public void Start()
     {
         GenerateSpellButtons(isShowingHeroLevelOnly);
-        runeInfo = LoadRuneInfo(heroName);
+        SetRuneInfo(LoadRuneInfo(heroName));
+        Button btn = GameObjectUtility.CustomInstantiate(openRunePageBtnPrefab, transform).GetComponent<Button>();
+        btn.onClick.RemoveAllListeners();
+        btn.onClick.AddListener(() => { HandleOnClick(); });
+
+        inventory = GameObject.Find(heroName + "Inventory").GetComponent<Inventory>();
     }
 
     public void Update()
@@ -138,11 +143,6 @@ public abstract class HeroInfo : MonoBehaviour {
         return levelComponentsScript[levelNames.IndexOf(levelName)].GetLevel();
     }
 
-    public bool GetEnemyType()
-    {
-        return isRanged.isOn;
-    }
-    
     public Dictionary<string,float> GetBaseAttributes(string heroName)
     {
         Dictionary<string, float> baseAttributes = new Dictionary<string, float>();

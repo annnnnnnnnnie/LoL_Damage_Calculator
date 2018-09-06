@@ -8,6 +8,8 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 {
     public ItemList itemList;
     public SpellPanel spellPanel;
+
+    public int totalTime = 6;
     private float fTime;
     private ItemSlot currentItemSlot;
     private Annie annie;
@@ -44,14 +46,31 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     {
         Debug.Log("Equipping item: item in itemSlot " + currentItemSlot.itemSlotNumber);
         currentItemSlot.EquipItem(item.MakeCopy());//Beta: deep copying
+
+        List<string> possibleActives = new List<string>() {
+            "CorruptingPotion", "SkirmishersSabre", "GargoyleStonePlate",
+            "HextechGLP_800", "HextechGunblade","HextechProtobelt_01","ShurelyasReverie","Spellbinder" };
+        foreach (string active in possibleActives)
+        {
+            if (item.strName == active)
+            {
+                annie.LearnNewSpell(active);
+            }
+        }
+
         itemList.CloseItemList();
     }
 
     public void UnequipItem()
     {
-        Debug.Log("Unequipping item: ");
-        currentItemSlot.UnequipItem();
+        Debug.Log("Unequipping item");
+        Item unequippedItem = currentItemSlot.UnequipItem();
+        if (unequippedItem != null)
+        {
+            annie.UnlearnSpell(unequippedItem.strName);
+        }
         itemList.CloseItemList();
+
     }
 
     public void Calculate()//Intake a List of Skillcast 
@@ -61,6 +80,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         enemy.PrepareToReceiveSpells();
         strSpellList = spellPanel.SubmitSpells();
         Debug.Log("----------------Calculating... ----------------");
+
         Dictionary<float, string> spellCastSequence = new Dictionary<float, string>();
         for (int i = 0; i < 100; i++)
         {
@@ -73,36 +93,13 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 
         Calculate(spellCastSequence);
         return;
-
-        if (strSpellList.Count > 0)
-        {
-            double totaldmg = 0;
-            foreach (string spell in strSpellList)
-            {
-                Debug.Log("Next Spell: " + spell);
-                SpellCast spellcast = annie.CastSpell(spell);
-                totaldmg += enemy.ReceiveSpell(spellcast);
-                if (spellcast.strAdditionalInfo.Equals("Electrocute"))
-                {
-                    spellcast = annie.CastSpell("Electrocute");
-                    totaldmg += enemy.ReceiveSpell(spellcast);
-                }
-
-            }
-            Debug.Log("Total damage dealt: " + totaldmg.ToString());
-        }
-        else
-        {
-            Debug.Log("No Spell Selected!");
-        }
-        
     }
 
     public void Calculate(Dictionary<float, string> spellCastsSequence)
     {
         Debug.Log("Calculating...Really... ");
         fTime = 0f;
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < totalTime*10; i++)
         {
             if (spellCastsSequence.ContainsKey(fTime))
             {
@@ -126,7 +123,7 @@ public class SpellCast
     public Amplifier amplifier;
     public string strAdditionalInfo = "";
     public float fCooldown = 0f;
-    public Debuff debuff;
+    public List<Buff> listBuffs = new List<Buff>();
     public string strDmgType;
 }
 public class Buff

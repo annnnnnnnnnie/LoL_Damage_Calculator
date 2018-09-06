@@ -9,17 +9,18 @@ public class ItemScript : MonoBehaviour, IRecycle
 {
     public Item item;
     public ItemSlot itemSlot { get; set; }
-    public void Initialize()
+    private Processor processor;
+    public void Initialize(Processor processor)
     {
         item = new Item();
         Button btn = GetComponent<Button>();
         btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(() => { EquipItem(item); });
+        this.processor = processor;
     }
 
     private void EquipItem(Item item)
     {
-        Processor processor = GetComponentInParent<Processor>();
         processor.EquipItem(item);
     }
     public void Shutdown()
@@ -40,21 +41,35 @@ public class Item
     [HideInInspector]
     public Dictionary<string,float> Attributes = new Dictionary<string,float>();
 
-    [HideInInspector]
-    public List<string> Actives;
+    //[HideInInspector]
+    //public List<string> Actives;
 
-    [HideInInspector]
-    public List<string> Extras;
+    //[HideInInspector]
+    //public List<string> Extras;
 
     [HideInInspector]
     public int intItemNumber;
 
-    public Item MakeCopy()
+    public override bool Equals(object obj)
     {
-        return (new Item { strName = this.strName, Attributes = this.Attributes,
-            Actives = this.Actives, Extras = this.Extras, intItemNumber = this.intItemNumber });
+        var item = obj as Item;
+        return item != null &&
+               strName == item.strName;
     }
 
+    public override int GetHashCode()
+    {
+        return 1581483051 + EqualityComparer<string>.Default.GetHashCode(strName);
+    }
+
+    public Item MakeCopy()
+    {
+        return (new Item { strName = strName, Attributes = Attributes,
+            //Actives = this.Actives, Extras = this.Extras, 
+            intItemNumber = intItemNumber
+        });
+    }
+     
 }
 
 

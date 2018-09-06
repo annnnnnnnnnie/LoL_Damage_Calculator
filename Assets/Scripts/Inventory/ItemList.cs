@@ -9,7 +9,7 @@ public class ItemList : MonoBehaviour
     public GameObject itemListPanel;
     public Button btnClose;
     public Button itemButton;
-
+    public Processor processor;
     public List<Button> ExistingButtons;
 
     private List<ItemListData> itemData;
@@ -61,7 +61,7 @@ public class ItemList : MonoBehaviour
             //Attach appropriate onClick events to the button
             ItemScript itemScript = buttonGameObject.GetComponent<ItemScript>();
 
-            itemScript.Initialize();
+            itemScript.Initialize(processor);
             foreach (ItemAttribute itemAttri in thisItemData.itemAttributes)
             {
                 itemScript.item.Attributes.Add(itemAttri.key, itemAttri.value);

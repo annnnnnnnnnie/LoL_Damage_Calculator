@@ -6,15 +6,15 @@ using UnityEngine.UI;
 public class SpellButton : MonoBehaviour {
 
     private Text text;
-    private string strSkill;
+    private string strSpell;
     private Button btn;
     private SpellPanel spellPanel;
 
-    public void Initialize(string skill, SpellPanel spellPanel)
+    public void Initialize(string spell, SpellPanel spellPanel)
     {
         text = GetComponentInChildren<Text>();
-        text.text = skill;
-        strSkill = skill;
+        text.text = spell;
+        strSpell = spell;
         btn = GetComponent<Button>();
         btn.onClick.AddListener(()=> { Click(); });
         this.spellPanel = spellPanel;
@@ -23,6 +23,6 @@ public class SpellButton : MonoBehaviour {
     private void Click()
     {
         Debug.Log(text.text + " is clicked");
-        spellPanel.AddSpell(strSkill);
+        spellPanel.AddSpell(strSpell);
     }
 }

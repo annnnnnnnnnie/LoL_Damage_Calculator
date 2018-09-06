@@ -32,6 +32,7 @@ public class ItemSlot : MonoBehaviour
 
         descriptionText = itemButton.GetComponentInChildren<Text>();
         descriptionText.text = "itemSlot " + itemSlotNumber;
+        originalSprite = GetComponentInChildren<Image>().sprite;
     }
 
 
@@ -44,6 +45,7 @@ public class ItemSlot : MonoBehaviour
 
     public void EquipItem(Item item)
     {
+        UnequipItem();
         this.item = item.MakeCopy();//deep copying
         Debug.Log("Item equipped: " + this.item.strName);
 
@@ -53,24 +55,28 @@ public class ItemSlot : MonoBehaviour
         }
 
         descriptionText.text = this.item.strName;
-        originalSprite = GetComponentInChildren<Image>().sprite;
+        
         GetComponentInChildren<Image>().sprite = Resources.Load<Sprite>("ItemIcons/" + this.item.strName);
     }
 
-    public void UnequipItem()
+    public Item UnequipItem()
     {
+        Item unequippedItem;
         if (item != null && item.strName != null)
         {
             Debug.Log("Item unequipped: " + item.strName);
+            unequippedItem = item.MakeCopy();
             item = new Item();
         }
         else
         {
+            unequippedItem = null;
             Debug.Log("Already an empty itemSlot");
         }
 
         descriptionText.text = "itemSlot " + itemSlotNumber;
         GetComponentInChildren<Image>().sprite = originalSprite;
+        return unequippedItem;
     }
 
     public Item GetItem()
