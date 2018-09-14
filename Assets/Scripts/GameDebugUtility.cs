@@ -11,7 +11,7 @@ public static class GameDebugUtility
         {
             debugMsg.Append(kvPair.Key + ": " + kvPair.Value + "\n");
         }
-        Debug.Log("Showing Dictionary: " + msg + debugMsg.ToString());
+        Debug.Log("Showing Dictionary: " + msg + "\n"+ debugMsg.ToString());
     }
 }
 

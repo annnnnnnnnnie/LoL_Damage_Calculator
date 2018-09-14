@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Text;
 
 
 public abstract class HeroInfo : MonoBehaviour {
@@ -14,25 +15,25 @@ public abstract class HeroInfo : MonoBehaviour {
      * prefab for selection of runes;
      * prefab for selection of items;
      */
+    public abstract string heroName { get; set; }
 
     public Inventory inventory;
+    public SpellPanel spellPanel;
+    public RunePage runePage;
+    public GameObject openRunePageBtnPrefab;
+    public GameObject levelComponent;
 
     public bool isShowingHeroLevelOnly;
-    public GameObject levelComponent;
     
     public List<int> initialLevels = new List<int> { 1, 0, 0, 0, 0 };
-    public GameObject openRunePageBtnPrefab;
 
-    public RunePage runePage;
     private RuneInfo runeInfo = null;
-
     private LevelComponent[] levelComponentsScript = new LevelComponent[5];
     private List<string> levelNames = new List<string> { "Level", "Q", "W", "E", "R" };
     private readonly List<int> leastLevels = new List<int> { 1, 0, 0, 0, 0 };
-    private readonly List<int> mostLevels = new List<int> { 18, 5, 5, 5, 5 };
+    private readonly List<int> mostLevels = new List<int> { 18, 5, 5, 5, 3 };
 
-    public abstract string heroName { get; set; }
-    public abstract void HandleOnClick();
+    public abstract void OpenRunePage();
 
     public RuneInfo LoadRuneInfo(string heroName)
     {
@@ -96,19 +97,19 @@ public abstract class HeroInfo : MonoBehaviour {
 
     public void Start()
     {
-        GenerateSpellButtons(isShowingHeroLevelOnly);
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        GenerateSpellButtons(isShowingHeroLevelOnly);//Generate buttons on the attached panel
         SetRuneInfo(LoadRuneInfo(heroName));
         Button btn = GameObjectUtility.CustomInstantiate(openRunePageBtnPrefab, transform).GetComponent<Button>();
         btn.onClick.RemoveAllListeners();
-        btn.onClick.AddListener(() => { HandleOnClick(); });
+        btn.onClick.AddListener(() => { OpenRunePage(); });
 
         inventory = GameObject.Find(heroName + "Inventory").GetComponent<Inventory>();
-    }
-
-    public void Update()
-    {
-        if (Input.GetMouseButtonDown(1))
-            DisplayRuneInfo();//for debug use
+        spellPanel = GameObject.Find(heroName+"SpellPanel").GetComponent<SpellPanel>();
     }
 
     public void GenerateSpellButtons(bool isShowingHeroLevelOnly)
@@ -142,8 +143,13 @@ public abstract class HeroInfo : MonoBehaviour {
     {
         return levelComponentsScript[levelNames.IndexOf(levelName)].GetLevel();
     }
+    public Dictionary<string, float> CalculateAttributes()
+    {
+        Dictionary<string, float> tempDic = GameStatsUtility.CombineAttributes(CalculateBaseAttributes(heroName), CalculateItemAttributes());
 
-    public Dictionary<string,float> GetBaseAttributes(string heroName)
+        return GameStatsUtility.CalculateEffectiveAttributes(tempDic);
+    }
+    public Dictionary<string,float> CalculateBaseAttributes(string heroName)
     {
         Dictionary<string, float> baseAttributes = new Dictionary<string, float>();
         foreach (KeyValuePair<string, float> kvPair in CalculateHeroStat(heroName))
@@ -163,6 +169,38 @@ public abstract class HeroInfo : MonoBehaviour {
         }
         GameDebugUtility.Debug_ShowDictionary("Base attributes \n", baseAttributes);
         return baseAttributes;
+    }
+
+    private Dictionary<string, float> CalculateItemAttributes()
+    {
+        List<Item> items = inventory.GetItems();
+        Dictionary<string, float> Attributes = new Dictionary<string, float>();
+        StringBuilder debugMsg = new StringBuilder();
+        foreach (Item item in items)
+        {
+            if (item != null && item.strName != null)
+            {
+                debugMsg.Append("Calculating item attribute: " + item.strName + "\n");
+                foreach (KeyValuePair<string, float> attribute in item.Attributes)
+                {
+                    if (Attributes.ContainsKey(attribute.Key))
+                    {
+                        Attributes[attribute.Key] += attribute.Value;
+                    }
+                    else
+                    {
+                        Attributes.Add(attribute.Key, attribute.Value);
+                    }
+                    debugMsg.Append("Current " + attribute.Key + " is " + Attributes[attribute.Key] + "\n");
+                }
+            }
+            else
+            {
+                debugMsg.Append("Current itemSlot is empty\n");
+            }
+        }
+        Debug.Log(debugMsg.ToString());
+        return Attributes;
     }
 
     public List<string> GetSelectedRunes()
@@ -226,6 +264,12 @@ public abstract class HeroInfo : MonoBehaviour {
             }
         }
         throw new System.Exception("Did not find heroStats for " + heroName);
+    }
+
+    public void Update()
+    {
+        if (Input.GetMouseButtonDown(1))
+            DisplayRuneInfo();//for debug use
     }
 }
 

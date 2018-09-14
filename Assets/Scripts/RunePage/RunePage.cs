@@ -163,7 +163,7 @@ public class RunePage : MonoBehaviour {
         string jsonStr_2 = JsonUtility.ToJson(RunePathInfo.RunePathInfo_to_RunePathData(rp_2, true), true);
         System.IO.File.WriteAllText("Assets/Resources/SavedRunePages/"+userName+"/" + "SecondaryPath" + runePageSeletor.value + ".json", jsonStr_2);
 
-        Debug.Log(System.IO.File.Exists("Assets/Resources/" + "SavedRunePages/Annie/PrimaryPath.json"));
+        Debug.Log("Saved RunePage exists: "+System.IO.File.Exists("Assets/Resources/" + "SavedRunePages/Annie/PrimaryPath.json"));
         Debug.Log("RunePage Saved");
     }
 

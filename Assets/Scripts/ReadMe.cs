@@ -21,5 +21,12 @@ public class ReadMe : MonoBehaviour {
  * 
  * When "save"-ing, RunePage collects and submits RuneInfo, which is used by HeroInfo to calculate the base stats
  * 
+ * ---Hierarchy---
+ * Hero
+ *   HeroInfo
+ *     RunePage
+ *     Inventory
+ *     Attributes
+ *     SpellPanel
  * */
 }

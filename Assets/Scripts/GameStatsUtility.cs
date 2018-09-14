@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class GameStatsUtility
@@ -65,7 +66,7 @@ public static class GameStatsUtility
             if (d0.TryGetValue("fADGrowth", out ADGrowth))
             {
                 bad = GameStatsUtility.CalculateStats(baseAD, ADGrowth, (int)d0["level"]);
-                Debug.Log("AD: " + (bad + iad).ToString());
+                Debug.Log("Base AD: " + (bad + iad).ToString());
             }
         }
         else
@@ -122,13 +123,14 @@ public static class GameStatsUtility
             if (d0.TryGetValue("fMRGrowth", out MRGrowth))
             {
                 bmr = GameStatsUtility.CalculateStats(baseMR, MRGrowth, (int)d0["level"]);
+                Debug.Log("Base MR: " + bmr);
             }
         }
         else
         {
             Debug.Log("No MR From BaseAttributes");
         }
-        Debug.Log("MR: " + (bmr + imr).ToString());
+        Debug.Log("Total MR: " + (bmr + imr).ToString());
         //---MR-------------------------------------------------------
 
         //---Health-------------------------------------------------------
@@ -150,6 +152,7 @@ public static class GameStatsUtility
             if (d0.TryGetValue("fHPGrowth", out HPGrowth))
             {
                 bhp = GameStatsUtility.CalculateStats(baseHP, HPGrowth, (int)d0["level"]);
+                Debug.Log("Base HP: " + bhp);
             }
         }
         else
@@ -164,12 +167,13 @@ public static class GameStatsUtility
         {
             rhpIncrement = d0["ScalingHealthIncrement"];
             rhp = rhpBase + rhpIncrement * d0["level"];
+            Debug.Log("Rune HP: " + rhp);
         }
         else
         {
             Debug.Log("No health from rune");
         }
-        Debug.Log("HP: " + (bhp + ihp + rhp).ToString());
+        Debug.Log("Total HP: " + (bhp + ihp + rhp).ToString());
         //---Health-------------------------------------------------------
         //---HealthRegen---------------------------------------------------
         float ihr = 0f;
@@ -217,6 +221,7 @@ public static class GameStatsUtility
             if (d0.TryGetValue("fManaGrowth", out ManaGrowth))
             {
                 bmn = GameStatsUtility.CalculateStats(baseMana, ManaGrowth, (int)d0["level"]);
+                Debug.Log("Base Mana: " + bmn);
             }
         }
         else
@@ -237,7 +242,7 @@ public static class GameStatsUtility
 
 
 
-
+        //AP penetration from item
         float apPene = 0f;
         if (d0.ContainsKey("Unique_Passive_TouchOfDeath"))
         {
@@ -253,7 +258,7 @@ public static class GameStatsUtility
         float apPercentPene = 0f;
         if (d0.ContainsKey("Unique_Passive_VoidStaff"))
         {
-            Debug.Log("Unique_Passive_VoidStaff");
+            Debug.Log("Unique_Passive_VoidStaff detected");
             apPercentPene = 0.4f;
         }
 
@@ -266,9 +271,21 @@ public static class GameStatsUtility
         d1.Add("APPPenetration", apPercentPene);
         d1.Add("CurrentHealth", bhp + ihp);
         d1.Add("HealthRegen", ihr + bhr + rhr);
+        GameDebugUtility.Debug_ShowDictionary("d0", d0);
+        GameDebugUtility.Debug_ShowDictionary("d1", d1);
         return d1;
     }
 
 
+}
+
+public class Counter
+{
+    public int intElectrocuteCount;
+
+    public void Reset()
+    {
+        intElectrocuteCount = 0;
+    }
 }
 

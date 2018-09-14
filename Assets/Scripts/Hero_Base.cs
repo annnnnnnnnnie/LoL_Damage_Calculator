@@ -106,7 +106,7 @@ public class Enemy : Hero_Base
 
     public override Dictionary<string, float> CalculateBaseAttributes()
     { 
-        return enemyInfo.GetBaseAttributes("Enemy");
+        return enemyInfo.CalculateBaseAttributes("Enemy");
     }
 
     public void PrepareToReceiveSpells()
@@ -131,8 +131,8 @@ public class Enemy : Hero_Base
             Debug.LogError("Enemy is dead");
         if (dmg > 0)
             Debug.Log("Damage is " + dmg.ToString());
-        if (intTime % 100 == 0)
-            Debug.Log("CurrentHealth: " + fCurrentHealth.ToString() + "\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth));
+        if (intTime % 100 == 10)
+            Debug.Log("Current Time: " + intTime + "\nCurrentHealth: " + fCurrentHealth.ToString() + "\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth));
 
         intTime += updateInterval;
     }
@@ -274,14 +274,14 @@ public class Annie : Hero_Base
     private Inventory inventory;
     private AnnieInfo annieInfo;
 
-    private int intElectrocuteCount;
+    private Counter counter;
 
 
     public void Initialize()
     {
         spellPanel = GameObject.Find("SpellPanel").GetComponent<SpellPanel>();
         annieInfo = GameObject.Find("AnnieInfo").GetComponent<AnnieInfo>();
-        GenerateSpellPanel();
+        InitializeSpellPanel();
     }
 
     public void Refresh()
@@ -312,18 +312,17 @@ public class Annie : Hero_Base
 
     public override Dictionary<string, float> CalculateBaseAttributes()
     {
-        return annieInfo.GetBaseAttributes("Annie");
+        return annieInfo.CalculateBaseAttributes("Annie");
     }
 
     public void PrepareToCastSpells()
     {
-        items = GetItems();
         rune = GetRune();
         Attributes = CalculateAttributes();
         buffs = new List<Buff>();
         intTime = 0;
 
-        intElectrocuteCount = 0;
+        counter.intElectrocuteCount = 0;
 
     }
 
@@ -420,11 +419,11 @@ public class Annie : Hero_Base
 
         if (rune.strStones.Contains("Electrocute"))
         {
-            intElectrocuteCount += 1;
-            if(intElectrocuteCount == 3)
+            counter.intElectrocuteCount += 1;
+            if(counter.intElectrocuteCount == 3)
             {
-                intElectrocuteCount = 0;
-                spellcast.strAdditionalInfo = "Electrocute";
+                counter.intElectrocuteCount = 0;
+                spellcast.strAdditionalInfo.Add("Electrocute");
             }
         }
 
@@ -450,7 +449,7 @@ public class Annie : Hero_Base
         spellPanel.RemoveSpell(spell);
     }
 
-    private void GenerateSpellPanel()
+    private void InitializeSpellPanel()
     {
         List<string> spellList = new List<string>
         {

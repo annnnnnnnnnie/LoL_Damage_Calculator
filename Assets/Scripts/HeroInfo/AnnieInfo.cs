@@ -18,7 +18,7 @@ public class AnnieInfo : HeroInfo
         }
     }
 
-    public override void HandleOnClick()
+    public override void OpenRunePage()
     {
         runePage.gameObject.SetActive(true);
         runePage.Initialize(this);

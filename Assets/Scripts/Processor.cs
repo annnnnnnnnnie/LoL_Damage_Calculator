@@ -12,18 +12,18 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     public int totalTime = 6;
     private float fTime;
     private ItemSlot currentItemSlot;
-    private Annie annie;
-    private Enemy enemy;
+    private TestHero annie;
+    private TestHero enemy;
     private List<string> strSpellList;
 
     private List<DoT> dotDamages;
 
     public void Start()
     {
-        annie = new Annie();
-        annie.Initialize();
-        enemy = new Enemy();
-        enemy.Initialize();
+        annie = new TestHero();
+        annie.Initialize("Annie");
+        enemy = new TestHero();
+        enemy.Initialize("Enemy");
         
     }
 
@@ -97,13 +97,26 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 
     public void Calculate(Dictionary<float, string> spellCastsSequence)
     {
-        Debug.Log("Calculating...Really... ");
+        Debug.Log("Calculating using advanced technologies... ");
         fTime = 0f;
         for (int i = 0; i < totalTime*10; i++)
         {
             if (spellCastsSequence.ContainsKey(fTime))
             {
-                enemy.Update(annie.CastSpell(spellCastsSequence[fTime]));
+                SpellCast spellCast = annie.CastSpell(spellCastsSequence[fTime]);
+                enemy.Update(spellCast);
+                foreach (string addInfo in spellCast.strAdditionalInfo)
+                {
+                    if (addInfo.Equals("Electrocute"))
+                    {
+                        spellCast = annie.CastSpell("Electrocute");
+                        enemy.Update(spellCast);
+                    }
+
+                    
+
+                }
+
             }
             else
             {
@@ -121,7 +134,7 @@ public class SpellCast
 {
     public double dDamage;
     public Amplifier amplifier;
-    public string strAdditionalInfo = "";
+    public List<string> strAdditionalInfo = new List<string>(){""};
     public float fCooldown = 0f;
     public List<Buff> listBuffs = new List<Buff>();
     public string strDmgType;
@@ -147,6 +160,7 @@ public class Buff
 }
 public class Debuff : Buff
 {
+    public static Debuff ElectrocuteCD = new Debuff { strName = "ElectrocuteCD" };
 }
 public class DoT : Debuff
 {
