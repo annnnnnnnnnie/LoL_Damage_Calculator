@@ -9,20 +9,20 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     public ItemList itemList;
     public SpellPanel spellPanel;
 
-    public int totalTime = 6;
-    private float fTime;
+    public int totalTime = 10;
+    private int intTime;
     private ItemSlot currentItemSlot;
-    private TestHero annie;
-    private TestHero enemy;
+    private Annie_Test annie;
+    private Annie_Test enemy;
     private List<string> strSpellList;
 
     private List<DoT> dotDamages;
 
     public void Start()
     {
-        annie = new TestHero();
+        annie = new Annie_Test();
         annie.Initialize("Annie");
-        enemy = new TestHero();
+        enemy = new Annie_Test();
         enemy.Initialize("Enemy");
         
     }
@@ -50,6 +50,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         List<string> possibleActives = new List<string>() {
             "CorruptingPotion", "SkirmishersSabre", "GargoyleStonePlate",
             "HextechGLP_800", "HextechGunblade","HextechProtobelt_01","ShurelyasReverie","Spellbinder" };
+
         foreach (string active in possibleActives)
         {
             if (item.strName == active)
@@ -75,35 +76,35 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 
     public void Calculate()//Intake a List of Skillcast 
     {
-        fTime = 0f;
+        intTime = 0;
         annie.PrepareToCastSpells();
         enemy.PrepareToReceiveSpells();
         strSpellList = spellPanel.SubmitSpells();
         Debug.Log("----------------Calculating... ----------------");
 
-        Dictionary<float, string> spellCastSequence = new Dictionary<float, string>();
+        Dictionary<int, string> spellCastSequence = new Dictionary<int, string>();
         for (int i = 0; i < 100; i++)
         {
             if (i < strSpellList.Count)
             {
-                spellCastSequence.Add((fTime + (float)0.1 * i), strSpellList[i]);
+                spellCastSequence.Add((intTime + i*0), strSpellList[i]);
             }
-            fTime += 0.1f;
+            intTime += 10;
         }
 
         Calculate(spellCastSequence);
         return;
     }
 
-    public void Calculate(Dictionary<float, string> spellCastsSequence)
+    public void Calculate(Dictionary<int, string> spellCastsSequence)
     {
         Debug.Log("Calculating using advanced technologies... ");
-        fTime = 0f;
-        for (int i = 0; i < totalTime*10; i++)
+        intTime = 0;
+        for (int i = 0; i < totalTime*100; i++)
         {
-            if (spellCastsSequence.ContainsKey(fTime))
+            if (spellCastsSequence.ContainsKey(intTime))
             {
-                SpellCast spellCast = annie.CastSpell(spellCastsSequence[fTime]);
+                SpellCast spellCast = annie.CastSpell(spellCastsSequence[intTime]);
                 enemy.Update(spellCast);
                 foreach (string addInfo in spellCast.strAdditionalInfo)
                 {
@@ -112,7 +113,11 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
                         spellCast = annie.CastSpell("Electrocute");
                         enemy.Update(spellCast);
                     }
-
+                    if (addInfo.Equals("ArcaneComet"))
+                    {
+                        spellCast = annie.CastSpell("ArcaneComet");
+                        enemy.Update(spellCast);
+                    }
                     
 
                 }
@@ -125,7 +130,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 
             annie.Update();
             
-            fTime += 0.1f;
+            intTime += 10;
         }
     }
 
@@ -138,6 +143,20 @@ public class SpellCast
     public float fCooldown = 0f;
     public List<Buff> listBuffs = new List<Buff>();
     public string strDmgType;
+
+    public string ToString()
+    {
+        StringBuilder str = new StringBuilder();
+        str.Append("spellcast info");
+        str.Append("\ndDamage = ");
+        str.Append(dDamage);
+        str.Append("\nstrDamageType = ");
+        str.Append(strDmgType);
+        str.Append("\nstrAdditionalInfo = ");
+        str.Append(strAdditionalInfo);
+        str.Append("End of spellcast Info");
+        return str.ToString();
+    }
 }
 public class Buff
 {
@@ -161,6 +180,8 @@ public class Buff
 public class Debuff : Buff
 {
     public static Debuff ElectrocuteCD = new Debuff { strName = "ElectrocuteCD" };
+    public static Debuff ArcaneCometCD = new Debuff { strName = "ArcaneCometCD" };
+    public static Debuff CoupDeGrace = new Debuff { strName = "CoupDeGrace" };
 }
 public class DoT : Debuff
 {

@@ -7,6 +7,8 @@ using UnityEditor;
 
 public class RunePage : MonoBehaviour {
     /// <summary>
+    /// Each heroInfo would instantiate a runePage permanently for himself.
+    /// 
     /// Upon Opening:
     /// Generate two columns
     /// Assign first coloumns with path name
@@ -41,9 +43,9 @@ public class RunePage : MonoBehaviour {
 
     public void Initialize(HeroInfo heroInfo)
     {
-        Debug.Log("RunePageInitialized");
-        userInfo = heroInfo;
+        Debug.Log("RunePageInitialized for " + heroInfo.heroName);
 
+        userInfo = heroInfo;
         RunePathData runePathData_1;
         runePathData_1 = LoadRunePathData(true);
         RunePathData runePathData_2;

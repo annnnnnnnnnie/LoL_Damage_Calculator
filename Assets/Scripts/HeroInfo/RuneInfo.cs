@@ -4,7 +4,8 @@ using UnityEngine;
 using System.Text;
 
 public class RuneInfo {
-
+    //Summarises all relevant information of a runepage
+    //Used by HeroInfo to store information about the hero's rune
     private Dictionary<string, float> attributes;
     private List<string> runeStones;
     private string runePathOne;

@@ -22,6 +22,7 @@ public abstract class HeroInfo : MonoBehaviour {
     public RunePage runePage;
     public GameObject openRunePageBtnPrefab;
     public GameObject levelComponent;
+    public GameObject runePagePrefab;
 
     public bool isShowingHeroLevelOnly;
     
@@ -109,7 +110,8 @@ public abstract class HeroInfo : MonoBehaviour {
         btn.onClick.AddListener(() => { OpenRunePage(); });
 
         inventory = GameObject.Find(heroName + "Inventory").GetComponent<Inventory>();
-        spellPanel = GameObject.Find(heroName+"SpellPanel").GetComponent<SpellPanel>();
+        if (heroName.Equals("Annie"))
+            spellPanel = GameObject.Find(heroName + "SpellPanel").GetComponent<SpellPanel>();
     }
 
     public void GenerateSpellButtons(bool isShowingHeroLevelOnly)

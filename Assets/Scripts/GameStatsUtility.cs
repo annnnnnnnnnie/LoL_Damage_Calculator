@@ -32,7 +32,7 @@ public static class GameStatsUtility
         Dictionary<string, float> d1 = new Dictionary<string, float>();
         //---AP------------------------------------------
         //Item AP
-        float iap=0f;
+        float iap = 0f;
         if (d0.TryGetValue("AP", out iap))
         {
             Debug.Log("Item AP: " + iap);
@@ -163,7 +163,7 @@ public static class GameStatsUtility
         float rhp = 0f;
         float rhpBase;
         float rhpIncrement;
-        if(d0.TryGetValue("ScalingHealthBase", out rhpBase))
+        if (d0.TryGetValue("ScalingHealthBase", out rhpBase))
         {
             rhpIncrement = d0["ScalingHealthIncrement"];
             rhp = rhpBase + rhpIncrement * d0["level"];
@@ -239,8 +239,11 @@ public static class GameStatsUtility
             Debug.Log("Unique_Passive_RabadonsDeathcap detected");
             totalAP = totalAP * 1.4f;
         }
-
-
+        if (d0.ContainsKey("Unique_Passive_Echo"))
+        {
+            Debug.Log("Unique_Passive_Echo detected");
+            d1.Add("Unique_Passive_Echo", 0);
+        }
 
         //AP penetration from item
         float apPene = 0f;

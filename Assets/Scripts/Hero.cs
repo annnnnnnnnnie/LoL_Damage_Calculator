@@ -31,8 +31,8 @@ public abstract class Hero {
         this.heroName = heroName;
         strName = heroName;
         heroInfo = GameObject.Find(strName + "Info").GetComponent<HeroInfo>();//Future development: HeroInfo would automatically register itself to use Inventory, RunePage, etc
-
-        InitializeSpellPanel();
+        if (heroName.Equals("Annie"))
+            InitializeSpellPanel();
     }
 
     public int GetHeroLevel()
@@ -109,7 +109,9 @@ public abstract class Hero {
             Debug.LogError("Enemy is dead");
         if (dmg > 0)
             Debug.Log("Damage is " + dmg.ToString());
-        if (intTime % 100 == 0)
+
+        bool isOn = false;
+        if (isOn && (intTime % 100 == 0))
             Debug.Log("Time: " + intTime + "0ms" + "CurrentHealth: " + fCurrentHealth.ToString() + "\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth) + "(" 
                 + heroName + ")");
 
@@ -202,6 +204,11 @@ public abstract class Hero {
 
     private void ReceiveDamage(double dmg)
     {
+        if (buffs.Contains(Debuff.CoupDeGrace) && (fCurrentHealth/Attributes["HP"] <=0.4))
+        {
+            Debug.Log("CoupDeGraceDmgAmp");
+            dmg *= 1.07;
+        }
         fCurrentHealth -= (float)dmg;
     }
 
@@ -217,6 +224,27 @@ public abstract class Hero {
         }
         fCurrentHealth += (float)healing;
         fCurrentHealth = Mathf.Clamp(fCurrentHealth, 0f, Attributes["HP"]);
+    }
+
+    protected void ReduceBuffTime(string buffName, int timeReduced)
+    {
+        foreach(Buff buff in buffs)
+        {
+            if (buff.strName.Equals(buffName))
+            {
+                buff.intDuration -= timeReduced;
+            }
+        }
+    }
+    protected void ReduceBuffTime(string buffName, float percentageTimeReduced)
+    {
+        foreach (Buff buff in buffs)
+        {
+            if (buff.strName.Equals(buffName))
+            {
+                buff.intDuration = Mathf.RoundToInt(buff.intDuration *(1-percentageTimeReduced));
+            }
+        }
     }
 
     public void LearnNewSpell(string spell)
@@ -237,19 +265,20 @@ public abstract class Hero {
             "W",
             "E",
             "R",
-            "Ignite"
+            "Ignite",
+            "A"
         };
         heroInfo.spellPanel.Initialize(spellList);
     }
 }
 
-public class TestHero : Hero
+public class Annie_Test : Hero
 {
     public SpellCast CastSpell(string spell)
     {
         int[] levels = new int[4] { heroInfo.GetLevel("Q"), heroInfo.GetLevel("W"), heroInfo.GetLevel("E"), heroInfo.GetLevel("R") };//0=Q 5=HeroLevel
 
-        GameDebugUtility.Debug_ShowDictionary("Cast Skill \n", Attributes);
+        GameDebugUtility.Debug_ShowDictionary("Cast Skill ", Attributes);
 
         SpellCast spellcast = new SpellCast();
         switch (spell)
@@ -266,6 +295,22 @@ public class TestHero : Hero
                     {
                         counter.intElectrocuteCount += 1;
                     }
+                    if (rune.strStones.Contains("ArcanComet"))
+                    {
+                        if (!buffs.Contains(Debuff.ArcaneCometCD))
+                        {
+                            spellcast.strAdditionalInfo.Add("ArcanComet");
+                        }
+                        else
+                        {
+                            ReduceBuffTime("ArcanComet", 0.2f);
+                        }
+                    }
+
+                }
+                else
+                {
+                    Debug.Log("Q has not been learnt");
                 }
                 break;
             case "W":
@@ -279,14 +324,66 @@ public class TestHero : Hero
                     {
                         counter.intElectrocuteCount += 1;
                     }
+                    if (rune.strStones.Contains("ArcanComet"))
+                    {
+                        if (!buffs.Contains(Debuff.ArcaneCometCD))
+                        {
+                            spellcast.strAdditionalInfo.Add("ArcanComet");
+                        }
+                        else
+                        {
+                            ReduceBuffTime("ArcanComet", 0.1f);
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.Log("W has not been learnt");
                 }
                 break;
             case "E":
                 if (!levels[2].Equals(0))
                 {
+                    ReceiveBuff(new Buff
+                    {
+                         intDuration = 300,
+                         strName = "Molten_Shield_Damage",
+                         strDescription = "MoltenShield_Damage"
+                    });
+                    ReceiveBuff(new Buff
+                    {
+                        intDuration = 300,
+                        strName = "Molten_Shield_Damage_Reduction",
+                        strDescription = "MoltenShield_Damage_Reduction"
+                    });
+                    Debug.Log("Casting Edmg of level " + levels[2]);
+                }
+                else
+                {
+                    Debug.Log("E has not been learnt");
+                }
+                break;
+            case "Edmg":
+                if (!levels[2].Equals(0))
+                {
                     spellcast.dDamage = 15 + 15 * levels[2] + 0.3 * Attributes["AP"];
                     spellcast.strDmgType = "AP";
-                    Debug.Log("Casting E of level " + levels[2] + ", Raw Damage is: " + spellcast.dDamage);
+                    Debug.Log("Casting Edmg of level " + levels[2] + ", Raw Damage is: " + spellcast.dDamage);
+                    if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
+                    {
+                        counter.intElectrocuteCount += 1;
+                    }
+                    if (rune.strStones.Contains("ArcanComet"))
+                    {
+                        if (!buffs.Contains(Debuff.ArcaneCometCD))
+                        {
+                            spellcast.strAdditionalInfo.Add("ArcanComet");
+                        }
+                        else
+                        {
+                            ReduceBuffTime("ArcanComet", 0.1f);
+                        }
+                    }
                 }
                 break;
             case "R":
@@ -299,6 +396,21 @@ public class TestHero : Hero
                     {
                         counter.intElectrocuteCount += 1;
                     }
+                    if (rune.strStones.Contains("ArcanComet"))
+                    {
+                        if (!buffs.Contains(Debuff.ArcaneCometCD))
+                        {
+                            spellcast.strAdditionalInfo.Add("ArcanComet");
+                        }
+                        else
+                        {
+                            ReduceBuffTime("ArcanComet", 0.1f);
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.Log("R has not been learnt");
                 }
                 break;
             case "A":
@@ -314,10 +426,15 @@ public class TestHero : Hero
             case "Electrocute":
                 spellcast.dDamage = 40 + 10 * heroInfo.GetLevel("Level") + 0.3 * Attributes["AP"];
                 spellcast.strDmgType = "AP";
-                Debug.Log("Casting Electrocute of level " + heroInfo.GetLevel("Level") + ", Raw Damage is: " + spellcast.dDamage);
+                Debug.Log("Casting Electrocute at level " + heroInfo.GetLevel("Level") + ", Raw Damage is: " + spellcast.dDamage);
+                break;
+            case "ArcanComet":
+                spellcast.dDamage = 15.88 + 4.12 * heroInfo.GetLevel("Level") + 0.2 * Attributes["AP"];
+                spellcast.strDmgType = "AP";
+                Debug.Log("Casting ArcanComet at level " + heroInfo.GetLevel("Level") + ", Raw Damage is: " + spellcast.dDamage);
                 break;
             case "Echo":
-                spellcast.dDamage = 100 + 0.15 * Attributes["AP"];
+                spellcast.dDamage = 100 + 0.10 * Attributes["AP"];
                 spellcast.strDmgType = "AP";
                 Debug.Log("Casting Echo, Raw Damage is: " + spellcast.dDamage);
                 break;
@@ -341,7 +458,7 @@ public class TestHero : Hero
                 });
                 break;
             default:
-                Debug.LogError("SkillCastNotRecognized");
+                Debug.LogError("SpellCastNotRecognized");
                 break;
         }
 

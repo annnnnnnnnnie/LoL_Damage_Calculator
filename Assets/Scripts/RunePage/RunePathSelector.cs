@@ -16,7 +16,7 @@ public class RunePathSelector : MonoBehaviour
     private List<GameObject> secPathSelections = new List<GameObject>();
 
 
-    public void Initialize(bool isPrimary, RunePage runePage, string priPathSelected = "")
+    public void Initialize(bool isPrimary, RunePage runePage, string priPathSelected = "(Only for secondary pathSelector)")
     {
         this.isPrimary = isPrimary;
         this.runePage = runePage;

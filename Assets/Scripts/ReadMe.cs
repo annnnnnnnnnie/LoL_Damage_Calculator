@@ -28,5 +28,9 @@ public class ReadMe : MonoBehaviour {
  *     Inventory
  *     Attributes
  *     SpellPanel
+ *     
+ *     
+ * ---Possible Changes to make---
+ * Reuse RunePage GameObject
  * */
 }
