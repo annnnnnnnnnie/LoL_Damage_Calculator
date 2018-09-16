@@ -245,6 +245,8 @@ public abstract class HeroInfo : MonoBehaviour {
         dicHeroStat.Add("fManaGrowth", heroStats.fManaGrowth);
         dicHeroStat.Add("fBaseMR", heroStats.fBaseMR);
         dicHeroStat.Add("fMRGrowth", heroStats.fMRGrowth);
+        dicHeroStat.Add("fBaseArmor", heroStats.fBaseArmor);
+        dicHeroStat.Add("fArmorGrowth", heroStats.fArmorGrowth);
         dicHeroStat.Add("fBaseMS", heroStats.fBaseMS);
         dicHeroStat.Add("fMSGrowth", heroStats.fMSGrowth);
         dicHeroStat.Add("fBaseAP", 0f);
@@ -299,6 +301,8 @@ public class HeroStats
     public float fManaGrowth;
     public float fBaseMR;
     public float fMRGrowth;
+    public float fBaseArmor;
+    public float fArmorGrowth;
     public float fBaseMS;
     public float fMSGrowth;
 

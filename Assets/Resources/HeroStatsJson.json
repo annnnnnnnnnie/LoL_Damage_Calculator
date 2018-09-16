@@ -14,6 +14,8 @@
 		"fManaGrowth":25,
 		"fBaseMR": 30,
 		"fMRGrowth": 0.5,
+		"fBaseArmor":19.22,
+		"fArmorGrowth":4,
 		"fBaseMS": 335,
 		"fMSGrowth": 0
 	},
@@ -31,6 +33,8 @@
 		"fManaGrowth":25,
 		"fBaseMR": 30,
 		"fMRGrowth": 0.5,
+		"fBaseArmor":21.88,
+		"fArmorGrowth":3.5,
 		"fBaseMS": 335,
 		"fMSGrowth": 0
 	}

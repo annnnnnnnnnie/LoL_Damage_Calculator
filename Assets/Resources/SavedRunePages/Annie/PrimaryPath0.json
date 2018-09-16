@@ -1,41 +1,43 @@
 {
-    "pathName": "Sorcery",
+    "pathName": "Domination",
     "keyStone": {
-        "strName": "keyStone_Sorcery",
+        "strName": "keyStone_Domination",
         "stoneChoices": [
-            "SummonAery",
-            "ArcaneComet",
-            "PhaseRush"
+            "Electrocute",
+            "Predator",
+            "DarkHarvest",
+            "HailOfBlades"
         ],
-        "stoneChoiced": "ArcaneComet"
+        "stoneChoiced": "Electrocute"
     },
     "runeStones": [
         {
-            "strName": "SorceryStone_1",
+            "strName": "DominationStone_1",
             "stoneChoices": [
-                "NullifyingOrb",
-                "ManaflowBand",
-                "NimbusCloak"
+                "CheapShot",
+                "TasteOfBlood",
+                "SuddenImpact"
             ],
-            "stoneChoiced": "NullifyingOrb"
+            "stoneChoiced": "SuddenImpact"
         },
         {
-            "strName": "SorceryStone_2",
+            "strName": "DominationStone_2",
             "stoneChoices": [
-                "Transcendence",
-                "Celerity",
-                "AbsoluteFocus"
+                "ZombieWard",
+                "GhostPoro",
+                "EyeballCollection"
             ],
-            "stoneChoiced": "Transcendence"
+            "stoneChoiced": "GhostPoro"
         },
         {
-            "strName": "SorceryStone_3",
+            "strName": "DominationStone_3",
             "stoneChoices": [
-                "Scorch",
-                "Waterwalking",
-                "GatheringStorm"
+                "RavenousHunter",
+                "IngeniousHunter",
+                "RelentlessHunter",
+                "UltimateHunter"
             ],
-            "stoneChoiced": "Waterwalking"
+            "stoneChoiced": "RavenousHunter"
         }
     ]
 }

@@ -132,7 +132,34 @@ public static class GameStatsUtility
         }
         Debug.Log("Total MR: " + (bmr + imr).ToString());
         //---MR-------------------------------------------------------
+        //---Armor-----------------------------------------------------
+        float iam = 0f;
+        if (d0.TryGetValue("Armor", out iam))
+        {
+            Debug.Log("Item Armor: " + iam);
+        }
+        else
+        {
+            Debug.Log("No Armor From items");
+        }
 
+        float bam = 0f;
+        float baseArmor;
+        float ArmorGrowth;
+        if (d0.TryGetValue("fBaseArmor", out baseArmor))
+        {
+            if (d0.TryGetValue("fArmorGrowth", out ArmorGrowth))
+            {
+                bam = GameStatsUtility.CalculateStats(baseArmor, ArmorGrowth, (int)d0["level"]);
+                Debug.Log("Base Armor: " + bam);
+            }
+        }
+        else
+        {
+            Debug.Log("No Armor From BaseAttributes");
+        }
+        float ram = 0f;
+        //---Armor-----------------------------------------------------
         //---Health-------------------------------------------------------
         float ihp = 0f;
         if (d0.TryGetValue("health", out ihp))
@@ -267,7 +294,10 @@ public static class GameStatsUtility
 
         d1.Add("AP", totalAP);
         d1.Add("AD", bad + iad + aad);
+        d1.Add("IAD", iad);
+        d1.Add("IAP", iap);
         d1.Add("MR", bmr + imr);
+        d1.Add("Armor", iam + bam + ram);
         d1.Add("HP", bhp + ihp + rhp);
         d1.Add("Mana", totalMana);
         d1.Add("APPenetration", apPene);

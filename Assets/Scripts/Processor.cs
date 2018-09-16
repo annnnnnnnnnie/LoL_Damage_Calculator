@@ -144,7 +144,7 @@ public class SpellCast
     public List<Buff> listBuffs = new List<Buff>();
     public string strDmgType;
 
-    public string ToString()
+    public new string ToString()
     {
         StringBuilder str = new StringBuilder();
         str.Append("spellcast info");

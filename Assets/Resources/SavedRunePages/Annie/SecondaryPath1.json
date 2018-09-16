@@ -1,39 +1,41 @@
 {
-    "pathName": "Resolve",
+    "pathName": "Domination",
     "keyStone": {
-        "strName": "keyStone_Resolve",
+        "strName": "keyStone_Domination",
         "stoneChoices": [
-            "GraspOfTheUndying",
-            "Aftershock",
-            "Guardian"
+            "Electrocute",
+            "Predator",
+            "DarkHarvest",
+            "HailOfBlades"
         ],
         "stoneChoiced": ""
     },
     "runeStones": [
         {
-            "strName": "ResolveStone_1",
+            "strName": "DominationStone_1",
             "stoneChoices": [
-                "Demolish",
-                "FontOfLife",
-                "BonePlating"
+                "CheapShot",
+                "TasteOfBlood",
+                "SuddenImpact"
             ],
-            "stoneChoiced": "Demolish"
+            "stoneChoiced": "SuddenImpact"
         },
         {
-            "strName": "ResolveStone_2",
+            "strName": "DominationStone_2",
             "stoneChoices": [
-                "Conditioning",
-                "SecondWind",
-                "Chrysalis"
+                "ZombieWard",
+                "GhostPoro",
+                "EyeballCollection"
             ],
-            "stoneChoiced": "SecondWind"
+            "stoneChoiced": "GhostPoro"
         },
         {
-            "strName": "ResolveStone_3",
+            "strName": "DominationStone_3",
             "stoneChoices": [
-                "Overgrowth",
-                "Revitalize",
-                "Unflinching"
+                "RavenousHunter",
+                "IngeniousHunter",
+                "RelentlessHunter",
+                "UltimateHunter"
             ],
             "stoneChoiced": ""
         }
