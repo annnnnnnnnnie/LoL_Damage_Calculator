@@ -8,6 +8,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 {
     public ItemList itemList;
     public SpellPanel spellPanel;
+    public AdvancedSetting advancedSetting;
 
     public int totalTime = 10;
     private int intTime;
@@ -18,13 +19,17 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 
     private List<DoT> dotDamages;
 
+    public void Awake()
+    {
+        GameDebugUtility.Initialize();
+    }
     public void Start()
     {
+
         annie = new Annie_Test();
         annie.Initialize("Annie");
         enemy = new Annie_Test();
         enemy.Initialize("Enemy");
-        
     }
 
     public void Update()
@@ -32,6 +37,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         if (Input.GetMouseButtonDown(1))
         {
             Debug.Log(annie.GetRune().ToString());
+            GameDebugUtility.ShowAllDebugMsg();
         }
     }
 
@@ -42,10 +48,16 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         currentItemSlot = itemSlot;
     }
 
+    public void OpenAdvanceSetting(Item item)
+    {
+        advancedSetting.gameObject.SetActive(true);
+        advancedSetting.Initialize(item);
+    }
+
     public void EquipItem(Item item)
     {
         Debug.Log("Equipping item: item in itemSlot " + currentItemSlot.itemSlotNumber);
-        currentItemSlot.EquipItem(item.MakeCopy());//Beta: deep copying
+        currentItemSlot.EquipItem(item.MakeCopy());//deep copying
 
         List<string> possibleActives = new List<string>() {
             "CorruptingPotion", "SkirmishersSabre", "GargoyleStonePlate",

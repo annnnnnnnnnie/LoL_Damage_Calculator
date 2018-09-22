@@ -14,7 +14,7 @@ public class ItemSlot : MonoBehaviour
     public Item item;
 
     private bool isEnemy = false;
-
+    private bool onClickResolved;
 
     private Text descriptionText;
 
@@ -24,23 +24,55 @@ public class ItemSlot : MonoBehaviour
         this.isEnemy = isEnemy;
 
         itemButton = GetComponent<Button>();
-        itemButton.onClick.RemoveAllListeners();
-        itemButton.onClick.AddListener(() =>
-        {
-            HandleOnClick();
-        });
 
         descriptionText = itemButton.GetComponentInChildren<Text>();
         descriptionText.text = "itemSlot " + itemSlotNumber;
         originalSprite = GetComponentInChildren<Image>().sprite;
+
+        item = null;
     }
 
 
-    public void HandleOnClick()
+    public void HandlePointerDown()
     {
         Debug.Log("Item " + itemSlotNumber + " is selected");
+        StopAllCoroutines();
+        StartCoroutine(Press());
+    }
 
-        SendMessageUpwards("OpenItemList", this);//Tell the processor to open itemList, with a referrence of itemSlot
+    public void HandlePointerUp(bool held = false)
+    {
+        StopAllCoroutines();
+        if (held)
+        {
+            HandlePressAndHold();
+            onClickResolved = true;
+        }
+        else if(!onClickResolved)
+        {
+            SendMessageUpwards("OpenItemList", this);//Tell the processor to open itemList, with a referrence of itemSlot
+        }
+    }
+    public void HandlePressAndHold()
+    {
+        if (item!= null && item.Extras.Count >= 0)
+        {
+            Debug.Log("Opening Advanced Setting Tab");
+            SendMessageUpwards("OpenAdvanceSetting", item);//Tell the processor to open advanceSetting
+        }
+    }
+
+    private IEnumerator Press()
+    {
+        onClickResolved = false;
+        for(int i = 0; i < 100; i++)
+        {
+            yield return new WaitForFixedUpdate();
+        }
+        if(!onClickResolved)
+        {
+            HandlePointerUp(true);
+        }
     }
 
     public void EquipItem(Item item)
@@ -52,6 +84,11 @@ public class ItemSlot : MonoBehaviour
         foreach (KeyValuePair<string, float> currentPair in this.item.Attributes)
         {
             Debug.Log("Item Attributes: " + currentPair.Key + " = " + currentPair.Value);
+        }
+
+        foreach(KeyValuePair<string, int> currentPair in this.item.Extras)
+        {
+            Debug.Log("Item Extras: " + currentPair.Key + " = " + currentPair.Value);
         }
 
         descriptionText.text = this.item.strName;
@@ -66,7 +103,7 @@ public class ItemSlot : MonoBehaviour
         {
             Debug.Log("Item unequipped: " + item.strName);
             unequippedItem = item.MakeCopy();
-            item = new Item();
+            item = null;
         }
         else
         {

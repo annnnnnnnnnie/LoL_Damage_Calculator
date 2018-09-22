@@ -27,7 +27,7 @@ public static class GameStatsUtility
         return d1;
     }
 
-    public static Dictionary<string, float> CalculateEffectiveAttributes(Dictionary<string, float> d0)
+    public static Dictionary<string, float> CalculateEffectiveAttributes(Dictionary<string, float> d0, Dictionary<string, int> dExtras)
     {
         Dictionary<string, float> d1 = new Dictionary<string, float>();
         //---AP------------------------------------------
@@ -41,6 +41,9 @@ public static class GameStatsUtility
         {
             Debug.Log("No AP From items");
         }
+
+        
+
         //Base AP
         float bap = 0f;
         //---AP-----------------------------------------------------
@@ -76,33 +79,7 @@ public static class GameStatsUtility
         //---AD-------------------------------------------------------
 
 
-        //Adaptive
-        float aap = 0f;
-        float aad = 0f;
-        if (iap >= iad)
-        {
-            if (d0.TryGetValue("AdaptiveAP", out aap))
-            {
-                Debug.Log("Adaptive AP: " + aap);
-            }
-            else
-            {
-                Debug.Log("No AdaptiveAP From runes");
-            }
-        }
-        else
-        {
-            if (d0.TryGetValue("AdaptiveAD", out aad))
-            {
-                Debug.Log("Adaptive AD: " + aad);
-            }
-            else
-            {
-                Debug.Log("No AdaptiveAD From runes");
-            }
-        }
-
-        float totalAP = iap + bap + aap;
+       
 
         //---MR-------------------------------------------------------
         float imr = 0f;
@@ -253,24 +230,89 @@ public static class GameStatsUtility
         }
         else
         {
-            Debug.Log("No HP mana BaseAttributes");
+            Debug.Log("No mana BaseAttributes");
         }
 
         float rmn = 0f;//from runes
-        float totalMana = imn + bmn + rmn;
+        
         //---mana--------------------------------------------------------
 
         //Item passives----------------------------------------------------
-        if (d0.ContainsKey("Unique_Passive_RabadonsDeathcap"))
+        int doOrDiePassive = 0;
+        int i0 = 0;
+        if (dExtras.TryGetValue("Unique_Passive_Dread_MejaisSoulstealer", out i0))
+        {
+            doOrDiePassive = dExtras["Unique_Passive_DoOrDie_MejaisSoulstealer"] * 5;
+            Debug.Log("MejaisSoulstealer AP: " + doOrDiePassive);
+        }
+        else if (dExtras.TryGetValue("Unique_Passive_Dread_TheDarkSeal", out i0))
+        {
+            doOrDiePassive = dExtras["Unique_Passive_DoOrDie_TheDarkSeal"] * 3;
+            Debug.Log("The Dark Seal AP: " + doOrDiePassive);
+        }
+        else
+        {
+            Debug.Log("No Do Or Die Items");
+        }
+        iap += doOrDiePassive;
+
+        int rodOfAgesPassiveAP = 0;
+        int rodOfAgesPassiveHP = 0;
+        int rodOfAgesPassiveMana = 0;
+        if (dExtras.TryGetValue("Unique_Passive_RodOfAges", out i0))
+        {
+            rodOfAgesPassiveAP = i0 * 4;
+            rodOfAgesPassiveHP = i0 * 20;
+            rodOfAgesPassiveMana = i0 * 10;
+            Debug.Log("Rod Of Ages AP: " + rodOfAgesPassiveAP);
+            Debug.Log("Rod Of Ages HP: " + rodOfAgesPassiveHP);
+            Debug.Log("Rod Of Ages Mana: " + rodOfAgesPassiveMana);
+        }
+        else
+        {
+            Debug.Log("No Rod Of Ages");
+        }
+        iap += rodOfAgesPassiveAP;
+        ihp += rodOfAgesPassiveHP;
+        imn += rodOfAgesPassiveMana;
+
+        int aStaffMana = 0;
+        float aStaffAP = 0;
+        if (dExtras.TryGetValue("Unique_Passive_ManaCharge", out i0))
+        {
+            aStaffMana = i0;
+            Debug.Log("aStaff Mana: " + aStaffMana);
+        }
+        else
+        {
+            Debug.Log("No aStaff Mana");
+        }
+        float totalMana = imn + bmn + rmn;
+
+        if (dExtras.ContainsKey("Unique_Passive_AweAP"))
+        {
+            aStaffAP = (float)0.01 * totalMana;
+            Debug.Log("aStaffAP: " + aStaffAP);
+        }
+        iap += aStaffAP;
+
+        if (d0.ContainsKey("Unique_Passive_RabadonsDeathcap"))//Assume that only item ap increased
         {
             Debug.Log("Unique_Passive_RabadonsDeathcap detected");
-            totalAP = totalAP * 1.4f;
+            iap = iap * 1.4f;
         }
+
+
+
+
         if (d0.ContainsKey("Unique_Passive_Echo"))
         {
             Debug.Log("Unique_Passive_Echo detected");
             d1.Add("Unique_Passive_Echo", 0);
         }
+
+
+
 
         //AP penetration from item
         float apPene = 0f;
@@ -292,6 +334,34 @@ public static class GameStatsUtility
             apPercentPene = 0.4f;
         }
 
+        //Adaptive
+        float aap = 0f;
+        float aad = 0f;
+        if (iap >= iad)
+        {
+            if (d0.TryGetValue("AdaptiveAP", out aap))
+            {
+                Debug.Log("Adaptive AP: " + aap);
+            }
+            else
+            {
+                Debug.Log("No AdaptiveAP From runes");
+            }
+        }
+        else
+        {
+            if (d0.TryGetValue("AdaptiveAD", out aad))
+            {
+                Debug.Log("Adaptive AD: " + aad);
+            }
+            else
+            {
+                Debug.Log("No AdaptiveAD From runes");
+            }
+        }
+
+        float totalAP = iap + bap + aap;
+        
         d1.Add("AP", totalAP);
         d1.Add("AD", bad + iad + aad);
         d1.Add("IAD", iad);

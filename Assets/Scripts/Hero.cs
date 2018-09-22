@@ -61,7 +61,7 @@ public abstract class Hero {
         if (rune.strStones.Contains("AbsoluteFocus"))
         {
             Debug.Log("AbsoluteFocus detected");
-            if (fCurrentHealth >= Attributes["HP"])
+            if (fCurrentHealth >= 0.7 * Attributes["HP"])
             {
                 if (ApAdapted)
                 {

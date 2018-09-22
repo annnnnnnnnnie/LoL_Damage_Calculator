@@ -4,6 +4,9 @@ using UnityEngine;
 using System;
 using System.Text;
 
+//Outdated, use Hero instead;
+
+/*
 public abstract class Hero_Base {
 
     public string strName;
@@ -61,7 +64,7 @@ public abstract class Hero_Base {
     {
         Dictionary<string, float> tempDic = GameStatsUtility.CombineAttributes(CalculateBaseAttributes(), CalculateItemAttributes());
         
-        return GameStatsUtility.CalculateEffectiveAttributes(tempDic);
+        return GameStatsUtility.CalculateEffectiveAttributes(tempDic, null);
     }
 
     public abstract void Update(SpellCast spellCast = null);
@@ -464,3 +467,4 @@ public class Annie : Hero_Base
 
 }
 
+*/

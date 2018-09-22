@@ -33,11 +33,11 @@
 			"value": "100"
 			},
 			{
-			"key":"Unique_Passive_Dread",
+			"key":"Unique_Passive_Dread_TheDarkSeal",
 			"value": "1"
 			},
 			{
-			"key":"Unique_Passive_DoOrDie",
+			"key":"Unique_Passive_DoOrDie_TheDarkSeal",
 			"value": "1"
 			}
 		]
@@ -534,6 +534,10 @@
 			"value": "10"
 			},
 			{
+			"key":"Unique_Passive_ManaCharge",
+			"value": "1"
+			},
+			{
 			"key":"Unique_Passive_Awe",
 			"value": "1"
 			},
@@ -842,11 +846,11 @@
 			"value": "200"
 			},
 			{
-			"key":"Unique_Passive_Dread",
+			"key":"Unique_Passive_Dread_MejaisSoulstealer",
 			"value": "1"
 			},
 			{
-			"key":"Unique_Passive_DoOrDie",
+			"key":"Unique_Passive_DoOrDie_MejaisSoulstealer",
 			"value": "1"
 			}
 		]

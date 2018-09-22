@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Text;
 using UnityEditor;
+using System.IO;
 
 public class RunePage : MonoBehaviour {
     /// <summary>
@@ -71,9 +72,10 @@ public class RunePage : MonoBehaviour {
 
     private RunePathData LoadRunePathData(string pathName, bool isPrimary)//for generating an empty runePage
     {
-        TextAsset dataAsJson = new TextAsset();
-        string jsonPath = pathName;
-        dataAsJson = Resources.Load<TextAsset>("RunePathInfo_" + jsonPath + "_Json");
+        TextAsset dataAsJson;
+        string jsonPath = "RunePathInfo_" + pathName + "_Json";
+        dataAsJson = Resources.Load<TextAsset>(jsonPath);
+        
         RunePathData runePathData = new RunePathData();
         runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson.text);
         return runePathData;
@@ -81,13 +83,15 @@ public class RunePage : MonoBehaviour {
 
     private RunePathData LoadRunePathData(bool isPrimary)//for saved data
     {
-        string path = "SavedRunePages/" + userName + "/" + (isPrimary ? "Primary" : "Secondary") + "Path" + runePageSeletor.value;
-        if (System.IO.File.Exists("Assets/Resources/" + path + ".json"))
+        string path = "Assets/StreamingAssets/SavedRunePages/"
+            + userName + "/" + (isPrimary ? "Primary" : "Secondary") + "Path" + runePageSeletor.value + ".json";
+        
+        if (File.Exists(path))
         {
-            TextAsset dataAsJson = new TextAsset();
-            dataAsJson = Resources.Load<TextAsset>(path);
+            string dataAsJson;
+            dataAsJson = File.ReadAllText(path);
             RunePathData runePathData = new RunePathData();
-            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson.text);
+            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson);
             Debug.Log("Found Saved RunePage at " + path);
             Debug.Log(RunePathInfo.RunePathData_to_RunePathInfo(runePathData, isPrimary).ToString());
             return runePathData;
@@ -161,18 +165,20 @@ public class RunePage : MonoBehaviour {
         RunePathInfo rp_2 = secondaryRunePath.GetPathInfo(false);
 
         string jsonStr_1 = JsonUtility.ToJson(RunePathInfo.RunePathInfo_to_RunePathData(rp_1, true), true);
-        System.IO.File.WriteAllText("Assets/Resources/SavedRunePages/"+userName+"/" + "PrimaryPath" + runePageSeletor.value + ".json", jsonStr_1);
+        System.IO.File.WriteAllText("Assets/StreamingAssets/SavedRunePages/"+userName+"/" + "PrimaryPath" + runePageSeletor.value + ".json", jsonStr_1);
         string jsonStr_2 = JsonUtility.ToJson(RunePathInfo.RunePathInfo_to_RunePathData(rp_2, true), true);
-        System.IO.File.WriteAllText("Assets/Resources/SavedRunePages/"+userName+"/" + "SecondaryPath" + runePageSeletor.value + ".json", jsonStr_2);
+        System.IO.File.WriteAllText("Assets/StreamingAssets/SavedRunePages/" + userName+"/" + "SecondaryPath" + runePageSeletor.value + ".json", jsonStr_2);
 
-        Debug.Log("Saved RunePage exists: "+System.IO.File.Exists("Assets/Resources/" + "SavedRunePages/Annie/PrimaryPath.json"));
+        Debug.Log("Saved RunePage exists: "+System.IO.File.Exists("Assets/StreamingAssets/" + "SavedRunePages/Annie/PrimaryPath0.json"));
         Debug.Log("RunePage Saved");
     }
 
     public void Close()
     {
         ClearRunePage();
+#if UNITY_EDITOR
         AssetDatabase.Refresh(ImportAssetOptions.Default);
+#endif
         gameObject.SetActive(false);
     }
 

@@ -4,97 +4,41 @@ using UnityEngine;
 
 namespace DebugScript
 {
+    public class User_2
+    {
+        public void ChangeData(DataClass_1 datas)
+        {
+            datas.data += 1;
+            datas.data2 += 1;
+            datas.data3 += 1;
+        }
+    }
+    public class DataClass_1
+    {
+        public int data;
+        public int data2;
+        public int data3;
+    }
     public class DebugScript : MonoBehaviour
     {
-        GrandPa grandPa = new GrandPa();
-        Papa papa = new Papa();
-
-        // Use this for initialization
-        void Start()
+        private DataClass_1 datas = new DataClass_1() { data = 1, data2 = 2, data3 = 3 };
+        private User_2 user_2 = new User_2();
+        public void ShowData()
         {
-            Son son = new Son();
-            foreach(string st in son.str)
-            {
-                Debug.Log("");
-            }
-            son.str.Add("");
-            foreach (string st in son.str)
-            {
-                Debug.Log((1.5f-0.5f)% 1f);
-            }
+            Debug.Log(datas.data);
+            Debug.Log(datas.data2);
+            Debug.Log(datas.data3);
         }
-
-        // Update is called once per frame
-        void Update()
+        public void Update()
         {
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(0))
             {
-                grandPa.StartCounting();
+                user_2.ChangeData(datas);
+                ShowData();
+                List<Item> items = new List<Item>();
+                Debug.Log(items.Count);
             }
         }
-    }
-    public class GrandPa
-    {
-        Papa papa;
-        float fTime;
-        public void Initialize(Papa papa)
-        {
-            this.papa = papa;
-        }
-
-        public void StartCounting()
-        {
-            for(int i = 0; i < 100; i++)
-            {
-                fTime += 0.1f;
-            }
-            papa.Start();
-        }
-
-        public void Update(int number)
-        {
-            Debug.Log(number);
-        }
-    }
-    public class Papa : GrandPa
-    {
-        public GrandPa grandPa;
-        private float fTime;
-        private int i;
-        public void Start()
-        {
-            fTime = 0f;
-            i = 0;
-            DoTdamage();
-            Debug.Log("Started");
-        }
-
-        IEnumerator DoTdamage()
-        {
-            grandPa.Update(i);
-            Debug.Log("Started");
-            i += 1;
-            yield return Count();
-        }
-
-        IEnumerator Count()
-        {
-            for(int j =0; j<10; j++)
-            {
-                i += 1;
-                yield return null;
-            }
-        }
-    }
-    public class Son : Papa
-    {
-        public List<string> str;
-        public Son()
-        {
-            str = new List<string>();
-        }
-
-
     }
 
 }

@@ -47,8 +47,6 @@ public class ItemList : MonoBehaviour
         }
 
         //Debug_ShowItemDatas(itemData);//for debug use only
-
-        //Instantiate a button
  
         foreach (ItemListData thisItemData in itemData)
         {
@@ -58,14 +56,16 @@ public class ItemList : MonoBehaviour
             btn.GetComponentInChildren<Image>().sprite = Resources.Load<Sprite>("ItemIcons/" +thisItemData.strItemName);
             ExistingButtons.Add(btn);
 
-            //Attach appropriate onClick events to the button
             ItemScript itemScript = buttonGameObject.GetComponent<ItemScript>();
-
             itemScript.Initialize(processor);
+
             foreach (ItemAttribute itemAttri in thisItemData.itemAttributes)
             {
-                itemScript.item.Attributes.Add(itemAttri.key, itemAttri.value);
-
+                itemScript.AddAttribute(itemAttri.key, itemAttri.value);
+                if (itemAttri.key.Contains("Unique"))
+                {
+                    itemScript.AddExtra(itemAttri.key, (int)itemAttri.value);
+                }
             }
             itemScript.item.strName = thisItemData.strItemName;
 

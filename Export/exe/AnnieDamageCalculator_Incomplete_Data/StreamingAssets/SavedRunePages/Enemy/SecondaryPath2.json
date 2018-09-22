@@ -1,0 +1,41 @@
+{
+    "pathName": "Inspiration",
+    "keyStone": {
+        "strName": "keyStone_Inspiration",
+        "stoneChoices": [
+            "GlacialAugment",
+            "Kleptomancy",
+            "UnsealedSpellbook"
+        ],
+        "stoneChoiced": ""
+    },
+    "runeStones": [
+        {
+            "strName": "InspirationStone_1",
+            "stoneChoices": [
+                "HextechFlashtraption",
+                "MagicalFootwear",
+                "PerfectTiming"
+            ],
+            "stoneChoiced": ""
+        },
+        {
+            "strName": "InspirationStone_2",
+            "stoneChoices": [
+                "FuturesMarket",
+                "MinionDematerializer",
+                "BiscuitDelivery"
+            ],
+            "stoneChoiced": ""
+        },
+        {
+            "strName": "InspirationStone_3",
+            "stoneChoices": [
+                "CosmicInsight",
+                "ApproachVelocity",
+                "TimeWarpTonic"
+            ],
+            "stoneChoiced": ""
+        }
+    ]
+}

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Text;
-
+using System.IO;
+using System;
 
 public abstract class HeroInfo : MonoBehaviour {
 
@@ -40,23 +41,27 @@ public abstract class HeroInfo : MonoBehaviour {
     {
         RuneInfo runeInfo = new RuneInfo();
 
-        string priP;
-        string secP;
-        string keyStone;
+        string priP = "";
+        string secP = "";
+        string keyStone = "";
         List<string> runeStones = new List<string>();
 
-        string path_pri = "SavedRunePages/" + heroName + "/" + "Primary" + "Path" + "0";
-        if (System.IO.File.Exists("Assets/Resources/" + path_pri + ".json"))
-        {
-            TextAsset dataAsJson = new TextAsset();
-            dataAsJson = Resources.Load<TextAsset>(path_pri);
-            RunePathData runePathData = new RunePathData();
-            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson.text);
-            Debug.Log("Found Saved RunePage at " + path_pri);
+        string path_pri;
+        string path_sec;
 
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+        path_pri = Application.streamingAssetsPath +"/SavedRunePages/" + heroName + "/PrimaryPath0.json";
+        if (File.Exists(path_pri))
+        {
+            string dataAsJson;
+            dataAsJson = File.ReadAllText(path_pri);
+            RunePathData runePathData = new RunePathData();
+            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson);
+            Debug.Log("Found Saved RunePage at " + path_pri);
+            GameDebugUtility.AddDebugMsg("Found Saved RunePage at " + path_pri);
             priP = runePathData.pathName;
-            keyStone=runePathData.keyStone.stoneChoiced;
-            foreach(RuneStone rs in runePathData.runeStones)
+            keyStone = runePathData.keyStone.stoneChoiced;
+            foreach (RuneStone rs in runePathData.runeStones)
             {
                 runeStones.Add(rs.stoneChoiced);
             }
@@ -65,16 +70,15 @@ public abstract class HeroInfo : MonoBehaviour {
         {
             throw new System.Exception("No saved RunePage");
         }
-
-        string path_sec = "SavedRunePages/" + heroName + "/" + "Secondary" + "Path" + "0";
-        if (System.IO.File.Exists("Assets/Resources/" + path_sec + ".json"))
+        path_sec = Application.streamingAssetsPath + "/SavedRunePages/" + heroName + "/SecondaryPath0.json";
+        if (File.Exists(path_sec))
         {
-            TextAsset dataAsJson = new TextAsset();
-            dataAsJson = Resources.Load<TextAsset>(path_sec);
+            string dataAsJson;
+            dataAsJson = File.ReadAllText(path_sec);
             RunePathData runePathData = new RunePathData();
-            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson.text);
+            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson);
             Debug.Log("Found Saved RunePage at " + path_sec);
-
+            GameDebugUtility.AddDebugMsg("Found Saved RunePage at " + path_sec);
             secP = runePathData.pathName;
             foreach (RuneStone rs in runePathData.runeStones)
             {
@@ -85,7 +89,43 @@ public abstract class HeroInfo : MonoBehaviour {
         {
             throw new System.Exception("No saved RunePage");
         }
+#endif
 
+#if UNITY_ANDROID
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            string dataAsJson;
+            path_pri = Path.Combine(Application.streamingAssetsPath + "/", heroName + "/PrimaryPath0.json");
+            WWW reader = new WWW(path_pri);
+            while (!reader.isDone) { }
+            dataAsJson = reader.text;
+            RunePathData runePathData = new RunePathData();
+            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson);
+            Debug.Log("Found Saved RunePage at " + path_pri);
+
+            priP = runePathData.pathName;
+            keyStone = runePathData.keyStone.stoneChoiced;
+            foreach (RuneStone rs in runePathData.runeStones)
+            {
+                runeStones.Add(rs.stoneChoiced);
+            }
+
+
+            path_sec = Path.Combine(Application.streamingAssetsPath + "/", heroName + "/SecondaryPath0.json");
+            reader = new WWW(path_sec);
+            while (!reader.isDone) { }
+            dataAsJson = reader.text;
+            runePathData = new RunePathData();
+            runePathData = JsonUtility.FromJson<RunePathData>(dataAsJson);
+            Debug.Log("Found Saved RunePage at " + path_sec);
+
+            secP = runePathData.pathName;
+            foreach (RuneStone rs in runePathData.runeStones)
+            {
+                runeStones.Add(rs.stoneChoiced);
+            }
+        }
+#endif
         runeInfo.Initialize(priP, secP);
         runeInfo.AddRuneStone(keyStone);
         foreach(string s in runeStones)
@@ -147,10 +187,11 @@ public abstract class HeroInfo : MonoBehaviour {
     }
     public Dictionary<string, float> CalculateAttributes()
     {
-        Dictionary<string, float> tempDic = GameStatsUtility.CombineAttributes(CalculateBaseAttributes(heroName), CalculateItemAttributes());
-
-        return GameStatsUtility.CalculateEffectiveAttributes(tempDic);
+        Dictionary<string, int> tempDicExtra = CalculateItemExtras();
+        Dictionary<string, float> tempDicAttri = GameStatsUtility.CombineAttributes(CalculateBaseAttributes(heroName), CalculateItemAttributes());
+        return GameStatsUtility.CalculateEffectiveAttributes(tempDicAttri, tempDicExtra);
     }
+
     public Dictionary<string,float> CalculateBaseAttributes(string heroName)
     {
         Dictionary<string, float> baseAttributes = new Dictionary<string, float>();
@@ -204,6 +245,39 @@ public abstract class HeroInfo : MonoBehaviour {
         Debug.Log(debugMsg.ToString());
         return Attributes;
     }
+
+    private Dictionary<string, int> CalculateItemExtras()
+    {
+        List<Item> items = inventory.GetItems();
+        Dictionary<string, int> Extras = new Dictionary<string, int>();
+        StringBuilder debugMsg = new StringBuilder();
+        foreach (Item item in items)
+        {
+            if (item != null && item.strName != null)
+            {
+                debugMsg.Append("Calculating item extra: " + item.strName + "\n");
+                foreach (KeyValuePair<string, int> extra in item.Extras)
+                {
+                    if (Extras.ContainsKey(extra.Key))
+                    {
+                        Extras[extra.Key] = Mathf.Max(Extras[extra.Key], extra.Value);//Only keep the highest one as they Unique
+                    }
+                    else
+                    {
+                        Extras.Add(extra.Key, extra.Value);
+                    }
+                    debugMsg.Append("Current " + extra.Key + " is " + Extras[extra.Key] + "\n");
+                }
+            }
+            else
+            {
+                debugMsg.Append("Current itemSlot is empty\n");
+            }
+        }
+        Debug.Log(debugMsg.ToString());
+        return Extras;
+    }
+
 
     public List<string> GetSelectedRunes()
     {

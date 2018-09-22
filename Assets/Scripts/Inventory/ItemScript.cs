@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Text;
 
-public class ItemScript : MonoBehaviour, IRecycle
+public class ItemScript : MonoBehaviour, IRecycle //Item Displayed in ItemList
 {
     public Item item;
     public ItemSlot itemSlot { get; set; }
@@ -23,6 +23,17 @@ public class ItemScript : MonoBehaviour, IRecycle
     {
         processor.EquipItem(item);
     }
+
+    public void AddAttribute(string attriName, float value)
+    {
+        item.AddAttribute(attriName, value);
+    }
+
+    public void AddExtra(string extraName, int value)
+    {
+        item.AddExtra(extraName, value);
+    }
+
     public void Shutdown()
     {
 
@@ -45,10 +56,19 @@ public class Item
     //public List<string> Actives;
 
     //[HideInInspector]
-    //public List<string> Extras;
+    public Dictionary<string, int> Extras = new Dictionary<string, int>();
 
     [HideInInspector]
     public int intItemNumber;
+
+    public void AddAttribute(string attriName, float value)
+    {
+        Attributes.Add(attriName, value);
+    }
+    public void AddExtra(string extraName, int value)
+    {
+        Extras.Add(extraName, value);
+    }
 
     public override bool Equals(object obj)
     {
@@ -64,8 +84,10 @@ public class Item
 
     public Item MakeCopy()
     {
-        return (new Item { strName = strName, Attributes = Attributes,
-            //Actives = this.Actives, Extras = this.Extras, 
+        return (new Item {
+            strName = strName,
+            Attributes = Attributes,
+            Extras = Extras, 
             intItemNumber = intItemNumber
         });
     }
