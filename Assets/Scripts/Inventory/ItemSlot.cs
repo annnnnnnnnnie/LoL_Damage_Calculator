@@ -55,7 +55,7 @@ public class ItemSlot : MonoBehaviour
     }
     public void HandlePressAndHold()
     {
-        if (item!= null && item.Extras.Count >= 0)
+        if (item!= null && item.Extras.Count > 0)
         {
             Debug.Log("Opening Advanced Setting Tab");
             SendMessageUpwards("OpenAdvanceSetting", item);//Tell the processor to open advanceSetting
@@ -65,7 +65,7 @@ public class ItemSlot : MonoBehaviour
     private IEnumerator Press()
     {
         onClickResolved = false;
-        for(int i = 0; i < 100; i++)
+        for(int i = 0; i < 50; i++)
         {
             yield return new WaitForFixedUpdate();
         }

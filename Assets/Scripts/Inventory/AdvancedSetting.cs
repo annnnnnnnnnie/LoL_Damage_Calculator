@@ -15,7 +15,7 @@ public class AdvancedSetting : MonoBehaviour
 
     private Item item;
     private Item orignialItem;
-
+    private bool isConfirmed;
     public void Start()
     {
         gameObject.SetActive(false);
@@ -42,18 +42,25 @@ public class AdvancedSetting : MonoBehaviour
             editor.Initialize(kvP.Key, item);
         }
 
+        isConfirmed = false;
     }
 
     
     private void OK()
     {
         Debug.Log("Modification confirmed");
+        isConfirmed = true;
         Close();
     }
     private void Close()
     {
         foreach(AdvancedSettingEditor editor in editors)
         {
+            if (!isConfirmed)
+            {
+                Debug.Log("Reverting Modification");
+                editor.RESET();
+            }
             GameObjectUtility.CustomDestroy(editor.gameObject);
         }
         editors.Clear();

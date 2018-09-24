@@ -240,12 +240,12 @@ public static class GameStatsUtility
         //Item passives----------------------------------------------------
         int doOrDiePassive = 0;
         int i0 = 0;
-        if (dExtras.TryGetValue("Unique_Passive_Dread_MejaisSoulstealer", out i0))
+        if (d0.ContainsKey("Unique_Passive_Dread_MejaisSoulstealer"))
         {
             doOrDiePassive = dExtras["Unique_Passive_DoOrDie_MejaisSoulstealer"] * 5;
             Debug.Log("MejaisSoulstealer AP: " + doOrDiePassive);
         }
-        else if (dExtras.TryGetValue("Unique_Passive_Dread_TheDarkSeal", out i0))
+        else if (d0.ContainsKey("Unique_Passive_Dread_TheDarkSeal"))
         {
             doOrDiePassive = dExtras["Unique_Passive_DoOrDie_TheDarkSeal"] * 3;
             Debug.Log("The Dark Seal AP: " + doOrDiePassive);
@@ -287,22 +287,37 @@ public static class GameStatsUtility
         {
             Debug.Log("No aStaff Mana");
         }
+        imn += aStaffMana;
         float totalMana = imn + bmn + rmn;
 
-        if (dExtras.ContainsKey("Unique_Passive_AweAP"))
+        if (d0.ContainsKey("Unique_Passive_AweAP"))
         {
             aStaffAP = (float)0.01 * totalMana;
             Debug.Log("aStaffAP: " + aStaffAP);
         }
         iap += aStaffAP;
 
-        if (d0.ContainsKey("Unique_Passive_RabadonsDeathcap"))//Assume that only item ap increased
+        float seekersArmguardAP = 0f;
+        float seekersArmguardArmor = 0f;
+        if (dExtras.TryGetValue("Unique_Passive_SeekersArmguard", out i0))
+        {
+            seekersArmguardAP = (float)0.5 * i0;
+            seekersArmguardArmor = (float)0.5 * i0;
+            Debug.Log("seekersArmguard AP : " + seekersArmguardAP);
+            Debug.Log("seekersArmguard Armor : " + seekersArmguardArmor);
+        }
+        else
+        {
+            Debug.Log("No SeekersArmguard");
+        }
+        iap += seekersArmguardAP;
+        imr += seekersArmguardArmor;
+
+        if (d0.ContainsKey("Unique_Passive_RabadonsDeathcap"))//Assume that only item ap are increased
         {
             Debug.Log("Unique_Passive_RabadonsDeathcap detected");
             iap = iap * 1.4f;
         }
-
-
 
 
         if (d0.ContainsKey("Unique_Passive_Echo"))
@@ -310,8 +325,21 @@ public static class GameStatsUtility
             Debug.Log("Unique_Passive_Echo detected");
             d1.Add("Unique_Passive_Echo", 0);
         }
-
-
+        if (d0.ContainsKey("Unique_Passive_MagicBolt"))
+        {
+            Debug.Log("Unique_Passive_MagicBolt detected");
+            d1.Add("Unique_Passive_MagicBolt", 0);
+        }
+        if (d0.ContainsKey("Unique_Active_FireBolt"))
+        {
+            Debug.Log("Unique_Active_FireBolt detected: " + dExtras["Unique_Active_FireBolt"]);
+            d1.Add("Unique_Active_FireBolt", dExtras["Unique_Active_FireBolt"]);
+        }
+        if(d0.ContainsKey("Unique_Passive_TouchOfCorruption"))
+        {
+            Debug.Log("CorruptingPotion Detected");
+            d1.Add("Unique_Passive_TouchOfCorruption", 0);
+        }
 
 
         //AP penetration from item
@@ -385,10 +413,12 @@ public static class GameStatsUtility
 public class Counter
 {
     public int intElectrocuteCount;
+    public int EchoCount;
 
     public void Reset()
     {
         intElectrocuteCount = 0;
+        EchoCount = 0;
     }
 }
 

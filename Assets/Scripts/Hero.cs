@@ -10,8 +10,9 @@ public abstract class Hero {
 
     public string strName;
     public string heroName;
-    public int intLevel;
+    public int intHeroLevel;
     public float fCurrentHealth;
+    protected float fTotalDmgReceived;
     
     protected Dictionary<string, float> Attributes;
     public Rune rune;
@@ -32,8 +33,10 @@ public abstract class Hero {
         strName = heroName;
         heroInfo = GameObject.Find(strName + "Info").GetComponent<HeroInfo>();//Future development: HeroInfo would automatically register itself to use Inventory, RunePage, etc
         if (heroName.Equals("Annie"))
+        {
             InitializeSpellPanel();
-        intLevel = GetHeroLevel();
+        }
+        intHeroLevel = GetHeroLevel();
     }
 
     public int GetHeroLevel()
@@ -56,6 +59,7 @@ public abstract class Hero {
         fCurrentHealth = Attributes["HP"];
         buffs = new List<Buff>();
         counter.Reset();
+        fTotalDmgReceived = 0;
 
         ApAdapted = Attributes["IAD"] < Attributes["IAP"];
         if (rune.strStones.Contains("AbsoluteFocus"))
@@ -65,14 +69,25 @@ public abstract class Hero {
             {
                 if (ApAdapted)
                 {
-                    Attributes["AP"] += (float)(5.0 + 2.06 * (intLevel - 1));
+                    Attributes["AP"] += (float)(5.0 + 2.06 * (intHeroLevel - 1));
                 }
                 else
                 {
-                    Attributes["AD"] += (float)(3.0 + 1.24 * (intLevel - 1));
+                    Attributes["AD"] += (float)(3.0 + 1.24 * (intHeroLevel - 1));
                 }
             }
         }
+        if (Attributes.ContainsKey("Unique_Passive_Echo"))
+        {
+            Debug.Log("Echo Detected");
+            counter.EchoCount = 100;
+        }
+        if (Attributes.ContainsKey("Unique_Passive_MagicBolt"))
+        {
+            Debug.Log("HexRevolver Detected");
+            ReceiveBuff(Buff.Hextech);
+        }
+
     }
 
     
@@ -126,7 +141,7 @@ public abstract class Hero {
             Debug.Log("Receiving spell");
             ReceiveSpell(spellCast);
         }
-        //Debug.Log("Normal update");
+        
         double dmg = NormalUpdate();
         ReceiveDamage(dmg);
         if (fCurrentHealth < 1f)
@@ -134,10 +149,15 @@ public abstract class Hero {
         if (dmg > 0)
             Debug.Log("Damage is " + dmg.ToString());
 
-        bool isOn = false;
+        bool isOn = true;
         if (isOn && (intTime % 100 == 0))
-            Debug.Log("Time: " + intTime + "0ms" + "CurrentHealth: " + fCurrentHealth.ToString() + "\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth) + "(" 
+        {
+            Debug.Log("Time: " + intTime + "0ms" + "CurrentHealth: " + fCurrentHealth.ToString() 
+                +"\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
                 + heroName + ")");
+            GameDebugUtility.AddDebugMsg("Total damage dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
+                + heroName + ")");
+        }
 
         intTime += updateInterval;
     }
@@ -165,7 +185,14 @@ public abstract class Hero {
                         switch (dot.strDmgType)
                         {
                             case "True":
-                                damage = dot.fDmgPerTick;
+                                damage += dot.fDmgPerTick;
+                                break;
+                            case "AP":
+                                Debug.Log("Currently Cannot Process AP DoT");
+                                damage += dot.fDmgPerTick;
+                                break;
+                            default:
+                                Debug.LogError("Unrecognized DoT dmg Tpye");
                                 break;
 
                         }
@@ -208,7 +235,7 @@ public abstract class Hero {
             if (existingBuff.Equals(buff))
             {
                 isNewBuff = false;
-                if (buff.intTimeOfStart == 0)
+                if (buff.intTimeOfStart != intTime)
                 {
                     Debug.Log(buff.strName + " has been refreshed");
                     existingBuff.intTimeOfStart = intTime;
@@ -233,6 +260,8 @@ public abstract class Hero {
             Debug.Log("CoupDeGraceDmgAmp");
             dmg *= 1.07;
         }
+
+        fTotalDmgReceived += (float)dmg;
         fCurrentHealth -= (float)dmg;
     }
 
@@ -338,7 +367,32 @@ public class Annie_Test : Hero
                             ReduceBuffTime("ArcaneCometCD", 0.2f);
                         }
                     }
+                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
+                    {
+                        if (counter.EchoCount >= 100)
+                        {
+                            spellcast.strAdditionalInfo.Add("Echo");
+                        }
+                        else
+                        {
+                            counter.EchoCount += 10;
+                        }
 
+                    }
+                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                    {
+                        spellcast.listBuffs.Add(new DoT()
+                        {
+                            isDamage = true,
+                            intDuration = 300,
+                            intInterval = 100,
+                            intTickNumber = 3,
+                            strDmgType = "AP",
+                            fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                            strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                            strName = "CorruptingPotion"
+                        });
+                    }
                 }
                 else
                 {
@@ -366,6 +420,20 @@ public class Annie_Test : Hero
                         {
                             ReduceBuffTime("ArcaneCometCD", 0.1f);
                         }
+                    }
+                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                    {
+                        spellcast.listBuffs.Add(new DoT()
+                        {
+                            isDamage = true,
+                            intDuration = 300,
+                            intInterval = 100,
+                            intTickNumber = 3,
+                            strDmgType = "AP",
+                            fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                            strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                            strName = "CorruptingPotion(Halved)"
+                        });
                     }
                 }
                 else
@@ -439,6 +507,20 @@ public class Annie_Test : Hero
                             ReduceBuffTime("ArcaneCometCD", 0.1f);
                         }
                     }
+                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                    {
+                        spellcast.listBuffs.Add(new DoT()
+                        {
+                            isDamage = true,
+                            intDuration = 300,
+                            intInterval = 100,
+                            intTickNumber = 3,
+                            strDmgType = "AP",
+                            fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                            strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                            strName = "CorruptingPotion(Halved)"
+                        });
+                    }
                 }
                 else
                 {
@@ -454,35 +536,60 @@ public class Annie_Test : Hero
                 {
                     counter.intElectrocuteCount += 1;
                 }
+                if (buffs.Contains(Buff.Hextech) && !buffs.Contains(Debuff.HextechCD))
+                {
+                    spellcast.strAdditionalInfo.Add("HextechRevolver");
+                }
+                if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                {
+                    spellcast.listBuffs.Add(new DoT()
+                    {
+                        isDamage = true,
+                        intDuration = 300,
+                        intInterval = 100,
+                        intTickNumber = 3,
+                        strDmgType = "AP",
+                        fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                        strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                        strName = "CorruptingPotion"
+                    });
+                }
                 break;
             case "Electrocute":
-                spellcast.dDamage = 40 + 10 * intLevel + 0.3 * Attributes["AP"];
+                spellcast.dDamage = 40 + 10 * intHeroLevel + 0.3 * Attributes["AP"];
                 spellcast.strDmgType = "AP";
                 ReceiveBuff(new Debuff
                 {
-                    intDuration = (25 - 2 * intLevel),
+                    intDuration = (25 - 2 * intHeroLevel),
                     intTimeOfStart = intTime,
                     strName = "ElectrocuteCD",
                     strDescription = "ElectrocuteCD"
                 });
-                Debug.Log("Casting Electrocute at level " + intLevel + ", Raw Damage is: " + spellcast.dDamage);
+                Debug.Log("Casting Electrocute at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage);
                 break;
             case "ArcaneComet":
-                spellcast.dDamage = 15.88 + 4.12 * intLevel + 0.2 * Attributes["AP"];
+                spellcast.dDamage = 15.88 + 4.12 * intHeroLevel + 0.2 * Attributes["AP"];
                 spellcast.strDmgType = "AP";
                 ReceiveBuff(new Debuff
                 {
-                    intDuration = (25 - 2 * intLevel),
+                    intDuration = (25 - 2 * intHeroLevel),
                     intTimeOfStart = intTime,
                     strName = "ArcaneCometCD",
                     strDescription = "ArcaneCometCD"
                 });
-                Debug.Log("Casting ArcaneComet at level " + intLevel + ", Raw Damage is: " + spellcast.dDamage);
+                Debug.Log("Casting ArcaneComet at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage);
                 break;
             case "Echo":
                 spellcast.dDamage = 100 + 0.10 * Attributes["AP"];
                 spellcast.strDmgType = "AP";
                 Debug.Log("Casting Echo, Raw Damage is: " + spellcast.dDamage);
+                counter.EchoCount = 0;
+                break;
+            case "HextechRevolver":
+                spellcast.dDamage = 50 + 4.41 * intHeroLevel;
+                spellcast.strDmgType = "AP";
+                Debug.Log("Casting HextechRevolverat level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage);
+                ReceiveBuff(Debuff.HextechCD);
                 break;
             case "Ignite":
                 spellcast.listBuffs.Add(new DoT()
@@ -492,7 +599,7 @@ public class Annie_Test : Hero
                     intInterval = 100,
                     intTickNumber = 5,
                     strDmgType = "True",
-                    fDmgPerTick = (float)0.2 * (55 + 25 * heroInfo.GetLevel("Level")),
+                    fDmgPerTick = (float)0.2 * (55 + 25 * intHeroLevel),
                     strDescription = "Ignite: deal 55 + 25 * level true damage in 5 seconds",
                     strName = "Ignite"
                 });
@@ -519,8 +626,9 @@ public class Annie_Test : Hero
 
 
         float f;
-        if (Attributes.TryGetValue("APPenetration", out f)) spellcast.amplifier = new Amplifier() { fMRpenetration = f };
-        if (Attributes.TryGetValue("APPPenetration", out f)) spellcast.amplifier = new Amplifier() { fMRpercentagePenetration = f };
+        spellcast.amplifier = new Amplifier();
+        if (Attributes.TryGetValue("APPenetration", out f)) spellcast.amplifier.fMRpenetration = f;
+        if (Attributes.TryGetValue("APPPenetration", out f)) spellcast.amplifier.fMRpercentagePenetration = f;
 
         return spellcast;
     }

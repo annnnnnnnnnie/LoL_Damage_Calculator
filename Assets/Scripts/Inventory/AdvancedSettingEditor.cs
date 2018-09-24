@@ -36,17 +36,35 @@ public class AdvancedSettingEditor : MonoBehaviour {
 
     private void UP()
     {
-        item.Extras[attributeToBeEdited] += 1;
+        if (attributeToBeEdited.Equals("Unique_Passive_ManaCharge"))
+        {
+
+        
+            item.Extras[attributeToBeEdited] += 50;
+        }
+        else
+        {
+            item.Extras[attributeToBeEdited] += 1;
+        }
         Debug.Log("Upping " + attributeToBeEdited);
         UpdateValueDisplayed();
     }
     private void DOWN()
     {
-        item.Extras[attributeToBeEdited] -= 1;
+        if (attributeToBeEdited.Equals("Unique_Passive_ManaCharge"))
+        {
+
+
+            item.Extras[attributeToBeEdited] -= 50;
+        }
+        else
+        {
+            item.Extras[attributeToBeEdited] -= 1;
+        }
         Debug.Log("Downing " + attributeToBeEdited);
         UpdateValueDisplayed();
     }
-    private void RESET()
+    public void RESET()
     {
         item.Extras[attributeToBeEdited] = originalValue;
         Debug.Log("Reseting " + attributeToBeEdited);

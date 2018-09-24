@@ -13,7 +13,15 @@ public class ItemList : MonoBehaviour
     public List<Button> ExistingButtons;
 
     private List<ItemListData> itemData;
-    
+    private readonly List<string> possibleExtras = new List<string>()
+    {
+        "Unique_Passive_DoOrDie",
+        "Unique_Passive_SeekersArmguard",
+        "Unique_Passive_ManaCharge",
+        "Unique_Active_FireBolt",
+        "Unique_Passive_RodOfAges",
+        "Unique_Active_Spellbinder"
+    };
 
     public void Start()
     {
@@ -62,9 +70,12 @@ public class ItemList : MonoBehaviour
             foreach (ItemAttribute itemAttri in thisItemData.itemAttributes)
             {
                 itemScript.AddAttribute(itemAttri.key, itemAttri.value);
-                if (itemAttri.key.Contains("Unique"))
+                foreach (string strExtra in possibleExtras)
                 {
-                    itemScript.AddExtra(itemAttri.key, (int)itemAttri.value);
+                    if (itemAttri.key.Contains(strExtra))
+                    {
+                        itemScript.AddExtra(itemAttri.key, (int)itemAttri.value);
+                    }
                 }
             }
             itemScript.item.strName = thisItemData.strItemName;

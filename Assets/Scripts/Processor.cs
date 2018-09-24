@@ -130,7 +130,16 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
                         spellCast = annie.CastSpell("ArcaneComet");
                         enemy.Update(spellCast);
                     }
-                    
+                    if (addInfo.Equals("Echo"))
+                    {
+                        spellCast = annie.CastSpell("Echo");
+                        enemy.Update(spellCast);
+                    }
+                    if (addInfo.Equals("HextechRevolver"))
+                    {
+                        spellCast = annie.CastSpell("HextechRevolver");
+                        enemy.Update(spellCast);
+                    }
 
                 }
 
@@ -156,6 +165,7 @@ public class SpellCast
     public List<Buff> listBuffs = new List<Buff>();
     public string strDmgType;
 
+    public static SpellCast endOfSequence = new SpellCast() { strDmgType = "End" };
     public new string ToString()
     {
         StringBuilder str = new StringBuilder();
@@ -177,6 +187,8 @@ public class Buff
     public string strDescription;
     public int intDuration;
 
+    public static Buff Hextech = new Buff { strName = "Hextech", intDuration = 9999 };
+
     public override bool Equals(object obj)
     {
         var buff = obj as Buff;
@@ -193,6 +205,7 @@ public class Debuff : Buff
 {
     public static Debuff ElectrocuteCD = new Debuff { strName = "ElectrocuteCD" };
     public static Debuff ArcaneCometCD = new Debuff { strName = "ArcaneCometCD" };
+    public static Debuff HextechCD = new Debuff { strName = "HextechCD", intDuration = 400, strDescription = "Hextech Item CD"};
     public static Debuff CoupDeGrace = new Debuff { strName = "CoupDeGrace" };
 }
 public class DoT : Debuff
