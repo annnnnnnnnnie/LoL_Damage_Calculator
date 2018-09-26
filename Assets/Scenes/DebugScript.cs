@@ -4,40 +4,43 @@ using UnityEngine;
 
 namespace DebugScript
 {
-    public class User_2
-    {
-        public void ChangeData(DataClass_1 datas)
-        {
-            datas.data += 1;
-            datas.data2 += 1;
-            datas.data3 += 1;
-        }
-    }
-    public class DataClass_1
-    {
-        public int data;
-        public int data2;
-        public int data3;
-    }
     public class DebugScript : MonoBehaviour
     {
-        private DataClass_1 datas = new DataClass_1() { data = 1, data2 = 2, data3 = 3 };
-        private User_2 user_2 = new User_2();
-        public void ShowData()
+        public void Start()
         {
-            Debug.Log(datas.data);
-            Debug.Log(datas.data2);
-            Debug.Log(datas.data3);
+            Parent parent = new Parent();
+            Child child = new Child();
+
+            Display(child);
         }
-        public void Update()
+
+        public void Display(Parent parent)
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                user_2.ChangeData(datas);
-                ShowData();
-                List<Item> items = new List<Item>();
-                Debug.Log(items.Count);
-            }
+            parent.Display();
+        }
+    }
+
+    public class Parent
+    {
+        public int Hour = 10;
+        public void Initialize()
+        {
+
+        }
+
+        public virtual void Display()
+        {
+            Debug.Log("Time is " + Hour);
+        }
+    }
+
+    public class Child : Parent
+    {
+        public int Min = 9;
+
+        public override void Display()
+        {
+            Debug.Log("Time is " + Hour + " " + Min);
         }
     }
 

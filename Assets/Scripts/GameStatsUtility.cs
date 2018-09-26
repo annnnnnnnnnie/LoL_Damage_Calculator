@@ -234,9 +234,11 @@ public static class GameStatsUtility
         }
 
         float rmn = 0f;//from runes
-        
-        //---mana--------------------------------------------------------
 
+        //---mana--------------------------------------------------------
+        //---CDR---------------------------------------------------------
+
+        //---CDR---------------------------------------------------------
         //Item passives----------------------------------------------------
         int doOrDiePassive = 0;
         int i0 = 0;
@@ -340,6 +342,11 @@ public static class GameStatsUtility
             Debug.Log("CorruptingPotion Detected");
             d1.Add("Unique_Passive_TouchOfCorruption", 0);
         }
+        if (d0.ContainsKey("Unique_Passive_SpellBlade"))
+        {
+            Debug.Log("Unique_Passive_SpellBlade Detected");
+            d1.Add("Unique_Passive_SpellBlade", 0);
+        }
 
 
         //AP penetration from item
@@ -392,6 +399,7 @@ public static class GameStatsUtility
         
         d1.Add("AP", totalAP);
         d1.Add("AD", bad + iad + aad);
+        d1.Add("BAD", bad);
         d1.Add("IAD", iad);
         d1.Add("IAP", iap);
         d1.Add("MR", bmr + imr);

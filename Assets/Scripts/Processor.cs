@@ -10,7 +10,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     public SpellPanel spellPanel;
     public AdvancedSetting advancedSetting;
 
-    public int totalTime = 10;
+    public int totalTime;//Set in inspector
     private int intTime;
     private ItemSlot currentItemSlot;
     private Annie_Test annie;
@@ -18,6 +18,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     private List<string> strSpellList;
 
     private List<DoT> dotDamages;
+    private int intUpdateInterval = 10;
 
     public void Awake()
     {
@@ -86,7 +87,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 
     }
 
-    public void Calculate()//Intake a List of Skillcast 
+    public void Calculate()
     {
         intTime = 0;
         annie.PrepareToCastSpells();
@@ -99,7 +100,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         {
             if (i < strSpellList.Count)
             {
-                spellCastSequence.Add((intTime + i*0), strSpellList[i]);
+                spellCastSequence.Add((intTime + i * 0), strSpellList[i]);
             }
             intTime += 10;
         }
@@ -112,36 +113,37 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     {
         Debug.Log("Calculating using advanced technologies... ");
         intTime = 0;
-        for (int i = 0; i < totalTime*100; i++)
+        for (int i = 0; i < totalTime*10; i++)
         {
             if (spellCastsSequence.ContainsKey(intTime))
             {
+                List<SpellCast> spellCasts=  new List<SpellCast>();
                 SpellCast spellCast = annie.CastSpell(spellCastsSequence[intTime]);
-                enemy.Update(spellCast);
+                spellCasts.Add(spellCast);
                 foreach (string addInfo in spellCast.strAdditionalInfo)
                 {
                     if (addInfo.Equals("Electrocute"))
                     {
-                        spellCast = annie.CastSpell("Electrocute");
-                        enemy.Update(spellCast);
+                        spellCasts.Add(annie.CastSpell("Electrocute"));
                     }
                     if (addInfo.Equals("ArcaneComet"))
                     {
-                        spellCast = annie.CastSpell("ArcaneComet");
-                        enemy.Update(spellCast);
+                        spellCasts.Add(annie.CastSpell("ArcaneComet"));
                     }
                     if (addInfo.Equals("Echo"))
                     {
-                        spellCast = annie.CastSpell("Echo");
-                        enemy.Update(spellCast);
+                        spellCasts.Add(annie.CastSpell("Echo"));
                     }
                     if (addInfo.Equals("HextechRevolver"))
                     {
-                        spellCast = annie.CastSpell("HextechRevolver");
-                        enemy.Update(spellCast);
+                        spellCasts.Add(annie.CastSpell("HextechRevolver"));
                     }
-
+                    if (addInfo.Equals("SpellBlade_LichBane"))
+                    {
+                        spellCasts.Add(annie.CastSpell("SpellBlade_LichBane"));
+                    }
                 }
+                enemy.Update(spellCasts);
 
             }
             else
@@ -151,7 +153,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 
             annie.Update();
             
-            intTime += 10;
+            intTime += intUpdateInterval;
         }
     }
 
@@ -188,6 +190,18 @@ public class Buff
     public int intDuration;
 
     public static Buff Hextech = new Buff { strName = "Hextech", intDuration = 9999 };
+    public static Buff SpellBlade = new Buff { strName = "SpellBlade", intDuration = 9999 };
+    
+    public virtual Buff MakeCopy()
+    {
+        return new Buff()
+        {
+            intTimeOfStart = intTimeOfStart,
+            strName = strName,
+            strDescription = strDescription,
+            intDuration = intDuration
+        };
+    }
 
     public override bool Equals(object obj)
     {
@@ -206,7 +220,19 @@ public class Debuff : Buff
     public static Debuff ElectrocuteCD = new Debuff { strName = "ElectrocuteCD" };
     public static Debuff ArcaneCometCD = new Debuff { strName = "ArcaneCometCD" };
     public static Debuff HextechCD = new Debuff { strName = "HextechCD", intDuration = 400, strDescription = "Hextech Item CD"};
+    public static Debuff SpellBladeCD = new Debuff { strName = "SpellBladeCD", intDuration = 150, strDescription = "SpellBladeCD" };
     public static Debuff CoupDeGrace = new Debuff { strName = "CoupDeGrace" };
+
+    public override Buff MakeCopy()
+    {
+        return new Debuff()
+        {
+            intTimeOfStart = intTimeOfStart,
+            intDuration = intDuration,
+            strName = strName,
+            strDescription = strDescription
+        };
+    }
 }
 public class DoT : Debuff
 {
@@ -215,6 +241,7 @@ public class DoT : Debuff
     public int intTickNumber;
     public float fDmgPerTick;
     public string strDmgType;
+    public Amplifier amplifier;
     public new string ToString()
     {
         StringBuilder str = new StringBuilder();
@@ -229,11 +256,41 @@ public class DoT : Debuff
         str.Append("\n---");
         return str.ToString();
     }
+
+    public override Buff MakeCopy()
+    {
+        return new DoT()
+        {
+            intTimeOfStart = intTimeOfStart,
+            intDuration = intDuration,
+            strName = strName,
+            strDescription = strDescription,
+            isDamage = isDamage,
+            intInterval=intInterval,
+            intTickNumber = intTickNumber,
+            fDmgPerTick=fDmgPerTick,
+            strDmgType=strDmgType,
+            amplifier=amplifier
+        };
+    }
 }
 public class Amplifier
 {
     public float fMRpenetration = 0f;
     public float fMRpercentagePenetration = 0f;
     public float fMRreduction = 0f;
+    public List<string> otherAmplifers = new List<string>();
     public List<float> fPercentageDmgModifiers = new List<float>();
+
+    public Amplifier MakeCopy()
+    {
+        return new Amplifier()
+        {
+            fMRpenetration = this.fMRpenetration,
+            fMRpercentagePenetration = this.fMRpercentagePenetration,
+            fMRreduction = this.fMRreduction,
+            otherAmplifers = this.otherAmplifers,
+            fPercentageDmgModifiers = this.fPercentageDmgModifiers
+        };
+    }
 }

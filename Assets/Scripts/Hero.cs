@@ -13,7 +13,7 @@ public abstract class Hero {
     public int intHeroLevel;
     public float fCurrentHealth;
     protected float fTotalDmgReceived;
-    
+
     protected Dictionary<string, float> Attributes;
     public Rune rune;
 
@@ -90,7 +90,7 @@ public abstract class Hero {
 
     }
 
-    
+
 
     public void PrepareToCastSpells()//Temporary
     {
@@ -100,60 +100,36 @@ public abstract class Hero {
     {
         GetPrepared();
     }
-    public double ReceiveSpell(SpellCast spellReceived)
+    public void ReceiveSpell(SpellCast spellReceived)
     {
-        double damage = 0f;
-
-        switch (spellReceived.strDmgType)
-        {
-            case "AP":
-                float fMR = Attributes["MR"];
-                fMR *= (1 - spellReceived.amplifier.fMRpercentagePenetration);
-                fMR -= spellReceived.amplifier.fMRpenetration;
-                fMR = Mathf.Clamp(fMR, 0, 9999);
-                fMR -= spellReceived.amplifier.fMRreduction;
-
-                damage = spellReceived.dDamage * (100 / (100 + fMR));
-                Debug.Log("Damage is: " + damage + ", with effective enemy MR of " + fMR);
-                break;
-            case "AD":
-                float fArmor = Attributes["Armor"];
-                damage = spellReceived.dDamage * (100 / (100 + fArmor));
-                Debug.Log("Damage is: " + damage + ", with effective enemy Armor of " + fArmor);
-                break;
-            default:
-                Debug.Log("Damage Type not recognized");
-                damage = 0f;
-                break;
-        }
+        ReceiveDamage(spellReceived.dDamage, spellReceived.strDmgType, spellReceived.amplifier);
         foreach (Buff buff in spellReceived.listBuffs)
         {
             ReceiveBuff(buff);
         }
-
-        ReceiveDamage(damage);
-        return damage;
     }
-    public void Update(SpellCast spellCast = null)
+    public void Update(List<SpellCast> spellCasts = null)
     {
-        if (spellCast != null)
+        if (spellCasts != null)
         {
-            Debug.Log("Receiving spell");
-            ReceiveSpell(spellCast);
+            foreach (SpellCast spellCast in spellCasts)
+            {
+                Debug.Log("Receiving spell");
+                ReceiveSpell(spellCast);
+            }
         }
-        
-        double dmg = NormalUpdate();
-        ReceiveDamage(dmg);
+
+        NormalUpdate();
+
         if (fCurrentHealth < 1f)
             Debug.LogError("Enemy is dead");
-        if (dmg > 0)
-            Debug.Log("Damage is " + dmg.ToString());
+
 
         bool isOn = true;
-        if (isOn && (intTime % 100 == 0))
+        if (isOn && (intTime % 10 == 0))
         {
-            Debug.Log("Time: " + intTime + "0ms" + "CurrentHealth: " + fCurrentHealth.ToString() 
-                +"\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
+            Debug.Log("Time: " + intTime + "0ms" + "CurrentHealth: " + fCurrentHealth.ToString()
+                + "\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
                 + heroName + ")");
             GameDebugUtility.AddDebugMsg("Total damage dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
                 + heroName + ")");
@@ -162,9 +138,8 @@ public abstract class Hero {
         intTime += updateInterval;
     }
 
-    public double NormalUpdate()
+    public void NormalUpdate()
     {
-        double damage = 0f;
         List<Buff> buffsToBeRemoved = new List<Buff>();
         foreach (Buff buff in buffs)
         {
@@ -178,24 +153,12 @@ public abstract class Hero {
                 if (buff is DoT)
                 {
                     DoT dot = (DoT)buff;
+
                     //Debug.Log("Time: "+ (intTime).ToString()+dot.strName + " DoT damage detected" + dot.ToString());
 
                     if ((intTime - dot.intTimeOfStart) % dot.intInterval == 0)
                     {
-                        switch (dot.strDmgType)
-                        {
-                            case "True":
-                                damage += dot.fDmgPerTick;
-                                break;
-                            case "AP":
-                                Debug.Log("Currently Cannot Process AP DoT");
-                                damage += dot.fDmgPerTick;
-                                break;
-                            default:
-                                Debug.LogError("Unrecognized DoT dmg Tpye");
-                                break;
-
-                        }
+                        ReceiveDamage(dot.fDmgPerTick, dot.strDmgType, dot.amplifier);
                         dot.intDuration -= dot.intInterval;
                         dot.intTickNumber -= 1;
                     }
@@ -216,12 +179,11 @@ public abstract class Hero {
 
         //---Health and mana regen---
         //Update every 0.5 second(intTime%50 ==0)
-        if (intTime % 50 == 0)
-        {
-            ReceiveHealing(Attributes["HealthRegen"] * 0.1f);
-        }
+        //if (intTime % 50 == 0)
+        //{
+        //    ReceiveHealing(Attributes["HealthRegen"] * 0.1f);
+        //}
 
-        return damage;
     }
 
 
@@ -229,6 +191,7 @@ public abstract class Hero {
     protected void ReceiveBuff(Buff buff)
     {
         if (buff == null) return;
+        buff = buff.MakeCopy();
         bool isNewBuff = true;
         foreach (Buff existingBuff in buffs)
         {
@@ -246,6 +209,7 @@ public abstract class Hero {
                 }
             }
         }
+
         if (isNewBuff)
         {
             buff.intTimeOfStart = intTime;
@@ -255,7 +219,7 @@ public abstract class Hero {
 
     private void ReceiveDamage(double dmg)
     {
-        if (buffs.Contains(Debuff.CoupDeGrace) && (fCurrentHealth/Attributes["HP"] <=0.4))
+        if (buffs.Contains(Debuff.CoupDeGrace) && (fCurrentHealth / Attributes["HP"] <= 0.4))
         {
             Debug.Log("CoupDeGraceDmgAmp");
             dmg *= 1.07;
@@ -263,6 +227,45 @@ public abstract class Hero {
 
         fTotalDmgReceived += (float)dmg;
         fCurrentHealth -= (float)dmg;
+    }
+    private void ReceiveDamage(double dDamage, string dmgType, Amplifier amplifier)
+    {
+        double damage = 0;
+        switch (dmgType)
+        {
+            case "AP":
+                float fMR = Attributes["MR"];
+                fMR *= (1 - amplifier.fMRpercentagePenetration);
+                fMR -= amplifier.fMRpenetration;
+                fMR = Mathf.Clamp(fMR, 0, 9999);
+                fMR -= amplifier.fMRreduction;
+
+                damage = dDamage * (100 / (100 + fMR));
+                Debug.Log("Damage is: " + damage + ", with effective enemy MR of " + fMR);
+                break;
+            case "AD":
+                float fArmor = Attributes["Armor"];
+                damage = dDamage * (100 / (100 + fArmor));
+                Debug.Log("Damage is: " + damage + ", with effective enemy Armor of " + fArmor);
+                break;
+            case "True":
+                damage = dDamage;
+                Debug.Log("Damage is: " + damage);
+                break;
+            default:
+                Debug.Log("Damage Type not recognized");
+                damage = 0f;
+                break;
+        }
+        if ((buffs.Contains(Debuff.CoupDeGrace) || amplifier.otherAmplifers.Contains("CoupDeGrace"))
+            && (fCurrentHealth / Attributes["HP"] <= 0.4 && !dmgType.Equals("True")))
+        {
+            Debug.Log("CoupDeGraceDmgAmp");
+            damage *= 1.07;
+        }
+
+        fTotalDmgReceived += (float)damage;
+        fCurrentHealth -= (float)damage;
     }
 
     private void ReceiveHealing(double healing)
@@ -325,6 +328,7 @@ public abstract class Hero {
             "W",
             "E",
             "R",
+            "RA",
             "Ignite",
             "A"
         };
@@ -342,6 +346,13 @@ public class Annie_Test : Hero
 
         GameDebugUtility.Debug_ShowDictionary("Cast Skill ", Attributes);
         SpellCast spellcast = new SpellCast();
+
+        float f;
+        Amplifier amplifier = new Amplifier();
+        if (Attributes.TryGetValue("APPenetration", out f)) amplifier.fMRpenetration = f;
+        if (Attributes.TryGetValue("APPPenetration", out f)) amplifier.fMRpercentagePenetration = f;
+        if (rune.strStones.Contains("CoupDeGrace")) amplifier.otherAmplifers.Add("CoupDeGrace");
+
         switch (spell)
         {
             case "Q":
@@ -367,6 +378,21 @@ public class Annie_Test : Hero
                             ReduceBuffTime("ArcaneCometCD", 0.2f);
                         }
                     }
+                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                    {
+                        spellcast.listBuffs.Add(new DoT()
+                        {
+                            isDamage = true,
+                            intDuration = 300,
+                            intInterval = 100,
+                            intTickNumber = 3,
+                            strDmgType = "AP",
+                            fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                            strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                            strName = "CorruptingPotion",
+                            amplifier = amplifier.MakeCopy()
+                        });
+                    }
                     if (Attributes.ContainsKey("Unique_Passive_Echo"))
                     {
                         if (counter.EchoCount >= 100)
@@ -379,19 +405,9 @@ public class Annie_Test : Hero
                         }
 
                     }
-                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD))
                     {
-                        spellcast.listBuffs.Add(new DoT()
-                        {
-                            isDamage = true,
-                            intDuration = 300,
-                            intInterval = 100,
-                            intTickNumber = 3,
-                            strDmgType = "AP",
-                            fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
-                            strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                            strName = "CorruptingPotion"
-                        });
+                        ReceiveBuff(Buff.SpellBlade);
                     }
                 }
                 else
@@ -432,8 +448,25 @@ public class Annie_Test : Hero
                             strDmgType = "AP",
                             fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
                             strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                            strName = "CorruptingPotion(Halved)"
+                            strName = "CorruptingPotion(Halved)",
+                            amplifier = amplifier.MakeCopy()
                         });
+                    }
+                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
+                    {
+                        if (counter.EchoCount >= 100)
+                        {
+                            spellcast.strAdditionalInfo.Add("Echo");
+                        }
+                        else
+                        {
+                            counter.EchoCount += 10;
+                        }
+
+                    }
+                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD))
+                    {
+                        ReceiveBuff(Buff.SpellBlade);
                     }
                 }
                 else
@@ -446,9 +479,9 @@ public class Annie_Test : Hero
                 {
                     ReceiveBuff(new Buff
                     {
-                         intDuration = 300,
-                         strName = "Molten_Shield_Damage",
-                         strDescription = "MoltenShield_Damage"
+                        intDuration = 300,
+                        strName = "Molten_Shield_Damage",
+                        strDescription = "MoltenShield_Damage"
                     });
                     ReceiveBuff(new Buff
                     {
@@ -456,6 +489,10 @@ public class Annie_Test : Hero
                         strName = "Molten_Shield_Damage_Reduction",
                         strDescription = "MoltenShield_Damage_Reduction"
                     });
+                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD))
+                    {
+                        ReceiveBuff(Buff.SpellBlade);
+                    }
                     Debug.Log("Casting Edmg of level " + levels[2]);
                 }
                 else
@@ -484,6 +521,18 @@ public class Annie_Test : Hero
                             ReduceBuffTime("ArcaneCometCD", 0.1f);
                         }
                     }
+                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
+                    {
+                        if (counter.EchoCount >= 100)
+                        {
+                            spellcast.strAdditionalInfo.Add("Echo");
+                        }
+                        else
+                        {
+                            counter.EchoCount += 10;
+                        }
+
+                    }
                 }
                 break;
             case "R":
@@ -492,6 +541,18 @@ public class Annie_Test : Hero
                     spellcast.dDamage = 75 + 80 * levels[3] + 0.65 * Attributes["AP"];
                     spellcast.strDmgType = "AP";
                     Debug.Log("Casting R of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage);
+                    spellcast.listBuffs.Add(new DoT()
+                    {
+                        isDamage = true,
+                        intDuration = 500,
+                        intInterval = 100,
+                        intTickNumber = 5,
+                        strDmgType = "AP",
+                        fDmgPerTick = (float)(5 + 5 * levels[3] + 0.1 * Attributes["AP"]),
+                        strDescription = "Tibbers Burn",
+                        strName = "Tibbers Burn",
+                        amplifier = amplifier.MakeCopy()
+                    });
                     if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
                     {
                         counter.intElectrocuteCount += 1;
@@ -518,8 +579,77 @@ public class Annie_Test : Hero
                             strDmgType = "AP",
                             fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
                             strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                            strName = "CorruptingPotion(Halved)"
+                            strName = "CorruptingPotion(Halved)",
+                            amplifier = amplifier.MakeCopy()
                         });
+                    }
+                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
+                    {
+                        if (counter.EchoCount >= 100)
+                        {
+                            spellcast.strAdditionalInfo.Add("Echo");
+                        }
+                        else
+                        {
+                            counter.EchoCount += 10;
+                        }
+
+                    }
+                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD))
+                    {
+                        ReceiveBuff(Buff.SpellBlade);
+                    }
+                }
+                else
+                {
+                    Debug.Log("R has not been learnt");
+                }
+                break;
+            case "RA":
+                if (!levels[3].Equals(0))
+                {
+                    spellcast.dDamage = 25 + 25 * levels[3] + 0.15 * Attributes["AP"];
+                    spellcast.strDmgType = "AP";
+                    Debug.Log("Casting RA of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage);
+
+
+                    if (rune.strStones.Contains("ArcaneComet"))
+                    {
+                        if (!buffs.Contains(Debuff.ArcaneCometCD))
+                        {
+                            spellcast.strAdditionalInfo.Add("ArcaneComet");
+                        }
+                        else
+                        {
+                            ReduceBuffTime("ArcaneCometCD", 0.1f);
+                        }
+                    }
+                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                    {
+                        spellcast.listBuffs.Add(new DoT()
+                        {
+                            isDamage = true,
+                            intDuration = 300,
+                            intInterval = 100,
+                            intTickNumber = 3,
+                            strDmgType = "AP",
+                            fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                            strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                            strName = "CorruptingPotion(Halved)",
+                            amplifier = amplifier.MakeCopy()
+                        });
+                    }
+                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
+                    {
+                        if (counter.EchoCount >= 100)
+                        {
+                            spellcast.strAdditionalInfo.Add("Echo");
+                        }
+                        else
+                        {
+                            counter.EchoCount += 10;
+                        }
+
                     }
                 }
                 else
@@ -554,13 +684,20 @@ public class Annie_Test : Hero
                         strName = "CorruptingPotion"
                     });
                 }
+                if (buffs.Contains(Buff.SpellBlade)&& !buffs.Contains(Debuff.SpellBladeCD))
+                {
+                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade"))
+                    {
+                        spellcast.strAdditionalInfo.Add("SpellBlade_LichBane");
+                    }
+                }
                 break;
             case "Electrocute":
                 spellcast.dDamage = 40 + 10 * intHeroLevel + 0.3 * Attributes["AP"];
                 spellcast.strDmgType = "AP";
                 ReceiveBuff(new Debuff
                 {
-                    intDuration = (25 - 2 * intHeroLevel),
+                    intDuration = (25 - 2 * intHeroLevel) * 100,
                     intTimeOfStart = intTime,
                     strName = "ElectrocuteCD",
                     strDescription = "ElectrocuteCD"
@@ -588,8 +725,63 @@ public class Annie_Test : Hero
             case "HextechRevolver":
                 spellcast.dDamage = 50 + 4.41 * intHeroLevel;
                 spellcast.strDmgType = "AP";
-                Debug.Log("Casting HextechRevolverat level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage);
+                Debug.Log("Casting HextechRevolver at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage);
                 ReceiveBuff(Debuff.HextechCD);
+                break;
+            case "HextechProtobelt_01":
+                int rockets = (int)Attributes["Unique_Active_FireBolt"];
+                double oneRocketDmg = 75 + 4.41 * intHeroLevel + 0.25 * Attributes["AP"];
+                spellcast.dDamage = oneRocketDmg + 0.1 * Mathf.Clamp((rockets - 1), 0, 7);
+                spellcast.strDmgType = "AP";
+                Debug.Log("Casting Protobelt at level " + intHeroLevel + ", " + rockets + " rockets fired, Raw Damage is: " + spellcast.dDamage);
+                if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
+                {
+                    counter.intElectrocuteCount += 1;
+                }
+                if (rune.strStones.Contains("ArcaneComet"))
+                {
+                    if (!buffs.Contains(Debuff.ArcaneCometCD))
+                    {
+                        spellcast.strAdditionalInfo.Add("ArcaneComet");
+                    }
+                    else
+                    {
+                        ReduceBuffTime("ArcaneCometCD", 0.1f);
+                    }
+                }
+                if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                {
+                    spellcast.listBuffs.Add(new DoT()
+                    {
+                        isDamage = true,
+                        intDuration = 300,
+                        intInterval = 100,
+                        intTickNumber = 3,
+                        strDmgType = "AP",
+                        fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                        strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                        strName = "CorruptingPotion(Halved)",
+                        amplifier = amplifier.MakeCopy()
+                    });
+                }
+                if (Attributes.ContainsKey("Unique_Passive_Echo"))
+                {
+                    if (counter.EchoCount >= 100)
+                    {
+                        spellcast.strAdditionalInfo.Add("Echo");
+                    }
+                    else
+                    {
+                        counter.EchoCount += 10;
+                    }
+
+                }
+                break;
+            case "SpellBlade_LichBane":
+                spellcast.dDamage = 0.75 * Attributes["BAD"] + 0.5 * Attributes["AP"];
+                spellcast.strDmgType = "AP";
+                Debug.Log("Casting SpellBlade_LichBane, Raw Damage is: " + spellcast.dDamage);
+                ReceiveBuff(Debuff.SpellBladeCD);
                 break;
             case "Ignite":
                 spellcast.listBuffs.Add(new DoT()
@@ -601,7 +793,8 @@ public class Annie_Test : Hero
                     strDmgType = "True",
                     fDmgPerTick = (float)0.2 * (55 + 25 * intHeroLevel),
                     strDescription = "Ignite: deal 55 + 25 * level true damage in 5 seconds",
-                    strName = "Ignite"
+                    strName = "Ignite",
+                    amplifier = new Amplifier()
                 });
                 spellcast.listBuffs.Add(new Debuff()
                 {
@@ -623,12 +816,7 @@ public class Annie_Test : Hero
             
         }
 
-
-
-        float f;
-        spellcast.amplifier = new Amplifier();
-        if (Attributes.TryGetValue("APPenetration", out f)) spellcast.amplifier.fMRpenetration = f;
-        if (Attributes.TryGetValue("APPPenetration", out f)) spellcast.amplifier.fMRpercentagePenetration = f;
+        spellcast.amplifier = amplifier.MakeCopy();
 
         return spellcast;
     }

@@ -45,17 +45,20 @@ public class SpellPanel : MonoBehaviour {
 
     private void BackSpace(string spell)
     {
-        GameObject displayedTextToBeRemoved = null;
+        List<GameObject> displayedTextsToBeRemoved = new List<GameObject>();
         foreach(GameObject go in DisplayedText)
         {
             if (go.GetComponent<Text>().text.Equals(spell))
             {
-                displayedTextToBeRemoved = go;
+                displayedTextsToBeRemoved.Add(go);
             }
         }
-        DisplayedText.Remove(displayedTextToBeRemoved);
-        GameObjectUtility.CustomDestroy(displayedTextToBeRemoved);
-        spellList.Remove(spell);
+        foreach (GameObject displayedTextToBeRemoved in displayedTextsToBeRemoved)
+        {
+            DisplayedText.Remove(displayedTextToBeRemoved);
+            GameObjectUtility.CustomDestroy(displayedTextToBeRemoved);
+            spellList.Remove(spell);
+        }
     }
 
     private void ClearAll()

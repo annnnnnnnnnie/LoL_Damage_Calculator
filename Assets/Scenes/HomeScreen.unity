@@ -549,7 +549,7 @@ MonoBehaviour:
     type: 2}
   runePagePrefab: {fileID: 0}
   isShowingHeroLevelOnly: 1
-  initialLevels: 0600000000000000000000000000000000000000
+  initialLevels: 0b00000000000000000000000000000000000000
 --- !u!1 &88267892
 GameObject:
   m_ObjectHideFlags: 0
@@ -3995,7 +3995,7 @@ MonoBehaviour:
     type: 2}
   runePagePrefab: {fileID: 0}
   isShowingHeroLevelOnly: 0
-  initialLevels: 0600000003000000020000000000000001000000
+  initialLevels: 0b00000003000000050000000100000002000000
 --- !u!114 &1371473919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6294,7 +6294,7 @@ MonoBehaviour:
   itemList: {fileID: 1230939800}
   spellPanel: {fileID: 2021787106}
   advancedSetting: {fileID: 846868048}
-  totalTime: 6
+  totalTime: 3
 --- !u!1 &2136767854
 GameObject:
   m_ObjectHideFlags: 0
