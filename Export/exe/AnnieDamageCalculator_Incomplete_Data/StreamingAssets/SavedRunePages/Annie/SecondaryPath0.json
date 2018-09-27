@@ -1,41 +1,41 @@
 {
-    "pathName": "Inspiration",
+    "pathName": "Sorcery",
     "keyStone": {
-        "strName": "keyStone_Inspiration",
+        "strName": "keyStone_Sorcery",
         "stoneChoices": [
-            "GlacialAugment",
-            "Kleptomancy",
-            "UnsealedSpellbook"
+            "SummonAery",
+            "ArcaneComet",
+            "PhaseRush"
         ],
         "stoneChoiced": ""
     },
     "runeStones": [
         {
-            "strName": "InspirationStone_1",
+            "strName": "SorceryStone_1",
             "stoneChoices": [
-                "HextechFlashtraption",
-                "MagicalFootwear",
-                "PerfectTiming"
-            ],
-            "stoneChoiced": "HextechFlashtraption"
-        },
-        {
-            "strName": "InspirationStone_2",
-            "stoneChoices": [
-                "FuturesMarket",
-                "MinionDematerializer",
-                "BiscuitDelivery"
-            ],
-            "stoneChoiced": "MinionDematerializer"
-        },
-        {
-            "strName": "InspirationStone_3",
-            "stoneChoices": [
-                "CosmicInsight",
-                "ApproachVelocity",
-                "TimeWarpTonic"
+                "NullifyingOrb",
+                "ManaflowBand",
+                "NimbusCloak"
             ],
             "stoneChoiced": ""
+        },
+        {
+            "strName": "SorceryStone_2",
+            "stoneChoices": [
+                "Transcendence",
+                "Celerity",
+                "AbsoluteFocus"
+            ],
+            "stoneChoiced": "AbsoluteFocus"
+        },
+        {
+            "strName": "SorceryStone_3",
+            "stoneChoices": [
+                "Scorch",
+                "Waterwalking",
+                "GatheringStorm"
+            ],
+            "stoneChoiced": "Scorch"
         }
     ]
 }

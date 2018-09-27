@@ -126,7 +126,7 @@ public abstract class Hero {
 
 
         bool isOn = true;
-        if (isOn && (intTime % 10 == 0))
+        if (isOn && (intTime % 10 == 0) && fTotalDmgReceived > 0)
         {
             Debug.Log("Time: " + intTime + "0ms" + "CurrentHealth: " + fCurrentHealth.ToString()
                 + "\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
@@ -338,6 +338,7 @@ public abstract class Hero {
 
 public class Annie_Test : Hero
 {
+    private string msg;
     public SpellCast CastSpell(string spell)
     {
         int[] levels = new int[4] { heroInfo.GetLevel("Q"), heroInfo.GetLevel("W"), heroInfo.GetLevel("E"), heroInfo.GetLevel("R") };//0=Q 5=HeroLevel
@@ -361,8 +362,9 @@ public class Annie_Test : Hero
                     spellcast.dDamage = 45 + 35 * levels[0] + 0.8 * Attributes["AP"];
                     spellcast.strDmgType = "AP";
                     spellcast.fCooldown = 4f;
-                    Debug.Log("Casting Q of level " + levels[0] + ", Raw Damage is: " + spellcast.dDamage);
-
+                    msg = "Casting Q of level " + levels[0] + ", Raw Damage is: " + spellcast.dDamage;
+                    Debug.Log(msg);
+                    GameDebugUtility.AddDebugMsg(msg);
                     if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
                     {
                         counter.intElectrocuteCount += 1;
@@ -421,7 +423,9 @@ public class Annie_Test : Hero
                     spellcast.dDamage = 25 + 45 * levels[1] + 0.85 * Attributes["AP"];
                     spellcast.strDmgType = "AP";
                     spellcast.fCooldown = 6f;
-                    Debug.Log("Casting W of level " + levels[1] + ", Raw Damage is: " + spellcast.dDamage);
+                    msg = "Casting W of level " + levels[1] + ", Raw Damage is: " + spellcast.dDamage;
+                    Debug.Log(msg);
+                    GameDebugUtility.AddDebugMsg(msg);
                     if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
                     {
                         counter.intElectrocuteCount += 1;
@@ -493,7 +497,7 @@ public class Annie_Test : Hero
                     {
                         ReceiveBuff(Buff.SpellBlade);
                     }
-                    Debug.Log("Casting Edmg of level " + levels[2]);
+                    Debug.Log("Casting E of level " + levels[2]);
                 }
                 else
                 {
@@ -540,7 +544,9 @@ public class Annie_Test : Hero
                 {
                     spellcast.dDamage = 75 + 80 * levels[3] + 0.65 * Attributes["AP"];
                     spellcast.strDmgType = "AP";
-                    Debug.Log("Casting R of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage);
+                    msg = "Casting R of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage;
+                    Debug.Log(msg);
+                    GameDebugUtility.AddDebugMsg(msg);
                     spellcast.listBuffs.Add(new DoT()
                     {
                         isDamage = true,
@@ -610,9 +616,9 @@ public class Annie_Test : Hero
                 {
                     spellcast.dDamage = 25 + 25 * levels[3] + 0.15 * Attributes["AP"];
                     spellcast.strDmgType = "AP";
-                    Debug.Log("Casting RA of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage);
-
-
+                    msg = "Casting RA of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage;
+                    Debug.Log(msg);
+                    GameDebugUtility.AddDebugMsg(msg);
                     if (rune.strStones.Contains("ArcaneComet"))
                     {
                         if (!buffs.Contains(Debuff.ArcaneCometCD))
@@ -660,7 +666,9 @@ public class Annie_Test : Hero
             case "A":
                 spellcast.dDamage = Attributes["AD"];
                 spellcast.strDmgType = "AD";
-                Debug.Log("Auto Attacking, Raw Damage is: " + spellcast.dDamage);
+                msg = "Auto Attacking, Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
 
                 if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
                 {
@@ -702,7 +710,9 @@ public class Annie_Test : Hero
                     strName = "ElectrocuteCD",
                     strDescription = "ElectrocuteCD"
                 });
-                Debug.Log("Casting Electrocute at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage);
+                msg = "Casting Electrocute at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
                 break;
             case "ArcaneComet":
                 spellcast.dDamage = 15.88 + 4.12 * intHeroLevel + 0.2 * Attributes["AP"];
@@ -714,18 +724,24 @@ public class Annie_Test : Hero
                     strName = "ArcaneCometCD",
                     strDescription = "ArcaneCometCD"
                 });
-                Debug.Log("Casting ArcaneComet at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage);
+                msg = "Casting ArcaneComet at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
                 break;
             case "Echo":
                 spellcast.dDamage = 100 + 0.10 * Attributes["AP"];
                 spellcast.strDmgType = "AP";
-                Debug.Log("Casting Echo, Raw Damage is: " + spellcast.dDamage);
+                msg = "Casting Echo, Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
                 counter.EchoCount = 0;
                 break;
             case "HextechRevolver":
                 spellcast.dDamage = 50 + 4.41 * intHeroLevel;
                 spellcast.strDmgType = "AP";
-                Debug.Log("Casting HextechRevolver at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage);
+                msg = "Casting HextechRevolver at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
                 ReceiveBuff(Debuff.HextechCD);
                 break;
             case "HextechProtobelt_01":
@@ -733,7 +749,9 @@ public class Annie_Test : Hero
                 double oneRocketDmg = 75 + 4.41 * intHeroLevel + 0.25 * Attributes["AP"];
                 spellcast.dDamage = oneRocketDmg + 0.1 * Mathf.Clamp((rockets - 1), 0, 7);
                 spellcast.strDmgType = "AP";
-                Debug.Log("Casting Protobelt at level " + intHeroLevel + ", " + rockets + " rockets fired, Raw Damage is: " + spellcast.dDamage);
+                msg = ("Casting Protobelt at level " + intHeroLevel + ", " + rockets + " rockets fired, Raw Damage is: " + spellcast.dDamage);
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
                 if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
                 {
                     counter.intElectrocuteCount += 1;
@@ -780,7 +798,9 @@ public class Annie_Test : Hero
             case "SpellBlade_LichBane":
                 spellcast.dDamage = 0.75 * Attributes["BAD"] + 0.5 * Attributes["AP"];
                 spellcast.strDmgType = "AP";
-                Debug.Log("Casting SpellBlade_LichBane, Raw Damage is: " + spellcast.dDamage);
+                msg = "Casting SpellBlade_LichBane, Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
                 ReceiveBuff(Debuff.SpellBladeCD);
                 break;
             case "Ignite":
@@ -802,6 +822,9 @@ public class Annie_Test : Hero
                     strDescription = "Healing Reduction from Ignite",
                     strName = "Healing Reduction from Ignite"
                 });
+                msg = "Casting Ignite at level " + intHeroLevel;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
                 break;
             default:
                 Debug.LogError("SpellCastNotRecognized");

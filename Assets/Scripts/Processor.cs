@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Text;
 
 public class Processor : MonoBehaviour//Attached to HomeScreen
@@ -9,6 +10,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     public ItemList itemList;
     public SpellPanel spellPanel;
     public AdvancedSetting advancedSetting;
+    public Text logText;
 
     public int totalTime;//Set in inspector
     private int intTime;
@@ -23,10 +25,10 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     public void Awake()
     {
         GameDebugUtility.Initialize();
+        ClearLogText();
     }
     public void Start()
     {
-
         annie = new Annie_Test();
         annie.Initialize("Annie");
         enemy = new Annie_Test();
@@ -112,6 +114,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     public void Calculate(Dictionary<int, string> spellCastsSequence)
     {
         Debug.Log("Calculating using advanced technologies... ");
+        GameDebugUtility.AddDebugMsg("--------------Calculating using advanced technologies...--------- ");
         intTime = 0;
         for (int i = 0; i < totalTime*10; i++)
         {
@@ -155,8 +158,13 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
             
             intTime += intUpdateInterval;
         }
+        logText.text = GameDebugUtility.ShowAllDebugMsg();
     }
-
+    public void ClearLogText()
+    {
+        GameDebugUtility.Initialize();
+        logText.text = "";
+    }
 }
 public class SpellCast
 {

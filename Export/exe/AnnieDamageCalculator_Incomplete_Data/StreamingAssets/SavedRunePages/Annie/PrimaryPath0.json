@@ -18,7 +18,7 @@
                 "TasteOfBlood",
                 "SuddenImpact"
             ],
-            "stoneChoiced": "TasteOfBlood"
+            "stoneChoiced": "SuddenImpact"
         },
         {
             "strName": "DominationStone_2",
@@ -27,7 +27,7 @@
                 "GhostPoro",
                 "EyeballCollection"
             ],
-            "stoneChoiced": "ZombieWard"
+            "stoneChoiced": "GhostPoro"
         },
         {
             "strName": "DominationStone_3",
@@ -37,7 +37,7 @@
                 "RelentlessHunter",
                 "UltimateHunter"
             ],
-            "stoneChoiced": "IngeniousHunter"
+            "stoneChoiced": "RavenousHunter"
         }
     ]
 }

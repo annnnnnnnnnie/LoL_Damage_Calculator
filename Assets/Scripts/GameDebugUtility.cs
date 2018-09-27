@@ -19,17 +19,19 @@ public static class GameDebugUtility
     {
         DebugMsgs = new List<string>();
     }
-    public static void ShowAllDebugMsg()
+    public static string ShowAllDebugMsg()
     {
         StringBuilder str = new StringBuilder();
         foreach (string msg in DebugMsgs)
         {
-            str.Append("\n");
-            str.Append(Time.realtimeSinceStartup.ToString());
-            str.Append(" ");
+            str.Append("\n ");
             str.Append(msg);
+            str.Append(" (Time: ");
+            str.Append(Time.realtimeSinceStartup.ToString());
+            str.Append("s)");
         }
         Debug.Log(str.ToString());
+        return str.ToString();
     }
 
     public static void AddDebugMsg(string message)
