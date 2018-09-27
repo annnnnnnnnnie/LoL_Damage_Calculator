@@ -145,6 +145,10 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
                     {
                         spellCasts.Add(annie.CastSpell("SpellBlade_LichBane"));
                     }
+                    if (addInfo.EndsWith("Scorch"))
+                    {
+                        spellCasts.Add(annie.CastSpell("Scorch"));
+                    }
                 }
                 enemy.Update(spellCasts);
 
@@ -230,7 +234,7 @@ public class Debuff : Buff
     public static Debuff HextechCD = new Debuff { strName = "HextechCD", intDuration = 400, strDescription = "Hextech Item CD"};
     public static Debuff SpellBladeCD = new Debuff { strName = "SpellBladeCD", intDuration = 150, strDescription = "SpellBladeCD" };
     public static Debuff CoupDeGrace = new Debuff { strName = "CoupDeGrace" };
-
+    public static Debuff ScorchCD = new Debuff { strName = "ScorchCD", intDuration = 100 };
     public override Buff MakeCopy()
     {
         return new Debuff()

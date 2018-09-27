@@ -5,7 +5,7 @@ using System;
 using System.Text;
 
 public abstract class Hero {
-    //Under development, use Hero_Base for now
+    
     public HeroInfo heroInfo; //Assign through inspector for now
 
     public string strName;
@@ -338,14 +338,13 @@ public abstract class Hero {
 
 public class Annie_Test : Hero
 {
-    private string msg;
+    private SpellCastProperty spellCastProperty;
     public SpellCast CastSpell(string spell)
     {
         int[] levels = new int[4] { heroInfo.GetLevel("Q"), heroInfo.GetLevel("W"), heroInfo.GetLevel("E"), heroInfo.GetLevel("R") };//0=Q 5=HeroLevel
 
-        
-
         GameDebugUtility.Debug_ShowDictionary("Cast Skill ", Attributes);
+        Debug.Log(rune.ToString());
         SpellCast spellcast = new SpellCast();
 
         float f;
@@ -353,6 +352,8 @@ public class Annie_Test : Hero
         if (Attributes.TryGetValue("APPenetration", out f)) amplifier.fMRpenetration = f;
         if (Attributes.TryGetValue("APPPenetration", out f)) amplifier.fMRpercentagePenetration = f;
         if (rune.strStones.Contains("CoupDeGrace")) amplifier.otherAmplifers.Add("CoupDeGrace");
+
+        string msg;
 
         switch (spell)
         {
@@ -365,52 +366,20 @@ public class Annie_Test : Hero
                     msg = "Casting Q of level " + levels[0] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
                     GameDebugUtility.AddDebugMsg(msg);
-                    if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
-                    {
-                        counter.intElectrocuteCount += 1;
-                    }
-                    if (rune.strStones.Contains("ArcaneComet"))
-                    {
-                        if (!buffs.Contains(Debuff.ArcaneCometCD))
-                        {
-                            spellcast.strAdditionalInfo.Add("ArcaneComet");
-                        }
-                        else
-                        {
-                            ReduceBuffTime("ArcaneCometCD", 0.2f);
-                        }
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
-                    {
-                        spellcast.listBuffs.Add(new DoT()
-                        {
-                            isDamage = true,
-                            intDuration = 300,
-                            intInterval = 100,
-                            intTickNumber = 3,
-                            strDmgType = "AP",
-                            fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
-                            strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                            strName = "CorruptingPotion",
-                            amplifier = amplifier.MakeCopy()
-                        });
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
-                    {
-                        if (counter.EchoCount >= 100)
-                        {
-                            spellcast.strAdditionalInfo.Add("Echo");
-                        }
-                        else
-                        {
-                            counter.EchoCount += 10;
-                        }
 
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD))
+                    spellCastProperty = new SpellCastProperty()
                     {
-                        ReceiveBuff(Buff.SpellBlade);
-                    }
+                        isInCombat = true,
+                        isSingleTarget = true,
+                        canGiveSpellBlade = true,
+                        canTriggerElectrocute = true,
+                        canTriggerArcaneComet = true,
+                        canTriggerOnHit = false,
+                        canTriggerEcho = true,
+                        canTriggerCorruptingPotion = true,
+                        canStackEcho = true,
+                        canTriggerScorch = true
+                    };
                 }
                 else
                 {
@@ -426,52 +395,20 @@ public class Annie_Test : Hero
                     msg = "Casting W of level " + levels[1] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
                     GameDebugUtility.AddDebugMsg(msg);
-                    if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
+                    spellCastProperty = new SpellCastProperty()
                     {
-                        counter.intElectrocuteCount += 1;
-                    }
-                    if (rune.strStones.Contains("ArcaneComet"))
-                    {
-                        if (!buffs.Contains(Debuff.ArcaneCometCD))
-                        {
-                            spellcast.strAdditionalInfo.Add("ArcaneComet");
-                        }
-                        else
-                        {
-                            ReduceBuffTime("ArcaneCometCD", 0.1f);
-                        }
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
-                    {
-                        spellcast.listBuffs.Add(new DoT()
-                        {
-                            isDamage = true,
-                            intDuration = 300,
-                            intInterval = 100,
-                            intTickNumber = 3,
-                            strDmgType = "AP",
-                            fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
-                            strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                            strName = "CorruptingPotion(Halved)",
-                            amplifier = amplifier.MakeCopy()
-                        });
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
-                    {
-                        if (counter.EchoCount >= 100)
-                        {
-                            spellcast.strAdditionalInfo.Add("Echo");
-                        }
-                        else
-                        {
-                            counter.EchoCount += 10;
-                        }
-
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD))
-                    {
-                        ReceiveBuff(Buff.SpellBlade);
-                    }
+                        isInCombat = true,
+                        isSingleTarget = false,
+                        canGiveSpellBlade = true,
+                        canTriggerElectrocute = true,
+                        canTriggerArcaneComet = true,
+                        canTriggerOnHit = false,
+                        canTriggerEcho = true,
+                        canTriggerCorruptingPotion = true,
+                        canStackEcho = true,
+                        canTriggerScorch = true
+                    };
+                    
                 }
                 else
                 {
@@ -493,10 +430,20 @@ public class Annie_Test : Hero
                         strName = "Molten_Shield_Damage_Reduction",
                         strDescription = "MoltenShield_Damage_Reduction"
                     });
-                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD))
+                    spellCastProperty = new SpellCastProperty()
                     {
-                        ReceiveBuff(Buff.SpellBlade);
-                    }
+                        isInCombat = false,
+                        isSingleTarget = true,
+                        canGiveSpellBlade = true,
+                        canTriggerElectrocute = false,
+                        canTriggerArcaneComet = false,
+                        canTriggerOnHit = false,
+                        canTriggerEcho = false,
+                        canTriggerCorruptingPotion = false,
+                        canStackEcho = true,
+                        canTriggerScorch = false
+                    };
+                    
                     Debug.Log("Casting E of level " + levels[2]);
                 }
                 else
@@ -510,33 +457,21 @@ public class Annie_Test : Hero
                     spellcast.dDamage = 15 + 15 * levels[2] + 0.3 * Attributes["AP"];
                     spellcast.strDmgType = "AP";
                     Debug.Log("Casting Edmg of level " + levels[2] + ", Raw Damage is: " + spellcast.dDamage);
-                    if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
+                    spellCastProperty = new SpellCastProperty()
                     {
-                        counter.intElectrocuteCount += 1;
-                    }
-                    if (rune.strStones.Contains("ArcaneComet"))
-                    {
-                        if (!buffs.Contains(Debuff.ArcaneCometCD))
-                        {
-                            spellcast.strAdditionalInfo.Add("ArcaneComet");
-                        }
-                        else
-                        {
-                            ReduceBuffTime("ArcaneCometCD", 0.1f);
-                        }
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
-                    {
-                        if (counter.EchoCount >= 100)
-                        {
-                            spellcast.strAdditionalInfo.Add("Echo");
-                        }
-                        else
-                        {
-                            counter.EchoCount += 10;
-                        }
-
-                    }
+                        isInCombat = true,
+                        isSingleTarget = true,
+                        canGiveSpellBlade = false,
+                        canTriggerElectrocute = true,
+                        canTriggerArcaneComet = true,
+                        canTriggerOnHit = false,
+                        canTriggerEcho = true,
+                        canTriggerCorruptingPotion = true,
+                        canStackEcho = false,
+                        canTriggerScorch = true
+                    };
+                   
+                   
                 }
                 break;
             case "R":
@@ -547,6 +482,19 @@ public class Annie_Test : Hero
                     msg = "Casting R of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
                     GameDebugUtility.AddDebugMsg(msg);
+                    spellCastProperty = new SpellCastProperty()
+                    {
+                        isInCombat = true,
+                        isSingleTarget = false,
+                        canGiveSpellBlade = true,
+                        canTriggerElectrocute = true,
+                        canTriggerArcaneComet = true,
+                        canTriggerOnHit = false,
+                        canTriggerEcho = true,
+                        canTriggerCorruptingPotion = true,
+                        canStackEcho = true,
+                        canTriggerScorch = true
+                    };
                     spellcast.listBuffs.Add(new DoT()
                     {
                         isDamage = true,
@@ -559,52 +507,8 @@ public class Annie_Test : Hero
                         strName = "Tibbers Burn",
                         amplifier = amplifier.MakeCopy()
                     });
-                    if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
-                    {
-                        counter.intElectrocuteCount += 1;
-                    }
-                    if (rune.strStones.Contains("ArcaneComet"))
-                    {
-                        if (!buffs.Contains(Debuff.ArcaneCometCD))
-                        {
-                            spellcast.strAdditionalInfo.Add("ArcaneComet");
-                        }
-                        else
-                        {
-                            ReduceBuffTime("ArcaneCometCD", 0.1f);
-                        }
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
-                    {
-                        spellcast.listBuffs.Add(new DoT()
-                        {
-                            isDamage = true,
-                            intDuration = 300,
-                            intInterval = 100,
-                            intTickNumber = 3,
-                            strDmgType = "AP",
-                            fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
-                            strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                            strName = "CorruptingPotion(Halved)",
-                            amplifier = amplifier.MakeCopy()
-                        });
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
-                    {
-                        if (counter.EchoCount >= 100)
-                        {
-                            spellcast.strAdditionalInfo.Add("Echo");
-                        }
-                        else
-                        {
-                            counter.EchoCount += 10;
-                        }
-
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD))
-                    {
-                        ReceiveBuff(Buff.SpellBlade);
-                    }
+                    
+                   
                 }
                 else
                 {
@@ -619,44 +523,21 @@ public class Annie_Test : Hero
                     msg = "Casting RA of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
                     GameDebugUtility.AddDebugMsg(msg);
-                    if (rune.strStones.Contains("ArcaneComet"))
+                    spellCastProperty = new SpellCastProperty()
                     {
-                        if (!buffs.Contains(Debuff.ArcaneCometCD))
-                        {
-                            spellcast.strAdditionalInfo.Add("ArcaneComet");
-                        }
-                        else
-                        {
-                            ReduceBuffTime("ArcaneCometCD", 0.1f);
-                        }
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
-                    {
-                        spellcast.listBuffs.Add(new DoT()
-                        {
-                            isDamage = true,
-                            intDuration = 300,
-                            intInterval = 100,
-                            intTickNumber = 3,
-                            strDmgType = "AP",
-                            fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
-                            strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                            strName = "CorruptingPotion(Halved)",
-                            amplifier = amplifier.MakeCopy()
-                        });
-                    }
-                    if (Attributes.ContainsKey("Unique_Passive_Echo"))
-                    {
-                        if (counter.EchoCount >= 100)
-                        {
-                            spellcast.strAdditionalInfo.Add("Echo");
-                        }
-                        else
-                        {
-                            counter.EchoCount += 10;
-                        }
-
-                    }
+                        isInCombat = true,
+                        isSingleTarget = true,
+                        canGiveSpellBlade = false,
+                        canTriggerElectrocute = true,
+                        canTriggerArcaneComet = true,
+                        canTriggerOnHit = false,
+                        canTriggerEcho = true,
+                        canTriggerCorruptingPotion = true,
+                        canStackEcho = false,
+                        canTriggerScorch = true
+                    };
+                    
+                    
                 }
                 else
                 {
@@ -669,36 +550,20 @@ public class Annie_Test : Hero
                 msg = "Auto Attacking, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
                 GameDebugUtility.AddDebugMsg(msg);
-
-                if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
+                spellCastProperty = new SpellCastProperty()
                 {
-                    counter.intElectrocuteCount += 1;
-                }
-                if (buffs.Contains(Buff.Hextech) && !buffs.Contains(Debuff.HextechCD))
-                {
-                    spellcast.strAdditionalInfo.Add("HextechRevolver");
-                }
-                if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
-                {
-                    spellcast.listBuffs.Add(new DoT()
-                    {
-                        isDamage = true,
-                        intDuration = 300,
-                        intInterval = 100,
-                        intTickNumber = 3,
-                        strDmgType = "AP",
-                        fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
-                        strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                        strName = "CorruptingPotion"
-                    });
-                }
-                if (buffs.Contains(Buff.SpellBlade)&& !buffs.Contains(Debuff.SpellBladeCD))
-                {
-                    if (Attributes.ContainsKey("Unique_Passive_SpellBlade"))
-                    {
-                        spellcast.strAdditionalInfo.Add("SpellBlade_LichBane");
-                    }
-                }
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = true,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false
+                };
+               
+                
                 break;
             case "Electrocute":
                 spellcast.dDamage = 40 + 10 * intHeroLevel + 0.3 * Attributes["AP"];
@@ -713,6 +578,19 @@ public class Annie_Test : Hero
                 msg = "Casting Electrocute at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
                 GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
                 break;
             case "ArcaneComet":
                 spellcast.dDamage = 15.88 + 4.12 * intHeroLevel + 0.2 * Attributes["AP"];
@@ -727,6 +605,40 @@ public class Annie_Test : Hero
                 msg = "Casting ArcaneComet at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
                 GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                break;
+            case "Scorch":
+                spellcast.dDamage = 10 + 1.18 * (intHeroLevel - 1);
+                spellcast.strDmgType = "AP";
+                msg = "Casting Scorch at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
+                ReceiveBuff(Debuff.ScorchCD);
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = false,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
                 break;
             case "Echo":
                 spellcast.dDamage = 100 + 0.10 * Attributes["AP"];
@@ -734,6 +646,19 @@ public class Annie_Test : Hero
                 msg = "Casting Echo, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
                 GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
                 counter.EchoCount = 0;
                 break;
             case "HextechRevolver":
@@ -742,6 +667,19 @@ public class Annie_Test : Hero
                 msg = "Casting HextechRevolver at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
                 GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
                 ReceiveBuff(Debuff.HextechCD);
                 break;
             case "HextechProtobelt_01":
@@ -749,51 +687,23 @@ public class Annie_Test : Hero
                 double oneRocketDmg = 75 + 4.41 * intHeroLevel + 0.25 * Attributes["AP"];
                 spellcast.dDamage = oneRocketDmg + 0.1 * Mathf.Clamp((rockets - 1), 0, 7);
                 spellcast.strDmgType = "AP";
-                msg = ("Casting Protobelt at level " + intHeroLevel + ", " + rockets + " rockets fired, Raw Damage is: " + spellcast.dDamage);
+                msg = "Casting Protobelt at level " + intHeroLevel + ", " + rockets + " rockets fired, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
                 GameDebugUtility.AddDebugMsg(msg);
-                if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD))
+                spellCastProperty = new SpellCastProperty()
                 {
-                    counter.intElectrocuteCount += 1;
-                }
-                if (rune.strStones.Contains("ArcaneComet"))
-                {
-                    if (!buffs.Contains(Debuff.ArcaneCometCD))
-                    {
-                        spellcast.strAdditionalInfo.Add("ArcaneComet");
-                    }
-                    else
-                    {
-                        ReduceBuffTime("ArcaneCometCD", 0.1f);
-                    }
-                }
-                if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
-                {
-                    spellcast.listBuffs.Add(new DoT()
-                    {
-                        isDamage = true,
-                        intDuration = 300,
-                        intInterval = 100,
-                        intTickNumber = 3,
-                        strDmgType = "AP",
-                        fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
-                        strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                        strName = "CorruptingPotion(Halved)",
-                        amplifier = amplifier.MakeCopy()
-                    });
-                }
-                if (Attributes.ContainsKey("Unique_Passive_Echo"))
-                {
-                    if (counter.EchoCount >= 100)
-                    {
-                        spellcast.strAdditionalInfo.Add("Echo");
-                    }
-                    else
-                    {
-                        counter.EchoCount += 10;
-                    }
-
-                }
+                    isInCombat = true,
+                    isSingleTarget = false,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = true,
+                    canTriggerArcaneComet = true,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = true,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+             
                 break;
             case "SpellBlade_LichBane":
                 spellcast.dDamage = 0.75 * Attributes["BAD"] + 0.5 * Attributes["AP"];
@@ -801,6 +711,19 @@ public class Annie_Test : Hero
                 msg = "Casting SpellBlade_LichBane, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
                 GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
                 ReceiveBuff(Debuff.SpellBladeCD);
                 break;
             case "Ignite":
@@ -825,22 +748,148 @@ public class Annie_Test : Hero
                 msg = "Casting Ignite at level " + intHeroLevel;
                 Debug.Log(msg);
                 GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = false,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
                 break;
             default:
                 Debug.LogError("SpellCastNotRecognized");
                 break;
         }
 
+        if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD) && spellCastProperty.canTriggerElectrocute)
+        {
+            counter.intElectrocuteCount += 1;
+        }
+
+        if (rune.strStones.Contains("ArcaneComet") && spellCastProperty.canTriggerArcaneComet)
+        {
+            if (!buffs.Contains(Debuff.ArcaneCometCD))
+            {
+                spellcast.strAdditionalInfo.Add("ArcaneComet");
+            }
+            else
+            {
+                if (spellCastProperty.isSingleTarget)
+                {
+                    ReduceBuffTime("ArcaneCometCD", 0.2f);
+                }
+                else
+                {
+                    ReduceBuffTime("ArcaneCometCD", 0.1f);
+                }
+            }
+        }
+
+        if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption")&&spellCastProperty.canTriggerCorruptingPotion)
+        {
+            if (spellCastProperty.isSingleTarget)
+            {
+
+                if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                {
+                    spellcast.listBuffs.Add(new DoT()
+                    {
+                        isDamage = true,
+                        intDuration = 300,
+                        intInterval = 100,
+                        intTickNumber = 3,
+                        strDmgType = "AP",
+                        fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                        strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                        strName = "CorruptingPotion",
+                        amplifier = amplifier.MakeCopy()
+                    });
+                }
+            }
+            else
+            {
+                spellcast.listBuffs.Add(new DoT()
+                {
+                    isDamage = true,
+                    intDuration = 300,
+                    intInterval = 100,
+                    intTickNumber = 3,
+                    strDmgType = "AP",
+                    fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                    strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                    strName = "CorruptingPotion(Halved)",
+                    amplifier = amplifier.MakeCopy()
+                });
+            }
+        }
+
+        if (Attributes.ContainsKey("Unique_Passive_Echo") && spellCastProperty.canTriggerEcho)
+        {
+            if (counter.EchoCount >= 100)
+            {
+                spellcast.strAdditionalInfo.Add("Echo");
+            }
+            else
+            {
+                if (spellCastProperty.canStackEcho)
+                {
+                    counter.EchoCount += 10;
+                }
+            }
+
+        }
+
+        if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD)&&spellCastProperty.canGiveSpellBlade)
+        {
+            ReceiveBuff(Buff.SpellBlade);
+        }
+        if (spellCastProperty.canTriggerOnHit)
+        {
+            if (buffs.Contains(Buff.Hextech) && !buffs.Contains(Debuff.HextechCD))
+            {
+                spellcast.strAdditionalInfo.Add("HextechRevolver");
+            }
+
+            if (buffs.Contains(Buff.SpellBlade) && !buffs.Contains(Debuff.SpellBladeCD))
+            {
+                if (Attributes.ContainsKey("Unique_Passive_SpellBlade"))
+                {
+                    spellcast.strAdditionalInfo.Add("SpellBlade_LichBane");
+                }
+            }
+        }
+        if (rune.strStones.Contains("Scorch") && !buffs.Contains(Debuff.ScorchCD) && spellCastProperty.canTriggerScorch)
+        {
+            spellcast.strAdditionalInfo.Add("Scorch");
+        }
 
         if (counter.intElectrocuteCount == 3)
         {
             counter.intElectrocuteCount = 0;
             spellcast.strAdditionalInfo.Add("Electrocute");
-            
         }
 
         spellcast.amplifier = amplifier.MakeCopy();
 
         return spellcast;
     }
+}
+
+public class SpellCastProperty {
+    public bool isInCombat = false;
+    public bool isSingleTarget = false;
+    public bool canTriggerOnHit = false;
+    public bool canTriggerElectrocute = false;
+    public bool canTriggerArcaneComet =false;
+    public bool canGiveSpellBlade=false;
+    public bool canTriggerCorruptingPotion = false;
+    public bool canTriggerEcho = false;
+    public bool canStackEcho = true;
+    public bool canTriggerScorch = false;
 }
