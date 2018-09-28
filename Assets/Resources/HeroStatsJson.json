@@ -20,7 +20,7 @@
 		"fMSGrowth": 0
 	},
 	{
-		"strHeroName": "Enemy",
+		"strHeroName": "Ziggs",
 		"fBaseHP": 524,
 		"fHPGrowth": 88,
 		"fBaseAD":50.41,
@@ -35,6 +35,25 @@
 		"fMRGrowth": 0.5,
 		"fBaseArmor":21.88,
 		"fArmorGrowth":3.5,
+		"fBaseMS": 335,
+		"fMSGrowth": 0
+	},
+	{
+	"strHeroName": "Enemy",
+		"fBaseHP": 10000,
+		"fHPGrowth": 0,
+		"fBaseAD":50.41,
+		"fADGrowth":2.625,
+		"fBaseHPRegen": 5.5,
+		"fHPRegenGrowth":0.55,
+		"fBaseAttackSpeed":0.579,
+		"fAttackSpeedGrowth":1.36,
+		"fBaseMana": 418,
+		"fManaGrowth":25,
+		"fBaseMR": 100,
+		"fMRGrowth": 0,
+		"fBaseArmor":100,
+		"fArmorGrowth":0,
 		"fBaseMS": 335,
 		"fMSGrowth": 0
 	}

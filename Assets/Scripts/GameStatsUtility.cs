@@ -347,6 +347,21 @@ public static class GameStatsUtility
             Debug.Log("Unique_Passive_SpellBlade Detected");
             d1.Add("Unique_Passive_SpellBlade", 0);
         }
+        if (d0.ContainsKey("Unique_Passive_Icy"))
+        {
+            Debug.Log("Unique_Passive_Icy Detected");
+            d1.Add("Unique_Passive_Icy", 0);
+        }
+        if (d0.ContainsKey("Unique_Passive_Torment"))
+        {
+            Debug.Log("Unique_Passive_Torment Detected");
+            d1.Add("Unique_Passive_Torment", 0);
+        }
+        if (d0.ContainsKey("Unique_Passive_Madness"))
+        {
+            Debug.Log("Unique_Passive_Madness Detected");
+            d1.Add("Unique_Passive_Madness", 0);
+        }
 
 
         //AP penetration from item
@@ -422,11 +437,13 @@ public class Counter
 {
     public int intElectrocuteCount;
     public int EchoCount;
+    public int MadnessCount;
 
     public void Reset()
     {
         intElectrocuteCount = 0;
         EchoCount = 0;
+        MadnessCount = 0;
     }
 }
 

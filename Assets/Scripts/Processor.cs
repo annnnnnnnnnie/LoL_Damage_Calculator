@@ -203,7 +203,7 @@ public class Buff
 
     public static Buff Hextech = new Buff { strName = "Hextech", intDuration = 9999 };
     public static Buff SpellBlade = new Buff { strName = "SpellBlade", intDuration = 9999 };
-    
+    public static Buff InCombat = new Buff { strName = "InCombat", intDuration = 500};
     public virtual Buff MakeCopy()
     {
         return new Buff()
@@ -235,6 +235,10 @@ public class Debuff : Buff
     public static Debuff SpellBladeCD = new Debuff { strName = "SpellBladeCD", intDuration = 150, strDescription = "SpellBladeCD" };
     public static Debuff CoupDeGrace = new Debuff { strName = "CoupDeGrace" };
     public static Debuff ScorchCD = new Debuff { strName = "ScorchCD", intDuration = 100 };
+    public static Debuff Icy = new Debuff { strName = "Icy", intDuration = 100 };
+    public static Debuff Stun = new Debuff { strName = "Icy"};
+
+
     public override Buff MakeCopy()
     {
         return new Debuff()
@@ -254,6 +258,8 @@ public class DoT : Debuff
     public float fDmgPerTick;
     public string strDmgType;
     public Amplifier amplifier;
+
+    public static DoT Torment = new DoT { strName = "Torment", intDuration = 300, intInterval = 50, isDamage = true, strDmgType = "AP" };
     public new string ToString()
     {
         StringBuilder str = new StringBuilder();

@@ -68,7 +68,7 @@ public abstract class HeroInfo : MonoBehaviour {
         }
         else
         {
-            throw new System.Exception("No saved RunePage");
+            Debug.LogError("No saved RunePage");
         }
         path_sec = Application.streamingAssetsPath + "/SavedRunePages/" + heroName + "/SecondaryPath0.json";
         if (File.Exists(path_sec))
@@ -87,7 +87,7 @@ public abstract class HeroInfo : MonoBehaviour {
         }
         else
         {
-            throw new System.Exception("No saved RunePage");
+            Debug.LogError("No saved RunePage");
         }
 #endif
 

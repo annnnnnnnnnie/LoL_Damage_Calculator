@@ -54,6 +54,7 @@ public abstract class Hero {
     protected void GetPrepared()
     {
         intTime = 0;
+        intHeroLevel = GetHeroLevel();
         Attributes = heroInfo.CalculateAttributes();
         rune = GetRune();
         fCurrentHealth = Attributes["HP"];
@@ -87,10 +88,7 @@ public abstract class Hero {
             Debug.Log("HexRevolver Detected");
             ReceiveBuff(Buff.Hextech);
         }
-
     }
-
-
 
     public void PrepareToCastSpells()//Temporary
     {
@@ -124,9 +122,8 @@ public abstract class Hero {
         if (fCurrentHealth < 1f)
             Debug.LogError("Enemy is dead");
 
-
         bool isOn = true;
-        if (isOn && (intTime % 10 == 0) && fTotalDmgReceived > 0)
+        if (isOn && (intTime % 50 == 0) && fTotalDmgReceived > 0)
         {
             Debug.Log("Time: " + intTime + "0ms" + "CurrentHealth: " + fCurrentHealth.ToString()
                 + "\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
@@ -155,34 +152,82 @@ public abstract class Hero {
                     DoT dot = (DoT)buff;
 
                     //Debug.Log("Time: "+ (intTime).ToString()+dot.strName + " DoT damage detected" + dot.ToString());
-
-                    if ((intTime - dot.intTimeOfStart) % dot.intInterval == 0)
+                    if ((intTime != dot.intTimeOfStart) && (intTime - dot.intTimeOfStart) % dot.intInterval == 0)
                     {
-                        ReceiveDamage(dot.fDmgPerTick, dot.strDmgType, dot.amplifier);
-                        dot.intDuration -= dot.intInterval;
-                        dot.intTickNumber -= 1;
+                        switch (dot.strName)
+                        {
+                            case "CorruptingPotion_Halved":
+                                if (!buffs.Contains(new DoT { strName = "CorruptingPotion" }))
+                                {
+                                    ReceiveDamage(dot.fDmgPerTick, dot.strDmgType, dot.amplifier);
+                                }
+                                else
+                                {
+                                    Debug.Log("Skipping CorruptingPotion_Halved because of the presence of CorruptingPotion");
+                                }
+                                dot.intDuration -= dot.intInterval;
+                                break;
+                            case "Torment":
+                                if (buffs.Contains(Debuff.Stun) || buffs.Contains(Debuff.Icy))
+                                {
+                                    ReceiveDamage((float)(0.5 * 0.025 * Attributes["HP"]), "AP", dot.amplifier);
+                                }
+                                else
+                                {
+                                    ReceiveDamage((float)(0.5 * 0.015 * Attributes["HP"]), "AP", dot.amplifier);
+                                }
+                                dot.intDuration -= dot.intInterval;
+                                break;
+                            default:
+                                ReceiveDamage(dot.fDmgPerTick, dot.strDmgType, dot.amplifier);
+                                dot.intDuration -= dot.intInterval;
+                                break;
+                        }
                     }
                 }
                 else if (buff is Debuff)
                 {
                     Debuff debuff = (Debuff)buff;
                     debuff.intDuration -= updateInterval;
-                    Debug.Log("debuff: " + debuff.strName);
+                    if(strName == "Enemy")
+                    Debug.Log("debuff: " + debuff.strName + "Remainig Time: " + debuff.intDuration);
+                }
+                else if (buff is Buff)
+                {
+                    switch (buff.strName)
+                    {
+                        case "InCombat":
+                            if(Attributes.ContainsKey("Unique_Passive_Madness"))
+                            {
+                                counter.MadnessCount += 1;
+                                counter.MadnessCount = Mathf.Clamp(counter.MadnessCount, 0, 5);
+                                Debug.Log("Madness stack: " + counter.MadnessCount);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    buff.intDuration -= updateInterval;
                 }
             }
         }
 
         foreach (Buff buff in buffsToBeRemoved)
         {
+            if (buff.Equals(Buff.InCombat))
+            {
+                Debug.Log("Existing Combat");
+                counter.MadnessCount = 0;
+            }
             buffs.Remove(buff);
         }
 
-        //---Health and mana regen---
-        //Update every 0.5 second(intTime%50 ==0)
-        //if (intTime % 50 == 0)
-        //{
-        //    ReceiveHealing(Attributes["HealthRegen"] * 0.1f);
-        //}
+        //---Health and mana regen-- -
+        //Update every 0.5 second(intTime % 50 == 0)
+        if (intTime % 50 == 0)
+        {
+            ReceiveHealing(Attributes["HealthRegen"] * 0.1f);
+        }
 
     }
 
@@ -191,6 +236,7 @@ public abstract class Hero {
     protected void ReceiveBuff(Buff buff)
     {
         if (buff == null) return;
+
         buff = buff.MakeCopy();
         bool isNewBuff = true;
         foreach (Buff existingBuff in buffs)
@@ -198,14 +244,19 @@ public abstract class Hero {
             if (existingBuff.Equals(buff))
             {
                 isNewBuff = false;
-                if (buff.intTimeOfStart != intTime)
+                if (buff.intTimeOfStart <= intTime)
                 {
                     Debug.Log(buff.strName + " has been refreshed");
-                    existingBuff.intTimeOfStart = intTime;
+                    existingBuff.intDuration = buff.intDuration;
+                    if(existingBuff is DoT)
+                    {
+                        DoT dot = (DoT)existingBuff;
+                        dot.amplifier = ((DoT)buff).amplifier.MakeCopy();
+                    }
                 }
                 else
                 {
-                    Debug.LogError("Unknown bug in refreshing buffs");
+                    Debug.LogError("Unknown bug in refreshing buffs: " + existingBuff.strName);
                 }
             }
         }
@@ -228,9 +279,10 @@ public abstract class Hero {
         fTotalDmgReceived += (float)dmg;
         fCurrentHealth -= (float)dmg;
     }
-    private void ReceiveDamage(double dDamage, string dmgType, Amplifier amplifier)
+    private void ReceiveDamage(double dDamage, string dmgType, Amplifier amplifier)//TODO runtime amplifier for torment
     {
         double damage = 0;
+        
         switch (dmgType)
         {
             case "AP":
@@ -239,12 +291,20 @@ public abstract class Hero {
                 fMR -= amplifier.fMRpenetration;
                 fMR = Mathf.Clamp(fMR, 0, 9999);
                 fMR -= amplifier.fMRreduction;
-
+                foreach (float modifier in amplifier.fPercentageDmgModifiers)
+                {
+                    dDamage *= (1 + modifier);
+                }
                 damage = dDamage * (100 / (100 + fMR));
                 Debug.Log("Damage is: " + damage + ", with effective enemy MR of " + fMR);
                 break;
             case "AD":
                 float fArmor = Attributes["Armor"];
+                foreach (float modifier in amplifier.fPercentageDmgModifiers)
+                {
+                    dDamage *= (1 + modifier);
+                    //Debug.Log("Damage *= " + modifier);
+                }
                 damage = dDamage * (100 / (100 + fArmor));
                 Debug.Log("Damage is: " + damage + ", with effective enemy Armor of " + fArmor);
                 break;
@@ -289,6 +349,7 @@ public abstract class Hero {
             if (buff.strName.Equals(buffName))
             {
                 buff.intDuration -= timeReduced;
+                Debug.Log(buff.strName + " is reduced to " + buff.intDuration);
             }
         }
     }
@@ -301,7 +362,7 @@ public abstract class Hero {
             {
                 buff.intDuration = Mathf.RoundToInt(buff.intDuration *(1-percentageTimeReduced));
                 flag = true;
-                Debug.Log(buff.strName + " is reduced");
+                Debug.Log(buff.strName + " is reduced to " + buff.intDuration);
             }
         }
         if (!flag)
@@ -344,7 +405,7 @@ public class Annie_Test : Hero
         int[] levels = new int[4] { heroInfo.GetLevel("Q"), heroInfo.GetLevel("W"), heroInfo.GetLevel("E"), heroInfo.GetLevel("R") };//0=Q 5=HeroLevel
 
         GameDebugUtility.Debug_ShowDictionary("Cast Skill ", Attributes);
-        Debug.Log(rune.ToString());
+        //Debug.Log(rune.ToString());
         SpellCast spellcast = new SpellCast();
 
         float f;
@@ -529,7 +590,7 @@ public class Annie_Test : Hero
                         isSingleTarget = true,
                         canGiveSpellBlade = false,
                         canTriggerElectrocute = true,
-                        canTriggerArcaneComet = true,
+                        canTriggerArcaneComet = false,
                         canTriggerOnHit = false,
                         canTriggerEcho = true,
                         canTriggerCorruptingPotion = true,
@@ -597,7 +658,7 @@ public class Annie_Test : Hero
                 spellcast.strDmgType = "AP";
                 ReceiveBuff(new Debuff
                 {
-                    intDuration = (25 - 2 * intHeroLevel),
+                    intDuration = (int)((20 - 0.71 * (intHeroLevel-1)) * 100),
                     intTimeOfStart = intTime,
                     strName = "ArcaneCometCD",
                     strDescription = "ArcaneCometCD"
@@ -791,26 +852,23 @@ public class Annie_Test : Hero
             }
         }
 
-        if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption")&&spellCastProperty.canTriggerCorruptingPotion)
+        if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption") && spellCastProperty.canTriggerCorruptingPotion)
         {
             if (spellCastProperty.isSingleTarget)
             {
-
-                if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption"))
+                spellcast.listBuffs.Add(new DoT()
                 {
-                    spellcast.listBuffs.Add(new DoT()
-                    {
-                        isDamage = true,
-                        intDuration = 300,
-                        intInterval = 100,
-                        intTickNumber = 3,
-                        strDmgType = "AP",
-                        fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
-                        strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                        strName = "CorruptingPotion",
-                        amplifier = amplifier.MakeCopy()
-                    });
-                }
+                    isDamage = true,
+                    intDuration = 300,
+                    intInterval = 100,
+                    intTickNumber = 3,
+                    strDmgType = "AP",
+                    fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                    strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                    strName = "CorruptingPotion",
+                    amplifier = amplifier.MakeCopy()
+                });
+
             }
             else
             {
@@ -823,7 +881,7 @@ public class Annie_Test : Hero
                     strDmgType = "AP",
                     fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
                     strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
-                    strName = "CorruptingPotion(Halved)",
+                    strName = "CorruptingPotion_Halved",
                     amplifier = amplifier.MakeCopy()
                 });
             }
@@ -868,11 +926,30 @@ public class Annie_Test : Hero
         {
             spellcast.strAdditionalInfo.Add("Scorch");
         }
+        if(Attributes.ContainsKey("Unique_Passive_Icy") && spellCastProperty.canTriggerEcho)
+        {
+            spellcast.listBuffs.Add(Debuff.Icy);
+        }
+        if (Attributes.ContainsKey("Unique_Passive_Torment") && spellCastProperty.canTriggerEcho)
+        {
+            DoT dot = (DoT)DoT.Torment.MakeCopy();
+            dot.amplifier = amplifier.MakeCopy();
+            spellcast.listBuffs.Add(dot);
+        }
+        if (spellCastProperty.isInCombat)
+        {
+            ReceiveBuff(Buff.InCombat);
+        }
 
         if (counter.intElectrocuteCount == 3)
         {
             counter.intElectrocuteCount = 0;
             spellcast.strAdditionalInfo.Add("Electrocute");
+        }
+
+        if (Attributes.ContainsKey("Unique_Passive_Madness"))
+        {
+            amplifier.fPercentageDmgModifiers.Add((float)(counter.MadnessCount * 0.02));
         }
 
         spellcast.amplifier = amplifier.MakeCopy();

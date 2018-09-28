@@ -38,7 +38,7 @@
 			},
 			{
 			"key":"Unique_Passive_DoOrDie_TheDarkSeal",
-			"value": "1"
+			"value": "0"
 			}
 		]
 	},
@@ -710,7 +710,7 @@
 			},
 			{
 			"key":"AP",
-			"value": "80"
+			"value": "75"
 			},
 			{
 			"key":"health",
@@ -851,7 +851,7 @@
 			},
 			{
 			"key":"Unique_Passive_DoOrDie_MejaisSoulstealer",
-			"value": "1"
+			"value": "0"
 			}
 		]
 	},
@@ -989,7 +989,7 @@
 			},
 			{
 			"key":"Unique_Passive_RodOfAges",
-			"value": "1"
+			"value": "0"
 			}
 		]
 	},
@@ -1170,6 +1170,10 @@
 			{
 			"key":"price",
 			"value": "2650"
+			},
+			{
+			"key":"AP",
+			"value": "70"
 			},
 			{
 			"key":"Unique_Passive_VoidStaff",
