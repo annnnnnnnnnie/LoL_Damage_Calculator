@@ -5025,7 +5025,7 @@ MonoBehaviour:
     type: 2}
   runePagePrefab: {fileID: 0}
   isShowingHeroLevelOnly: 0
-  initialLevels: 0100000001000000000000000000000000000000
+  initialLevels: 0b00000003000000050000000100000002000000
 --- !u!114 &1371473919
 MonoBehaviour:
   m_ObjectHideFlags: 0

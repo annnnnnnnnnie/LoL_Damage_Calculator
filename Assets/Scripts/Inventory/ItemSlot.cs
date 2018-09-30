@@ -77,7 +77,6 @@ public class ItemSlot : MonoBehaviour
 
     public void EquipItem(Item item)
     {
-        UnequipItem();
         this.item = item.MakeCopy();//deep copying
         Debug.Log("Item equipped: " + this.item.strName);
 
@@ -101,7 +100,7 @@ public class ItemSlot : MonoBehaviour
         Item unequippedItem;
         if (item != null && item.strName != null)
         {
-            Debug.Log("Item unequipped: " + item.strName);
+            Debug.Log("Item unequipping: " + item.strName);
             unequippedItem = item.MakeCopy();
             item = null;
         }

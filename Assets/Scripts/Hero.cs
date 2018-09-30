@@ -100,7 +100,7 @@ public abstract class Hero {
     }
     public void ReceiveSpell(SpellCast spellReceived)
     {
-        ReceiveDamage(spellReceived.dDamage, spellReceived.strDmgType, spellReceived.amplifier);
+        ReceiveDamage(spellReceived.dDamage, spellReceived.strDmgType, spellReceived.source);
         foreach (Buff buff in spellReceived.listBuffs)
         {
             ReceiveBuff(buff);
@@ -129,7 +129,7 @@ public abstract class Hero {
                 + "\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
                 + heroName + ")");
             GameDebugUtility.AddDebugMsg("Total damage dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
-                + heroName + ")");
+                + heroName + ")", intTime);
         }
 
         intTime += updateInterval;
@@ -159,7 +159,7 @@ public abstract class Hero {
                             case "CorruptingPotion_Halved":
                                 if (!buffs.Contains(new DoT { strName = "CorruptingPotion" }))
                                 {
-                                    ReceiveDamage(dot.fDmgPerTick, dot.strDmgType, dot.amplifier);
+                                    ReceiveDamage(dot.fDmgPerTick, dot.strDmgType, dot.source);
                                 }
                                 else
                                 {
@@ -170,16 +170,16 @@ public abstract class Hero {
                             case "Torment":
                                 if (buffs.Contains(Debuff.Stun) || buffs.Contains(Debuff.Icy))
                                 {
-                                    ReceiveDamage((float)(0.5 * 0.025 * Attributes["HP"]), "AP", dot.amplifier);
+                                    ReceiveDamage((float)(0.5 * 0.025 * Attributes["HP"]), "AP", dot.source);
                                 }
                                 else
                                 {
-                                    ReceiveDamage((float)(0.5 * 0.015 * Attributes["HP"]), "AP", dot.amplifier);
+                                    ReceiveDamage((float)(0.5 * 0.015 * Attributes["HP"]), "AP", dot.source);
                                 }
                                 dot.intDuration -= dot.intInterval;
                                 break;
                             default:
-                                ReceiveDamage(dot.fDmgPerTick, dot.strDmgType, dot.amplifier);
+                                ReceiveDamage(dot.fDmgPerTick, dot.strDmgType, dot.source);
                                 dot.intDuration -= dot.intInterval;
                                 break;
                         }
@@ -197,7 +197,7 @@ public abstract class Hero {
                     switch (buff.strName)
                     {
                         case "InCombat":
-                            if(Attributes.ContainsKey("Unique_Passive_Madness"))
+                            if(Attributes.ContainsKey("Unique_Passive_Madness") && intTime % 100 == 0)
                             {
                                 counter.MadnessCount += 1;
                                 counter.MadnessCount = Mathf.Clamp(counter.MadnessCount, 0, 5);
@@ -251,7 +251,6 @@ public abstract class Hero {
                     if(existingBuff is DoT)
                     {
                         DoT dot = (DoT)existingBuff;
-                        dot.amplifier = ((DoT)buff).amplifier.MakeCopy();
                     }
                 }
                 else
@@ -279,10 +278,10 @@ public abstract class Hero {
         fTotalDmgReceived += (float)dmg;
         fCurrentHealth -= (float)dmg;
     }
-    private void ReceiveDamage(double dDamage, string dmgType, Amplifier amplifier)//TODO runtime amplifier for torment
+    private void ReceiveDamage(double dDamage, string dmgType, Hero source)
     {
         double damage = 0;
-        
+        Amplifier amplifier = source.GetAmplifier();
         switch (dmgType)
         {
             case "AP":
@@ -371,6 +370,21 @@ public abstract class Hero {
         }
     }
 
+    public Amplifier GetAmplifier()
+    {
+        //Debug.Log(strName + " is getting Amplifier");
+        float f;
+        Amplifier amplifier = new Amplifier();
+        if (Attributes.TryGetValue("APPenetration", out f)) amplifier.fMRpenetration = f;
+        if (Attributes.TryGetValue("APPPenetration", out f)) amplifier.fMRpercentagePenetration = f;
+        if (rune.strStones.Contains("CoupDeGrace")) amplifier.otherAmplifers.Add("CoupDeGrace");
+        if (Attributes.ContainsKey("Unique_Passive_Madness"))
+        {
+            amplifier.fPercentageDmgModifiers.Add((float)(counter.MadnessCount * 0.02));
+        }
+        return amplifier;
+    }
+
     public void LearnNewSpell(string spell)
     {
         heroInfo.spellPanel.NewSpell(spell);
@@ -408,11 +422,7 @@ public class Annie_Test : Hero
         //Debug.Log(rune.ToString());
         SpellCast spellcast = new SpellCast();
 
-        float f;
-        Amplifier amplifier = new Amplifier();
-        if (Attributes.TryGetValue("APPenetration", out f)) amplifier.fMRpenetration = f;
-        if (Attributes.TryGetValue("APPPenetration", out f)) amplifier.fMRpercentagePenetration = f;
-        if (rune.strStones.Contains("CoupDeGrace")) amplifier.otherAmplifers.Add("CoupDeGrace");
+        Amplifier amplifier = GetAmplifier();
 
         string msg;
 
@@ -426,7 +436,7 @@ public class Annie_Test : Hero
                     spellcast.fCooldown = 4f;
                     msg = "Casting Q of level " + levels[0] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
-                    GameDebugUtility.AddDebugMsg(msg);
+                    GameDebugUtility.AddDebugMsg(msg, intTime);
 
                     spellCastProperty = new SpellCastProperty()
                     {
@@ -455,7 +465,7 @@ public class Annie_Test : Hero
                     spellcast.fCooldown = 6f;
                     msg = "Casting W of level " + levels[1] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
-                    GameDebugUtility.AddDebugMsg(msg);
+                    GameDebugUtility.AddDebugMsg(msg, intTime);
                     spellCastProperty = new SpellCastProperty()
                     {
                         isInCombat = true,
@@ -542,7 +552,7 @@ public class Annie_Test : Hero
                     spellcast.strDmgType = "AP";
                     msg = "Casting R of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
-                    GameDebugUtility.AddDebugMsg(msg);
+                    GameDebugUtility.AddDebugMsg(msg, intTime);
                     spellCastProperty = new SpellCastProperty()
                     {
                         isInCombat = true,
@@ -566,7 +576,7 @@ public class Annie_Test : Hero
                         fDmgPerTick = (float)(5 + 5 * levels[3] + 0.1 * Attributes["AP"]),
                         strDescription = "Tibbers Burn",
                         strName = "Tibbers Burn",
-                        amplifier = amplifier.MakeCopy()
+                        source = this
                     });
                     
                    
@@ -583,7 +593,7 @@ public class Annie_Test : Hero
                     spellcast.strDmgType = "AP";
                     msg = "Casting RA of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
-                    GameDebugUtility.AddDebugMsg(msg);
+                    GameDebugUtility.AddDebugMsg(msg, intTime);
                     spellCastProperty = new SpellCastProperty()
                     {
                         isInCombat = true,
@@ -610,7 +620,7 @@ public class Annie_Test : Hero
                 spellcast.strDmgType = "AD";
                 msg = "Auto Attacking, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
-                GameDebugUtility.AddDebugMsg(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
                 spellCastProperty = new SpellCastProperty()
                 {
                     isInCombat = true,
@@ -638,7 +648,7 @@ public class Annie_Test : Hero
                 });
                 msg = "Casting Electrocute at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
-                GameDebugUtility.AddDebugMsg(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
                 spellCastProperty = new SpellCastProperty()
                 {
                     isInCombat = true,
@@ -665,7 +675,7 @@ public class Annie_Test : Hero
                 });
                 msg = "Casting ArcaneComet at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
-                GameDebugUtility.AddDebugMsg(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
                 spellCastProperty = new SpellCastProperty()
                 {
                     isInCombat = true,
@@ -686,7 +696,7 @@ public class Annie_Test : Hero
                 msg = "Casting Scorch at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
                 ReceiveBuff(Debuff.ScorchCD);
                 Debug.Log(msg);
-                GameDebugUtility.AddDebugMsg(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
                 spellCastProperty = new SpellCastProperty()
                 {
                     isInCombat = true,
@@ -706,7 +716,7 @@ public class Annie_Test : Hero
                 spellcast.strDmgType = "AP";
                 msg = "Casting Echo, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
-                GameDebugUtility.AddDebugMsg(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
                 spellCastProperty = new SpellCastProperty()
                 {
                     isInCombat = true,
@@ -727,7 +737,7 @@ public class Annie_Test : Hero
                 spellcast.strDmgType = "AP";
                 msg = "Casting HextechRevolver at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
-                GameDebugUtility.AddDebugMsg(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
                 spellCastProperty = new SpellCastProperty()
                 {
                     isInCombat = true,
@@ -750,7 +760,7 @@ public class Annie_Test : Hero
                 spellcast.strDmgType = "AP";
                 msg = "Casting Protobelt at level " + intHeroLevel + ", " + rockets + " rockets fired, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
-                GameDebugUtility.AddDebugMsg(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
                 spellCastProperty = new SpellCastProperty()
                 {
                     isInCombat = true,
@@ -771,7 +781,7 @@ public class Annie_Test : Hero
                 spellcast.strDmgType = "AP";
                 msg = "Casting SpellBlade_LichBane, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
-                GameDebugUtility.AddDebugMsg(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
                 spellCastProperty = new SpellCastProperty()
                 {
                     isInCombat = true,
@@ -798,7 +808,7 @@ public class Annie_Test : Hero
                     fDmgPerTick = (float)0.2 * (55 + 25 * intHeroLevel),
                     strDescription = "Ignite: deal 55 + 25 * level true damage in 5 seconds",
                     strName = "Ignite",
-                    amplifier = new Amplifier()
+                    source = this
                 });
                 spellcast.listBuffs.Add(new Debuff()
                 {
@@ -808,7 +818,7 @@ public class Annie_Test : Hero
                 });
                 msg = "Casting Ignite at level " + intHeroLevel;
                 Debug.Log(msg);
-                GameDebugUtility.AddDebugMsg(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
                 spellCastProperty = new SpellCastProperty()
                 {
                     isInCombat = true,
@@ -866,7 +876,7 @@ public class Annie_Test : Hero
                     fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
                     strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
                     strName = "CorruptingPotion",
-                    amplifier = amplifier.MakeCopy()
+                    source = this
                 });
 
             }
@@ -882,7 +892,7 @@ public class Annie_Test : Hero
                     fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
                     strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
                     strName = "CorruptingPotion_Halved",
-                    amplifier = amplifier.MakeCopy()
+                    source = this
                 });
             }
         }
@@ -933,7 +943,7 @@ public class Annie_Test : Hero
         if (Attributes.ContainsKey("Unique_Passive_Torment") && spellCastProperty.canTriggerEcho)
         {
             DoT dot = (DoT)DoT.Torment.MakeCopy();
-            dot.amplifier = amplifier.MakeCopy();
+            dot.source = this;
             spellcast.listBuffs.Add(dot);
         }
         if (spellCastProperty.isInCombat)
@@ -947,13 +957,9 @@ public class Annie_Test : Hero
             spellcast.strAdditionalInfo.Add("Electrocute");
         }
 
-        if (Attributes.ContainsKey("Unique_Passive_Madness"))
-        {
-            amplifier.fPercentageDmgModifiers.Add((float)(counter.MadnessCount * 0.02));
-        }
-
-        spellcast.amplifier = amplifier.MakeCopy();
-
+        spellcast.source = this;
+        Debug.Log("Total price: " + Attributes["price"]);
+        GameDebugUtility.AddDebugMsg("Total price: " + Attributes["price"]);
         return spellcast;
     }
 }

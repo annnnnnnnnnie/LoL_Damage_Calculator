@@ -60,10 +60,10 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     public void EquipItem(Item item)
     {
         Debug.Log("Equipping item: item in itemSlot " + currentItemSlot.itemSlotNumber);
+        UnequipItem();
         currentItemSlot.EquipItem(item.MakeCopy());//deep copying
-
         List<string> possibleActives = new List<string>() {
-            "CorruptingPotion", "SkirmishersSabre", "GargoyleStonePlate",
+            "SkirmishersSabre", "GargoyleStonePlate",
             "HextechGLP_800", "HextechGunblade","HextechProtobelt_01","ShurelyasReverie","Spellbinder" };
 
         foreach (string active in possibleActives)
@@ -83,6 +83,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         Item unequippedItem = currentItemSlot.UnequipItem();
         if (unequippedItem != null)
         {
+        Debug.Log("Item unequipped: " + unequippedItem.strName);
             annie.UnlearnSpell(unequippedItem.strName);
         }
         itemList.CloseItemList();
@@ -173,7 +174,8 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
 public class SpellCast
 {
     public double dDamage;
-    public Amplifier amplifier;
+    public Hero source;
+    
     public List<string> strAdditionalInfo = new List<string>(){""};
     public float fCooldown = 0f;
     public List<Buff> listBuffs = new List<Buff>();
@@ -200,7 +202,7 @@ public class Buff
     public string strName;
     public string strDescription;
     public int intDuration;
-
+    public Hero source;
     public static Buff Hextech = new Buff { strName = "Hextech", intDuration = 9999 };
     public static Buff SpellBlade = new Buff { strName = "SpellBlade", intDuration = 9999 };
     public static Buff InCombat = new Buff { strName = "InCombat", intDuration = 500};
@@ -211,7 +213,8 @@ public class Buff
             intTimeOfStart = intTimeOfStart,
             strName = strName,
             strDescription = strDescription,
-            intDuration = intDuration
+            intDuration = intDuration,
+            source = source
         };
     }
 
@@ -246,7 +249,8 @@ public class Debuff : Buff
             intTimeOfStart = intTimeOfStart,
             intDuration = intDuration,
             strName = strName,
-            strDescription = strDescription
+            strDescription = strDescription,
+            source = source
         };
     }
 }
@@ -257,7 +261,6 @@ public class DoT : Debuff
     public int intTickNumber;
     public float fDmgPerTick;
     public string strDmgType;
-    public Amplifier amplifier;
 
     public static DoT Torment = new DoT { strName = "Torment", intDuration = 300, intInterval = 50, isDamage = true, strDmgType = "AP" };
     public new string ToString()
@@ -284,11 +287,11 @@ public class DoT : Debuff
             strName = strName,
             strDescription = strDescription,
             isDamage = isDamage,
-            intInterval=intInterval,
+            intInterval = intInterval,
             intTickNumber = intTickNumber,
-            fDmgPerTick=fDmgPerTick,
-            strDmgType=strDmgType,
-            amplifier=amplifier
+            fDmgPerTick = fDmgPerTick,
+            strDmgType = strDmgType,
+            source = source
         };
     }
 }

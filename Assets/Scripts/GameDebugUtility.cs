@@ -38,6 +38,9 @@ public static class GameDebugUtility
     {
         DebugMsgs.Add(message);
     }
-
+    public static void AddDebugMsg(string message, int time)
+    {
+        DebugMsgs.Add(message + "(at " + time + "0ms)");
+    }
 }
 

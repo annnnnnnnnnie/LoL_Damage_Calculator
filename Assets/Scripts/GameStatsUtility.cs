@@ -30,6 +30,16 @@ public static class GameStatsUtility
     public static Dictionary<string, float> CalculateEffectiveAttributes(Dictionary<string, float> d0, Dictionary<string, int> dExtras)
     {
         Dictionary<string, float> d1 = new Dictionary<string, float>();
+        float ip = 0f;
+        if (d0.ContainsKey("price"))
+        {
+            ip = d0["price"];
+            Debug.Log("Total price: " + ip);
+        }
+        else
+        {
+            Debug.Log("Total price is 0");
+        }
         //---AP------------------------------------------
         //Item AP
         float iap = 0f;
@@ -425,6 +435,7 @@ public static class GameStatsUtility
         d1.Add("APPPenetration", apPercentPene);
         d1.Add("CurrentHealth", bhp + ihp);
         d1.Add("HealthRegen", ihr + bhr + rhr);
+        d1.Add("price", ip);
         GameDebugUtility.Debug_ShowDictionary("d0", d0);
         GameDebugUtility.Debug_ShowDictionary("d1", d1);
         return d1;
