@@ -38,9 +38,10 @@ public class AdvancedSettingEditor : MonoBehaviour {
     {
         if (attributeToBeEdited.Equals("Unique_Passive_ManaCharge"))
         {
-
-        
             item.Extras[attributeToBeEdited] += 50;
+        }else if (attributeToBeEdited.Equals("Unique_Active_Spellbinder"))
+        {
+            item.Extras[attributeToBeEdited] += 10;
         }
         else
         {

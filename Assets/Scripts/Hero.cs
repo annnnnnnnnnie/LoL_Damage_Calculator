@@ -8,13 +8,13 @@ public abstract class Hero {
     
     public HeroInfo heroInfo; //Assign through inspector for now
 
-    public string strName;
     public string heroName;
     public int intHeroLevel;
     public float fCurrentHealth;
     protected float fTotalDmgReceived;
 
-    protected Dictionary<string, float> Attributes;
+    protected Dictionary<string, float> BaseAttributes;
+    protected Dictionary<string, float> RuntimeAttributes;
     public Rune rune;
 
     protected bool ApAdapted;
@@ -27,15 +27,22 @@ public abstract class Hero {
     {
 
     }
-    public void Initialize(string heroName)
+
+    public void Initialize(string heroName, GameObject heroInfoPrefab, Transform holderTransform, Processor processor)
     {
         this.heroName = heroName;
-        strName = heroName;
-        heroInfo = GameObject.Find(strName + "Info").GetComponent<HeroInfo>();//Future development: HeroInfo would automatically register itself to use Inventory, RunePage, etc
+        heroInfo = GameObjectUtility.CustomInstantiate(heroInfoPrefab, holderTransform).GetComponent<HeroInfo>();
         if (heroName.Equals("Annie"))
         {
-            InitializeSpellPanel();
+            heroInfo.Initialize(false, processor, this);
+            //Debug.Log(this.heroName);
         }
+        else
+        {
+            heroInfo.Initialize(false, processor, this);
+            //Debug.Log(this.heroName);
+        }
+        InitializeSpellPanel();
         intHeroLevel = GetHeroLevel();
     }
 
@@ -55,39 +62,55 @@ public abstract class Hero {
     {
         intTime = 0;
         intHeroLevel = GetHeroLevel();
-        Attributes = heroInfo.CalculateAttributes();
+        BaseAttributes = new Dictionary<string, float>();
+        RuntimeAttributes = heroInfo.CalculateAttributes();
+        foreach(KeyValuePair<string, float> kvpair in RuntimeAttributes)
+        {
+            BaseAttributes.Add(kvpair.Key, kvpair.Value);
+        }
         rune = GetRune();
-        fCurrentHealth = Attributes["HP"];
+        fCurrentHealth = RuntimeAttributes["HP"];
         buffs = new List<Buff>();
         counter.Reset();
         fTotalDmgReceived = 0;
 
-        ApAdapted = Attributes["IAD"] < Attributes["IAP"];
+        ApAdapted = RuntimeAttributes["IAD"] < RuntimeAttributes["IAP"];
         if (rune.strStones.Contains("AbsoluteFocus"))
         {
             Debug.Log("AbsoluteFocus detected");
-            if (fCurrentHealth >= 0.7 * Attributes["HP"])
+            if (fCurrentHealth >= 0.7 * RuntimeAttributes["HP"])
             {
                 if (ApAdapted)
                 {
-                    Attributes["AP"] += (float)(5.0 + 2.06 * (intHeroLevel - 1));
+                    RuntimeAttributes["AP"] += (float)(5.0 + 2.06 * (intHeroLevel - 1));
                 }
                 else
                 {
-                    Attributes["AD"] += (float)(3.0 + 1.24 * (intHeroLevel - 1));
+                    RuntimeAttributes["AD"] += (float)(3.0 + 1.24 * (intHeroLevel - 1));
                 }
             }
         }
-        if (Attributes.ContainsKey("Unique_Passive_Echo"))
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_Echo"))
         {
             Debug.Log("Echo Detected");
             counter.EchoCount = 100;
         }
-        if (Attributes.ContainsKey("Unique_Passive_MagicBolt"))
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_MagicBolt"))
         {
             Debug.Log("HexRevolver Detected");
             ReceiveBuff(Buff.Hextech);
         }
+        if (rune.strStones.Contains("NullifyingOrb"))
+        {
+            Debug.Log("NullifyingOrb Detected");
+            ReceiveBuff(Buff.NullifyingOrb);
+        }
+        if (rune.strStones.Contains("CheapShot"))
+        {
+            Debug.Log("CheapShot Detected");
+            ReceiveBuff(Buff.CheapShot);
+        }
+        
     }
 
     public void PrepareToCastSpells()//Temporary
@@ -126,9 +149,9 @@ public abstract class Hero {
         if (isOn && (intTime % 50 == 0) && fTotalDmgReceived > 0)
         {
             Debug.Log("Time: " + intTime + "0ms" + "CurrentHealth: " + fCurrentHealth.ToString()
-                + "\nDamage Dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
+                + "\nDamage Dealt: " + (RuntimeAttributes["HP"] - fCurrentHealth) + "(against "
                 + heroName + ")");
-            GameDebugUtility.AddDebugMsg("Total damage dealt: " + (Attributes["HP"] - fCurrentHealth) + "("
+            GameDebugUtility.AddDebugMsg("Total damage dealt: " + (RuntimeAttributes["HP"] - fCurrentHealth) + "("
                 + heroName + ")", intTime);
         }
 
@@ -170,11 +193,11 @@ public abstract class Hero {
                             case "Torment":
                                 if (buffs.Contains(Debuff.Stun) || buffs.Contains(Debuff.Icy))
                                 {
-                                    ReceiveDamage((float)(0.5 * 0.025 * Attributes["HP"]), "AP", dot.source);
+                                    ReceiveDamage((float)(0.5 * 0.025 * RuntimeAttributes["HP"]), "AP", dot.source);
                                 }
                                 else
                                 {
-                                    ReceiveDamage((float)(0.5 * 0.015 * Attributes["HP"]), "AP", dot.source);
+                                    ReceiveDamage((float)(0.5 * 0.015 * RuntimeAttributes["HP"]), "AP", dot.source);
                                 }
                                 dot.intDuration -= dot.intInterval;
                                 break;
@@ -189,7 +212,7 @@ public abstract class Hero {
                 {
                     Debuff debuff = (Debuff)buff;
                     debuff.intDuration -= updateInterval;
-                    if(strName == "Enemy")
+                    if(heroName == "Enemy")
                     Debug.Log("debuff: " + debuff.strName + "Remainig Time: " + debuff.intDuration);
                 }
                 else if (buff is Buff)
@@ -197,7 +220,7 @@ public abstract class Hero {
                     switch (buff.strName)
                     {
                         case "InCombat":
-                            if(Attributes.ContainsKey("Unique_Passive_Madness") && intTime % 100 == 0)
+                            if(RuntimeAttributes.ContainsKey("Unique_Passive_Madness") && intTime % 100 == 0)
                             {
                                 counter.MadnessCount += 1;
                                 counter.MadnessCount = Mathf.Clamp(counter.MadnessCount, 0, 5);
@@ -219,6 +242,16 @@ public abstract class Hero {
                 Debug.Log("Existing Combat");
                 counter.MadnessCount = 0;
             }
+            if (buff.Equals(Buff.Spellbinder_Active))
+            {
+                RuntimeAttributes["AP"] -= int.Parse(buff.strDescription);
+            }
+            if (buff.Equals(Buff.SuddenImpact))
+            {
+                RuntimeAttributes["Lethality"] -= 7;
+                RuntimeAttributes["APPenetration"] -= 6;
+                ReceiveBuff(Debuff.SuddentImpactCD);
+            }
             buffs.Remove(buff);
         }
 
@@ -226,7 +259,7 @@ public abstract class Hero {
         //Update every 0.5 second(intTime % 50 == 0)
         if (intTime % 50 == 0)
         {
-            ReceiveHealing(Attributes["HealthRegen"] * 0.1f);
+            ReceiveHealing(RuntimeAttributes["HealthRegen"] * 0.1f);
         }
 
     }
@@ -267,25 +300,14 @@ public abstract class Hero {
         }
     }
 
-    private void ReceiveDamage(double dmg)
-    {
-        if (buffs.Contains(Debuff.CoupDeGrace) && (fCurrentHealth / Attributes["HP"] <= 0.4))
-        {
-            Debug.Log("CoupDeGraceDmgAmp");
-            dmg *= 1.07;
-        }
-
-        fTotalDmgReceived += (float)dmg;
-        fCurrentHealth -= (float)dmg;
-    }
     private void ReceiveDamage(double dDamage, string dmgType, Hero source)
     {
         double damage = 0;
-        Amplifier amplifier = source.GetAmplifier();
+        Amplifier amplifier = source.GetBaseAmplifier();
         switch (dmgType)
         {
             case "AP":
-                float fMR = Attributes["MR"];
+                float fMR = RuntimeAttributes["MR"];
                 fMR *= (1 - amplifier.fMRpercentagePenetration);
                 fMR -= amplifier.fMRpenetration;
                 fMR = Mathf.Clamp(fMR, 0, 9999);
@@ -298,12 +320,12 @@ public abstract class Hero {
                 Debug.Log("Damage is: " + damage + ", with effective enemy MR of " + fMR);
                 break;
             case "AD":
-                float fArmor = Attributes["Armor"];
+                float fArmor = RuntimeAttributes["Armor"];
                 foreach (float modifier in amplifier.fPercentageDmgModifiers)
                 {
                     dDamage *= (1 + modifier);
-                    //Debug.Log("Damage *= " + modifier);
                 }
+                fArmor -= amplifier.fAMPenetration;
                 damage = dDamage * (100 / (100 + fArmor));
                 Debug.Log("Damage is: " + damage + ", with effective enemy Armor of " + fArmor);
                 break;
@@ -311,13 +333,16 @@ public abstract class Hero {
                 damage = dDamage;
                 Debug.Log("Damage is: " + damage);
                 break;
+            case "NotDamage":
+                Debug.Log("Not damage");
+                break;
             default:
                 Debug.Log("Damage Type not recognized");
                 damage = 0f;
                 break;
         }
         if ((buffs.Contains(Debuff.CoupDeGrace) || amplifier.otherAmplifers.Contains("CoupDeGrace"))
-            && (fCurrentHealth / Attributes["HP"] <= 0.4 && !dmgType.Equals("True")))
+            && (fCurrentHealth / RuntimeAttributes["HP"] <= 0.4 && !dmgType.Equals("True")))
         {
             Debug.Log("CoupDeGraceDmgAmp");
             damage *= 1.07;
@@ -338,7 +363,7 @@ public abstract class Hero {
             }
         }
         fCurrentHealth += (float)healing;
-        fCurrentHealth = Mathf.Clamp(fCurrentHealth, 0f, Attributes["HP"]);
+        fCurrentHealth = Mathf.Clamp(fCurrentHealth, 0f, RuntimeAttributes["HP"]);
     }
 
     protected void ReduceBuffTime(string buffName, int timeReduced)
@@ -370,19 +395,28 @@ public abstract class Hero {
         }
     }
 
-    public Amplifier GetAmplifier()
+    public Amplifier GetBaseAmplifier()
     {
         //Debug.Log(strName + " is getting Amplifier");
         float f;
         Amplifier amplifier = new Amplifier();
-        if (Attributes.TryGetValue("APPenetration", out f)) amplifier.fMRpenetration = f;
-        if (Attributes.TryGetValue("APPPenetration", out f)) amplifier.fMRpercentagePenetration = f;
+        if (RuntimeAttributes.TryGetValue("APPenetration", out f)) amplifier.fMRpenetration = f;
+        if (RuntimeAttributes.TryGetValue("APPPenetration", out f)) amplifier.fMRpercentagePenetration = f;
         if (rune.strStones.Contains("CoupDeGrace")) amplifier.otherAmplifers.Add("CoupDeGrace");
-        if (Attributes.ContainsKey("Unique_Passive_Madness"))
+        if (RuntimeAttributes.TryGetValue("Lethality", out f))
+        {
+            amplifier.fAMPenetration = GameStatsUtility.LethalityToAMPenetration(f, GetHeroLevel());
+        }
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_Madness"))
         {
             amplifier.fPercentageDmgModifiers.Add((float)(counter.MadnessCount * 0.02));
         }
         return amplifier;
+    }
+
+    public Amplifier GetRuntimeAmplifier()
+    {
+        return new Amplifier();
     }
 
     public void LearnNewSpell(string spell)
@@ -392,7 +426,7 @@ public abstract class Hero {
 
     public void UnlearnSpell(string spell)
     {
-        heroInfo.spellPanel.RemoveSpell(spell);
+        heroInfo.spellPanel.RemoveSpell(new SpellListItem { strSpell = spell, caster = this, receivers = null});
     }
 
     private void InitializeSpellPanel()
@@ -405,24 +439,40 @@ public abstract class Hero {
             "R",
             "RA",
             "Ignite",
+            "Flash",
             "A"
         };
-        heroInfo.spellPanel.Initialize(spellList);
+        heroInfo.spellPanel.Initialize(spellList, this);
     }
 }
 
 public class Annie_Test : Hero
 {
     private SpellCastProperty spellCastProperty;
+
     public SpellCast CastSpell(string spell)
     {
         int[] levels = new int[4] { heroInfo.GetLevel("Q"), heroInfo.GetLevel("W"), heroInfo.GetLevel("E"), heroInfo.GetLevel("R") };//0=Q 5=HeroLevel
 
-        GameDebugUtility.Debug_ShowDictionary("Cast Skill ", Attributes);
-        //Debug.Log(rune.ToString());
-        SpellCast spellcast = new SpellCast();
+        Amplifier amplifier = GetBaseAmplifier();
+        foreach(Buff bf in buffs)
+        {
+            if (bf.Equals(Buff.Spellbinder_Active))
+            {
+                RuntimeAttributes["AP"] = BaseAttributes["AP"] + int.Parse(bf.strDescription);
+                Debug.Log("bounous AP from Spellbinder");
+            }
+            if (bf.Equals(Buff.SuddenImpact))
+            {
+                RuntimeAttributes["APPenetration"] = BaseAttributes["APPenetration"] + 6;
+                RuntimeAttributes["Lethality"] = BaseAttributes["Lethality"] + 7;
+                Debug.Log("bounous AP penetration from SuddenImpact");
+            }
+        }
 
-        Amplifier amplifier = GetAmplifier();
+        GameDebugUtility.Debug_ShowDictionary("Cast Skill ", RuntimeAttributes);
+        
+        SpellCast spellcast = new SpellCast();
 
         string msg;
 
@@ -431,7 +481,7 @@ public class Annie_Test : Hero
             case "Q":
                 if (!levels[0].Equals(0))
                 {
-                    spellcast.dDamage = 45 + 35 * levels[0] + 0.8 * Attributes["AP"];
+                    spellcast.dDamage = 45 + 35 * levels[0] + 0.8 * RuntimeAttributes["AP"];
                     spellcast.strDmgType = "AP";
                     spellcast.fCooldown = 4f;
                     msg = "Casting Q of level " + levels[0] + ", Raw Damage is: " + spellcast.dDamage;
@@ -460,7 +510,7 @@ public class Annie_Test : Hero
             case "W":
                 if (!levels[1].Equals(0))
                 {
-                    spellcast.dDamage = 25 + 45 * levels[1] + 0.85 * Attributes["AP"];
+                    spellcast.dDamage = 25 + 45 * levels[1] + 0.85 * RuntimeAttributes["AP"];
                     spellcast.strDmgType = "AP";
                     spellcast.fCooldown = 6f;
                     msg = "Casting W of level " + levels[1] + ", Raw Damage is: " + spellcast.dDamage;
@@ -525,7 +575,7 @@ public class Annie_Test : Hero
             case "Edmg":
                 if (!levels[2].Equals(0))
                 {
-                    spellcast.dDamage = 15 + 15 * levels[2] + 0.3 * Attributes["AP"];
+                    spellcast.dDamage = 15 + 15 * levels[2] + 0.3 * RuntimeAttributes["AP"];
                     spellcast.strDmgType = "AP";
                     Debug.Log("Casting Edmg of level " + levels[2] + ", Raw Damage is: " + spellcast.dDamage);
                     spellCastProperty = new SpellCastProperty()
@@ -548,7 +598,7 @@ public class Annie_Test : Hero
             case "R":
                 if (!levels[3].Equals(0))
                 {
-                    spellcast.dDamage = 75 + 80 * levels[3] + 0.65 * Attributes["AP"];
+                    spellcast.dDamage = 75 + 80 * levels[3] + 0.65 * RuntimeAttributes["AP"];
                     spellcast.strDmgType = "AP";
                     msg = "Casting R of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
@@ -573,7 +623,7 @@ public class Annie_Test : Hero
                         intInterval = 100,
                         intTickNumber = 5,
                         strDmgType = "AP",
-                        fDmgPerTick = (float)(5 + 5 * levels[3] + 0.1 * Attributes["AP"]),
+                        fDmgPerTick = (float)(5 + 5 * levels[3] + 0.1 * RuntimeAttributes["AP"]),
                         strDescription = "Tibbers Burn",
                         strName = "Tibbers Burn",
                         source = this
@@ -589,7 +639,7 @@ public class Annie_Test : Hero
             case "RA":
                 if (!levels[3].Equals(0))
                 {
-                    spellcast.dDamage = 25 + 25 * levels[3] + 0.15 * Attributes["AP"];
+                    spellcast.dDamage = 25 + 25 * levels[3] + 0.15 * RuntimeAttributes["AP"];
                     spellcast.strDmgType = "AP";
                     msg = "Casting RA of level " + levels[3] + ", Raw Damage is: " + spellcast.dDamage;
                     Debug.Log(msg);
@@ -616,7 +666,7 @@ public class Annie_Test : Hero
                 }
                 break;
             case "A":
-                spellcast.dDamage = Attributes["AD"];
+                spellcast.dDamage = RuntimeAttributes["AD"];
                 spellcast.strDmgType = "AD";
                 msg = "Auto Attacking, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
@@ -637,7 +687,7 @@ public class Annie_Test : Hero
                 
                 break;
             case "Electrocute":
-                spellcast.dDamage = 40 + 10 * intHeroLevel + 0.3 * Attributes["AP"];
+                spellcast.dDamage = 40 + 10 * intHeroLevel + 0.3 * RuntimeAttributes["AP"];
                 spellcast.strDmgType = "AP";
                 ReceiveBuff(new Debuff
                 {
@@ -664,7 +714,7 @@ public class Annie_Test : Hero
                 };
                 break;
             case "ArcaneComet":
-                spellcast.dDamage = 15.88 + 4.12 * intHeroLevel + 0.2 * Attributes["AP"];
+                spellcast.dDamage = 15.88 + 4.12 * intHeroLevel + 0.2 * RuntimeAttributes["AP"];
                 spellcast.strDmgType = "AP";
                 ReceiveBuff(new Debuff
                 {
@@ -712,7 +762,7 @@ public class Annie_Test : Hero
                 };
                 break;
             case "Echo":
-                spellcast.dDamage = 100 + 0.10 * Attributes["AP"];
+                spellcast.dDamage = 100 + 0.10 * RuntimeAttributes["AP"];
                 spellcast.strDmgType = "AP";
                 msg = "Casting Echo, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
@@ -754,8 +804,8 @@ public class Annie_Test : Hero
                 ReceiveBuff(Debuff.HextechCD);
                 break;
             case "HextechProtobelt_01":
-                int rockets = (int)Attributes["Unique_Active_FireBolt"];
-                double oneRocketDmg = 75 + 4.41 * intHeroLevel + 0.25 * Attributes["AP"];
+                int rockets = (int)RuntimeAttributes["Unique_Active_FireBolt"];
+                double oneRocketDmg = 75 + 4.41 * intHeroLevel + 0.25 * RuntimeAttributes["AP"];
                 spellcast.dDamage = oneRocketDmg + 0.1 * Mathf.Clamp((rockets - 1), 0, 7);
                 spellcast.strDmgType = "AP";
                 msg = "Casting Protobelt at level " + intHeroLevel + ", " + rockets + " rockets fired, Raw Damage is: " + spellcast.dDamage;
@@ -772,12 +822,13 @@ public class Annie_Test : Hero
                     canTriggerEcho = true,
                     canTriggerCorruptingPotion = true,
                     canStackEcho = false,
-                    canTriggerScorch = false
+                    canTriggerScorch = false,
+                    isDisplacement = true
                 };
              
                 break;
             case "SpellBlade_LichBane":
-                spellcast.dDamage = 0.75 * Attributes["BAD"] + 0.5 * Attributes["AP"];
+                spellcast.dDamage = 0.75 * RuntimeAttributes["BAD"] + 0.5 * RuntimeAttributes["AP"];
                 spellcast.strDmgType = "AP";
                 msg = "Casting SpellBlade_LichBane, Raw Damage is: " + spellcast.dDamage;
                 Debug.Log(msg);
@@ -833,6 +884,51 @@ public class Annie_Test : Hero
                     canTriggerScorch = false
                 };
                 break;
+            case "Flash":
+                spellcast.strDmgType = "NotDamage";
+                msg = "Flashed";
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = false,
+                    isSingleTarget = false,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = false,
+                    canStackEcho = false,
+                    canTriggerScorch = false,
+                    isDisplacement = true
+                };
+                break;
+            case "Spellbinder":
+                ReceiveBuff(new Buff()
+                {
+                    intDuration = 500,
+                    source = this,
+                    strName = "Spellbinder_Active",
+                    strDescription = RuntimeAttributes["Unique_Active_Spellbinder"].ToString()
+                });
+                msg = "Casting Spellbinder with " + RuntimeAttributes["Unique_Active_Spellbinder"].ToString() + "stacks";
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = false,
+                    isSingleTarget = false,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = false,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                break;
             default:
                 Debug.LogError("SpellCastNotRecognized");
                 break;
@@ -862,7 +958,7 @@ public class Annie_Test : Hero
             }
         }
 
-        if (Attributes.ContainsKey("Unique_Passive_TouchOfCorruption") && spellCastProperty.canTriggerCorruptingPotion)
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_TouchOfCorruption") && spellCastProperty.canTriggerCorruptingPotion)
         {
             if (spellCastProperty.isSingleTarget)
             {
@@ -897,7 +993,7 @@ public class Annie_Test : Hero
             }
         }
 
-        if (Attributes.ContainsKey("Unique_Passive_Echo") && spellCastProperty.canTriggerEcho)
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_Echo") && spellCastProperty.canTriggerEcho)
         {
             if (counter.EchoCount >= 100)
             {
@@ -913,7 +1009,7 @@ public class Annie_Test : Hero
 
         }
 
-        if (Attributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD)&&spellCastProperty.canGiveSpellBlade)
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD)&&spellCastProperty.canGiveSpellBlade)
         {
             ReceiveBuff(Buff.SpellBlade);
         }
@@ -926,7 +1022,7 @@ public class Annie_Test : Hero
 
             if (buffs.Contains(Buff.SpellBlade) && !buffs.Contains(Debuff.SpellBladeCD))
             {
-                if (Attributes.ContainsKey("Unique_Passive_SpellBlade"))
+                if (RuntimeAttributes.ContainsKey("Unique_Passive_SpellBlade"))
                 {
                     spellcast.strAdditionalInfo.Add("SpellBlade_LichBane");
                 }
@@ -936,11 +1032,11 @@ public class Annie_Test : Hero
         {
             spellcast.strAdditionalInfo.Add("Scorch");
         }
-        if(Attributes.ContainsKey("Unique_Passive_Icy") && spellCastProperty.canTriggerEcho)
+        if(RuntimeAttributes.ContainsKey("Unique_Passive_Icy") && spellCastProperty.canTriggerEcho)
         {
             spellcast.listBuffs.Add(Debuff.Icy);
         }
-        if (Attributes.ContainsKey("Unique_Passive_Torment") && spellCastProperty.canTriggerEcho)
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_Torment") && spellCastProperty.canTriggerEcho)
         {
             DoT dot = (DoT)DoT.Torment.MakeCopy();
             dot.source = this;
@@ -950,6 +1046,11 @@ public class Annie_Test : Hero
         {
             ReceiveBuff(Buff.InCombat);
         }
+        if (rune.strStones.Contains("SuddenImpact") && spellCastProperty.isDisplacement && !buffs.Contains(Debuff.SuddentImpactCD))
+        {
+            ReceiveBuff(Buff.SuddenImpact);
+        }
+
 
         if (counter.intElectrocuteCount == 3)
         {
@@ -958,8 +1059,8 @@ public class Annie_Test : Hero
         }
 
         spellcast.source = this;
-        Debug.Log("Total price: " + Attributes["price"]);
-        GameDebugUtility.AddDebugMsg("Total price: " + Attributes["price"]);
+        Debug.Log("Total price: " + RuntimeAttributes["price"]);
+        GameDebugUtility.AddDebugMsg("Total price: " + RuntimeAttributes["price"]);
         return spellcast;
     }
 }
@@ -975,4 +1076,5 @@ public class SpellCastProperty {
     public bool canTriggerEcho = false;
     public bool canStackEcho = true;
     public bool canTriggerScorch = false;
+    public bool isDisplacement = false;
 }

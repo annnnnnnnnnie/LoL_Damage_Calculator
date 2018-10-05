@@ -3,21 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SpellPanel : MonoBehaviour {
+public class SpellPanel : MonoBehaviour { //Owned by everyhero
 
+    public Hero user;
     public Button spellButton;
     public Button BackSpaceBtn;
     public Button ClearAllBtn;
-    public GameObject DisplayPanel;
-    public GameObject DisplayText;
-    private List<GameObject> DisplayedText;
-    private List<string> spellList;
+    public GameObject displayPanelGameObject;
+    private DisplayPanel displayPanel;
     private Dictionary<string, GameObject> newSpellBtns;
 
-	public void Initialize(List<string> spells)
+	public void Initialize(List<string> spells, Hero user)
     {
-        DisplayedText = new List<GameObject>();
-        spellList = new List<string>();
+        this.user = user;
         newSpellBtns = new Dictionary<string, GameObject>();
         foreach (string spell in spells)
         {
@@ -26,6 +24,8 @@ public class SpellPanel : MonoBehaviour {
             splBtn.Initialize(spell, this);
         }
 
+        displayPanelGameObject = GameObject.Find("DisplayPanel");
+        displayPanel = displayPanelGameObject.GetComponent<DisplayPanel>();
 
         GameObject BackBtnGO = GameObjectUtility.CustomInstantiate(BackSpaceBtn.gameObject, transform);
         BackBtnGO.GetComponent<Button>().onClick.RemoveAllListeners();
@@ -34,51 +34,27 @@ public class SpellPanel : MonoBehaviour {
         ClearBtnGO.GetComponent<Button>().onClick.RemoveAllListeners();
         ClearBtnGO.GetComponent<Button>().onClick.AddListener(() => { ClearAll(); });
     }
-
     private void BackSpace()
     {
         Debug.Log("BackSpace");
-        GameObjectUtility.CustomDestroy(DisplayedText[DisplayedText.Count - 1]);
-        DisplayedText.RemoveAt(DisplayedText.Count - 1);
-        spellList.RemoveAt(spellList.Count - 1);
+        displayPanel.BackSpace();
     }
-
-    private void BackSpace(string spell)
+    private void BackSpace(SpellListItem spell)
     {
-        List<GameObject> displayedTextsToBeRemoved = new List<GameObject>();
-        foreach(GameObject go in DisplayedText)
-        {
-            if (go.GetComponent<Text>().text.Equals(spell))
-            {
-                displayedTextsToBeRemoved.Add(go);
-            }
-        }
-        foreach (GameObject displayedTextToBeRemoved in displayedTextsToBeRemoved)
-        {
-            DisplayedText.Remove(displayedTextToBeRemoved);
-            GameObjectUtility.CustomDestroy(displayedTextToBeRemoved);
-            spellList.Remove(spell);
-        }
+        Debug.Log("BackSpace: " + spell.strSpell);
+        displayPanel.BackSpace(spell);
     }
 
     private void ClearAll()
     {
         Debug.Log("ClearAll");
-        foreach (GameObject dispText in DisplayedText)
-        {
-            GameObjectUtility.CustomDestroy(dispText);
-        }
-        DisplayedText = new List<GameObject>();
-        spellList = new List<string>();
+        displayPanel.ClearAll();
     }
 
-    public void AddSpell(string spell)
+    public void AddSpell(SpellListItem spell)
     {
-        GameObject displayText = GameObjectUtility.CustomInstantiate(DisplayText, DisplayPanel.transform);
-        //Debug.Log("Adding Spell (SkillPanel)");
-        displayText.GetComponent<Text>().text = spell;
-        DisplayedText.Add(displayText);
-        spellList.Add(spell);
+        Debug.Log("Adding Spell: " + user.heroName + " :" +  spell.strSpell);
+        displayPanel.AddSpell(spell);
     }
 
     public void NewSpell(string spell)
@@ -97,12 +73,12 @@ public class SpellPanel : MonoBehaviour {
         }
     }
 
-    public void RemoveSpell(string spell)
+    public void RemoveSpell(SpellListItem spell)
     {
         GameObject spellToBeRemoved;
-        if (newSpellBtns.TryGetValue(spell, out spellToBeRemoved))
+        if (newSpellBtns.TryGetValue(spell.strSpell, out spellToBeRemoved))
         {
-            newSpellBtns.Remove(spell);
+            newSpellBtns.Remove(spell.strSpell);
             GameObjectUtility.CustomDestroy(spellToBeRemoved);
             BackSpace(spell);
         }
@@ -111,9 +87,29 @@ public class SpellPanel : MonoBehaviour {
             Debug.Log("No spell removed");
         }
     }
+}
 
-    public List<string> SubmitSpells()
+public class SpellListItem
+{
+    public Hero caster;
+    public List<Hero> receivers;
+    public string strSpell;
+
+    public override bool Equals(object obj)
     {
-        return spellList;
+        var item = obj as SpellListItem;
+        return item != null &&
+               EqualityComparer<Hero>.Default.Equals(caster, item.caster) &&
+               EqualityComparer<List<Hero>>.Default.Equals(receivers, item.receivers) &&
+               strSpell == item.strSpell;
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = -1253606716;
+        hashCode = hashCode * -1521134295 + EqualityComparer<Hero>.Default.GetHashCode(caster);
+        hashCode = hashCode * -1521134295 + EqualityComparer<List<Hero>>.Default.GetHashCode(receivers);
+        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(strSpell);
+        return hashCode;
     }
 }

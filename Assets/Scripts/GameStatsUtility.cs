@@ -9,6 +9,11 @@ public static class GameStatsUtility
         return (float)(fBase + fGrowth * (intLevel - 1) * (0.7025 + (0.0175 * (intLevel - 1))));
     }
 
+    public static float LethalityToAMPenetration(float fLethality, int intLevel)
+    {
+        return (float)(fLethality * (0.6 + 0.4 * intLevel / 18));
+    }
+
     public static Dictionary<string, float> CombineAttributes(Dictionary<string, float> d1, Dictionary<string, float> d2)
     {
         foreach (KeyValuePair<string, float> kvPair in d2)
@@ -347,6 +352,11 @@ public static class GameStatsUtility
             Debug.Log("Unique_Active_FireBolt detected: " + dExtras["Unique_Active_FireBolt"]);
             d1.Add("Unique_Active_FireBolt", dExtras["Unique_Active_FireBolt"]);
         }
+        if (d0.ContainsKey("Unique_Active_Spellbinder"))
+        {
+            Debug.Log("Unique_Active_Spellbinder detected: " + dExtras["Unique_Active_Spellbinder"]);
+            d1.Add("Unique_Active_Spellbinder", dExtras["Unique_Active_Spellbinder"]);
+        }
         if(d0.ContainsKey("Unique_Passive_TouchOfCorruption"))
         {
             Debug.Log("CorruptingPotion Detected");
@@ -433,6 +443,7 @@ public static class GameStatsUtility
         d1.Add("Mana", totalMana);
         d1.Add("APPenetration", apPene);
         d1.Add("APPPenetration", apPercentPene);
+        d1.Add("Lethality", 0f);
         d1.Add("CurrentHealth", bhp + ihp);
         d1.Add("HealthRegen", ihr + bhr + rhr);
         d1.Add("price", ip);

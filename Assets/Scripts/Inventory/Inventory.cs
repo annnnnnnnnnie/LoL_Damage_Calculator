@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Inventory : MonoBehaviour {
+
     public Button prefabItemSlotButton;
     [HideInInspector]
     public List<ItemSlot> itemSlots;
-    public bool isEnemy = false;
-    public void Start()
+
+    public void Initialize(Processor processor, Hero owner)
     {
         itemSlots = new List<ItemSlot>();
 
@@ -16,7 +17,7 @@ public class Inventory : MonoBehaviour {
         {
             Button btn = Instantiate(prefabItemSlotButton, this.transform);
             ItemSlot itemSlot = btn.GetComponent<ItemSlot>();
-            itemSlot.Initialize(i, isEnemy);
+            itemSlot.Initialize(i, processor, owner);
             itemSlots.Add(itemSlot);
         }
     }

@@ -10,18 +10,20 @@ public class ItemSlot : MonoBehaviour
     private Sprite originalSprite;
 
     public int itemSlotNumber;
+    public Hero owner;
+    private Processor processor;
     [HideInInspector]
     public Item item;
 
-    private bool isEnemy = false;
     private bool onClickResolved;
 
     private Text descriptionText;
 
-    public void Initialize(int itemSlotNumber, bool isEnemy)
+    public void Initialize(int itemSlotNumber, Processor processor, Hero owner)
     {
         this.itemSlotNumber = itemSlotNumber;
-        this.isEnemy = isEnemy;
+        this.processor = processor;
+        this.owner = owner;
 
         itemButton = GetComponent<Button>();
 
@@ -50,7 +52,7 @@ public class ItemSlot : MonoBehaviour
         }
         else if(!onClickResolved)
         {
-            SendMessageUpwards("OpenItemList", this);//Tell the processor to open itemList, with a referrence of itemSlot
+            processor.OpenItemList(this);//Tell the processor to open itemList, with a referrence of itemSlot
         }
     }
     public void HandlePressAndHold()
@@ -58,7 +60,7 @@ public class ItemSlot : MonoBehaviour
         if (item!= null && item.Extras.Count > 0)
         {
             Debug.Log("Opening Advanced Setting Tab");
-            SendMessageUpwards("OpenAdvanceSetting", item);//Tell the processor to open advanceSetting
+            processor.OpenAdvanceSetting(item);//Tell the processor to open advanceSetting
         }
     }
 

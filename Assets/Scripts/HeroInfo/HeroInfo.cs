@@ -6,7 +6,7 @@ using System.Text;
 using System.IO;
 using System;
 
-public abstract class HeroInfo : MonoBehaviour {
+public class HeroInfo : MonoBehaviour {
 
     /*
      * prefab for selection of hero
@@ -16,26 +16,36 @@ public abstract class HeroInfo : MonoBehaviour {
      * prefab for selection of runes;
      * prefab for selection of items;
      */
-    public abstract string heroName { get; set; }
+    public string heroName;
 
+    public GameObject inventoryPrefab;
     public Inventory inventory;
+    public GameObject spellPanelPrefab;
     public SpellPanel spellPanel;
-    public RunePage runePage;
-    public GameObject openRunePageBtnPrefab;
-    public GameObject levelComponent;
     public GameObject runePagePrefab;
+    public RunePage runePage;
+    public Text heroNameLabel;
+
+    public Transform levelComponentHolder;
+
+    public GameObject openRunePageBtnPrefab;
+    public GameObject levelCompornentPrefab;
 
     public bool isShowingHeroLevelOnly;
     
     public List<int> initialLevels = new List<int> { 1, 0, 0, 0, 0 };
 
     private RuneInfo runeInfo = null;
-    private LevelComponent[] levelComponentsScript = new LevelComponent[5];
+    private LevelComponent[] levelComponentsScripts = new LevelComponent[5];
     private List<string> levelNames = new List<string> { "Level", "Q", "W", "E", "R" };
     private readonly List<int> leastLevels = new List<int> { 1, 0, 0, 0, 0 };
     private readonly List<int> mostLevels = new List<int> { 18, 5, 5, 5, 3 };
 
-    public abstract void OpenRunePage();
+    public void OpenRunePage()
+    {
+        runePage.gameObject.SetActive(true);
+        runePage.Initialize(this);
+    }
 
     public RuneInfo LoadRuneInfo(string heroName)
     {
@@ -135,23 +145,22 @@ public abstract class HeroInfo : MonoBehaviour {
 
         return runeInfo;
     } 
-
-    public void Start()
+    
+    public void Initialize(bool isShowingHeroLevelOnly, Processor processor, Hero owner)
     {
-        Initialize();
-    }
-
-    private void Initialize()
-    {
+        this.isShowingHeroLevelOnly = isShowingHeroLevelOnly;
+        heroName = owner.heroName;
         GenerateSpellButtons(isShowingHeroLevelOnly);//Generate buttons on the attached panel
         SetRuneInfo(LoadRuneInfo(heroName));
         Button btn = GameObjectUtility.CustomInstantiate(openRunePageBtnPrefab, transform).GetComponent<Button>();
         btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(() => { OpenRunePage(); });
-
-        inventory = GameObject.Find(heroName + "Inventory").GetComponent<Inventory>();
-        if (heroName.Equals("Annie"))
-            spellPanel = GameObject.Find(heroName + "SpellPanel").GetComponent<SpellPanel>();
+        inventory = GameObjectUtility.CustomInstantiate(inventoryPrefab, this.transform).GetComponent<Inventory>();
+        inventory.Initialize(processor, owner);
+        spellPanel = GameObjectUtility.CustomInstantiate(spellPanelPrefab, this.transform).GetComponent<SpellPanel>();
+        runePage = GameObjectUtility.CustomInstantiate(runePagePrefab, GameObject.Find("HomeScreen").transform).GetComponent<RunePage>();
+        runePage.userName = heroName;
+        heroNameLabel.text = heroName;
     }
 
     public void GenerateSpellButtons(bool isShowingHeroLevelOnly)
@@ -160,9 +169,9 @@ public abstract class HeroInfo : MonoBehaviour {
         {
             if (i > 0 && isShowingHeroLevelOnly) return;
 
-            GameObject gO = GameObjectUtility.CustomInstantiate(levelComponent, transform);
-            levelComponentsScript[i] = gO.GetComponent<LevelComponent>();
-            levelComponentsScript[i].Initialize(levelNames[i], initialLevels[i], leastLevels[i], mostLevels[i]);
+            GameObject gO = GameObjectUtility.CustomInstantiate(levelCompornentPrefab, levelComponentHolder);
+            levelComponentsScripts[i] = gO.GetComponent<LevelComponent>();
+            levelComponentsScripts[i].Initialize(levelNames[i], initialLevels[i], leastLevels[i], mostLevels[i]);
         }
     }
 
@@ -183,7 +192,7 @@ public abstract class HeroInfo : MonoBehaviour {
 
     public int GetLevel(string levelName)
     {
-        return levelComponentsScript[levelNames.IndexOf(levelName)].GetLevel();
+        return levelComponentsScripts[levelNames.IndexOf(levelName)].GetLevel();
     }
     public Dictionary<string, float> CalculateAttributes()
     {
@@ -303,7 +312,7 @@ public abstract class HeroInfo : MonoBehaviour {
     {
         Dictionary<string, float> dicHeroStat = new Dictionary<string, float>();
         HeroStats heroStats = LoadHeroStat(heroName);
-        dicHeroStat.Add("level", levelComponentsScript[0].GetLevel());
+        dicHeroStat.Add("level", levelComponentsScripts[0].GetLevel());
         dicHeroStat.Add("fBaseHP", heroStats.fBaseHP);
         dicHeroStat.Add("fHPGrowth", heroStats.fHPGrowth);
 

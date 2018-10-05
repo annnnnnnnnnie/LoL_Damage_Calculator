@@ -8,16 +8,19 @@ using System.Text;
 public class Processor : MonoBehaviour//Attached to HomeScreen
 {
     public ItemList itemList;
-    public SpellPanel spellPanel;
+    public DisplayPanel displayPanel;
     public AdvancedSetting advancedSetting;
     public Text logText;
+
+    public GameObject heroInfoPrefab;
+    public Transform heroInfoHolderTransform;
 
     public int totalTime;//Set in inspector
     private int intTime;
     private ItemSlot currentItemSlot;
     private Annie_Test annie;
     private Annie_Test enemy;
-    private List<string> strSpellList;
+    private List<SpellListItem> spellList;
 
     private List<DoT> dotDamages;
     private int intUpdateInterval = 10;
@@ -27,15 +30,19 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         GameDebugUtility.Initialize();
         ClearLogText();
     }
+
     public void Start()
     {
         annie = new Annie_Test();
-        annie.Initialize("Annie");
+        annie.Initialize("Annie", heroInfoPrefab, heroInfoHolderTransform, this);
+        
         enemy = new Annie_Test();
-        enemy.Initialize("Enemy");
+        enemy.Initialize("Enemy", heroInfoPrefab, heroInfoHolderTransform, this);
+
+        displayPanel.Initialize();
     }
 
-    public void Update()
+    public void Update()// for debugging
     {
         if (Input.GetMouseButtonDown(1))
         {
@@ -70,7 +77,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         {
             if (item.strName == active)
             {
-                annie.LearnNewSpell(active);
+                currentItemSlot.owner.LearnNewSpell(active);
             }
         }
 
@@ -83,27 +90,29 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         Item unequippedItem = currentItemSlot.UnequipItem();
         if (unequippedItem != null)
         {
-        Debug.Log("Item unequipped: " + unequippedItem.strName);
-            annie.UnlearnSpell(unequippedItem.strName);
+            Debug.Log("Item unequipped: " + unequippedItem.strName);
+            currentItemSlot.owner.UnlearnSpell(unequippedItem.strName);
         }
         itemList.CloseItemList();
 
     }
+
+    
 
     public void Calculate()
     {
         intTime = 0;
         annie.PrepareToCastSpells();
         enemy.PrepareToReceiveSpells();
-        strSpellList = spellPanel.SubmitSpells();
+        spellList = displayPanel.SubmitSpells();
         Debug.Log("----------------Calculating... ----------------");
 
-        Dictionary<int, string> spellCastSequence = new Dictionary<int, string>();
+        Dictionary<int, SpellListItem> spellCastSequence = new Dictionary<int, SpellListItem>();
         for (int i = 0; i < 100; i++)
         {
-            if (i < strSpellList.Count)
+            if (i < spellList.Count)
             {
-                spellCastSequence.Add((intTime + i * 0), strSpellList[i]);
+                spellCastSequence.Add((intTime + i * 0), spellList[i]);
             }
             intTime += 10;
         }
@@ -165,6 +174,97 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         }
         logText.text = GameDebugUtility.ShowAllDebugMsg();
     }
+
+    public void Calculate(Dictionary<int,SpellListItem> spellCastsSequence)
+    {
+        Debug.Log("Calculating using advanced technologies... ");
+        GameDebugUtility.AddDebugMsg("--------------Calculating using advanced technologies...--------- ");
+        intTime = 0;
+        for (int i = 0; i < totalTime * 10; i++)
+        {
+            if (spellCastsSequence.ContainsKey(intTime))
+            {
+                if (spellCastsSequence[intTime].caster.heroName.Equals("Annie"))
+                {
+                    List<SpellCast> spellCasts = new List<SpellCast>();
+                    SpellCast spellCast = annie.CastSpell(spellCastsSequence[intTime].strSpell);
+                    spellCasts.Add(spellCast);
+                    foreach (string addInfo in spellCast.strAdditionalInfo)
+                    {
+                        if (addInfo.Equals("Electrocute"))
+                        {
+                            spellCasts.Add(annie.CastSpell("Electrocute"));
+                        }
+                        if (addInfo.Equals("ArcaneComet"))
+                        {
+                            spellCasts.Add(annie.CastSpell("ArcaneComet"));
+                        }
+                        if (addInfo.Equals("Echo"))
+                        {
+                            spellCasts.Add(annie.CastSpell("Echo"));
+                        }
+                        if (addInfo.Equals("HextechRevolver"))
+                        {
+                            spellCasts.Add(annie.CastSpell("HextechRevolver"));
+                        }
+                        if (addInfo.Equals("SpellBlade_LichBane"))
+                        {
+                            spellCasts.Add(annie.CastSpell("SpellBlade_LichBane"));
+                        }
+                        if (addInfo.EndsWith("Scorch"))
+                        {
+                            spellCasts.Add(annie.CastSpell("Scorch"));
+                        }
+                    }
+                    enemy.Update(spellCasts);
+                }
+                else if (spellCastsSequence[intTime].caster.heroName.Equals("Enemy"))
+                {
+                    List<SpellCast> spellCasts = new List<SpellCast>();
+                    SpellCast spellCast = enemy.CastSpell(spellCastsSequence[intTime].strSpell);
+                    spellCasts.Add(spellCast);
+                    foreach (string addInfo in spellCast.strAdditionalInfo)
+                    {
+                        if (addInfo.Equals("Electrocute"))
+                        {
+                            spellCasts.Add(enemy.CastSpell("Electrocute"));
+                        }
+                        if (addInfo.Equals("ArcaneComet"))
+                        {
+                            spellCasts.Add(enemy.CastSpell("ArcaneComet"));
+                        }
+                        if (addInfo.Equals("Echo"))
+                        {
+                            spellCasts.Add(enemy.CastSpell("Echo"));
+                        }
+                        if (addInfo.Equals("HextechRevolver"))
+                        {
+                            spellCasts.Add(enemy.CastSpell("HextechRevolver"));
+                        }
+                        if (addInfo.Equals("SpellBlade_LichBane"))
+                        {
+                            spellCasts.Add(enemy.CastSpell("SpellBlade_LichBane"));
+                        }
+                        if (addInfo.EndsWith("Scorch"))
+                        {
+                            spellCasts.Add(enemy.CastSpell("Scorch"));
+                        }
+                    }
+                    annie.Update(spellCasts);
+                }
+            }
+            else
+            {
+                enemy.Update();
+            }
+
+            annie.Update();
+
+            intTime += intUpdateInterval;
+        }
+        logText.text = GameDebugUtility.ShowAllDebugMsg();
+    }
+
     public void ClearLogText()
     {
         GameDebugUtility.Initialize();
@@ -206,6 +306,11 @@ public class Buff
     public static Buff Hextech = new Buff { strName = "Hextech", intDuration = 9999 };
     public static Buff SpellBlade = new Buff { strName = "SpellBlade", intDuration = 9999 };
     public static Buff InCombat = new Buff { strName = "InCombat", intDuration = 500};
+    public static Buff Spellbinder_Active = new Buff { strName = "Spellbinder_Active" };
+    public static Buff SuddenImpact = new Buff { strName = "SuddenImpact", intDuration =500};
+    public static Buff CheapShot = new Buff { strName = "CheapShot" };//6.12 + 1.88 * level
+    public static Buff NullifyingOrb = new Buff { strName = "NullifyingOrb", intDuration = 9999 };
+
     public virtual Buff MakeCopy()
     {
         return new Buff()
@@ -238,9 +343,12 @@ public class Debuff : Buff
     public static Debuff SpellBladeCD = new Debuff { strName = "SpellBladeCD", intDuration = 150, strDescription = "SpellBladeCD" };
     public static Debuff CoupDeGrace = new Debuff { strName = "CoupDeGrace" };
     public static Debuff ScorchCD = new Debuff { strName = "ScorchCD", intDuration = 100 };
+    public static Debuff CheapShotCD = new Debuff { strName = "CheapShotCD", intDuration = 400 };
+    public static Debuff SuddentImpactCD = new Debuff { strName = "SuddentImpactCD", intDuration = 400 };
+    public static Debuff NullifyingOrbCD = new Debuff { strName = "NullifyingOrbCD"};
+    public static Debuff Stun = new Debuff { strName = "Stun"};
     public static Debuff Icy = new Debuff { strName = "Icy", intDuration = 100 };
-    public static Debuff Stun = new Debuff { strName = "Icy"};
-
+    public static Debuff CheapShotDebuff = new Debuff { strName = "CheapShotDebuff", intDuration = 9999 };
 
     public override Buff MakeCopy()
     {
@@ -302,6 +410,7 @@ public class Amplifier
     public float fMRreduction = 0f;
     public List<string> otherAmplifers = new List<string>();
     public List<float> fPercentageDmgModifiers = new List<float>();
+    public float fAMPenetration = 0f;
 
     public Amplifier MakeCopy()
     {

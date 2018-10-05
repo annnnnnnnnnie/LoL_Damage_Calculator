@@ -12,11 +12,11 @@ public class ItemScript : MonoBehaviour, IRecycle //Item Displayed in ItemList
     private Processor processor;
     public void Initialize(Processor processor)
     {
+        this.processor = processor;
         item = new Item();
         Button btn = GetComponent<Button>();
         btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(() => { EquipItem(item); });
-        this.processor = processor;
     }
 
     private void EquipItem(Item item)
