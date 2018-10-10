@@ -102,10 +102,11 @@ public class HeroInfo : MonoBehaviour {
 #endif
 
 #if UNITY_ANDROID
-        if (Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android)//Unknown bug in reading the files
         {
             string dataAsJson;
             path_pri = Path.Combine(Application.streamingAssetsPath + "/", heroName + "/PrimaryPath0.json");
+            Debug.Assert(File.Exists(path_pri));
             WWW reader = new WWW(path_pri);
             while (!reader.isDone) { }
             dataAsJson = reader.text;

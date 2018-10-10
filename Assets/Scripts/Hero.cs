@@ -42,7 +42,7 @@ public abstract class Hero {
             heroInfo.Initialize(false, processor, this);
             //Debug.Log(this.heroName);
         }
-        InitializeSpellPanel();
+        InitializeSpellPanel(heroName);
         intHeroLevel = GetHeroLevel();
     }
 
@@ -429,9 +429,13 @@ public abstract class Hero {
         heroInfo.spellPanel.RemoveSpell(new SpellListItem { strSpell = spell, caster = this, receivers = null});
     }
 
-    private void InitializeSpellPanel()
+    private void InitializeSpellPanel(string heroName)
     {
-        List<string> spellList = new List<string>
+        List<string> spellList;
+        switch (heroName)
+        {
+            case "Annie":
+                spellList = new List<string>
         {
             "Q",
             "W",
@@ -442,6 +446,15 @@ public abstract class Hero {
             "Flash",
             "A"
         };
+                break;
+            default:
+                spellList = new List<string>
+        {
+            "Flash"
+        };
+                break;
+
+        }
         heroInfo.spellPanel.Initialize(spellList, this);
     }
 }
