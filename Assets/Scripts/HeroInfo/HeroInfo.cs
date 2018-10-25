@@ -270,7 +270,7 @@ public class HeroInfo : MonoBehaviour {
                 {
                     if (Extras.ContainsKey(extra.Key))
                     {
-                        Extras[extra.Key] = Mathf.Max(Extras[extra.Key], extra.Value);//Only keep the highest one as they Unique
+                        Extras[extra.Key] = Mathf.Max(Extras[extra.Key], extra.Value);//Only keep the highest one as they are Unique
                     }
                     else
                     {

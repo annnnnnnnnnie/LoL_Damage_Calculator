@@ -24,7 +24,14 @@ public class DisplayPanel : MonoBehaviour {
     public void BackSpace()
     {
         Debug.Log("BackSpace");
-        spellList.RemoveAt(spellList.Count - 1);
+        if (spellList.Count <= 0)
+        {
+            Debug.Log("No spells selected");
+        }
+        else
+        {
+            spellList.RemoveAt(spellList.Count - 1);
+        }
         UpdateDisplay();
     }
     public void BackSpace(SpellListItem spell)

@@ -62,34 +62,17 @@ public abstract class Hero {
     {
         intTime = 0;
         intHeroLevel = GetHeroLevel();
-        BaseAttributes = new Dictionary<string, float>();
+        BaseAttributes = heroInfo.CalculateAttributes();
         RuntimeAttributes = heroInfo.CalculateAttributes();
-        foreach(KeyValuePair<string, float> kvpair in RuntimeAttributes)
-        {
-            BaseAttributes.Add(kvpair.Key, kvpair.Value);
-        }
+
+        fCurrentHealth = BaseAttributes["HP"];
+
         rune = GetRune();
-        fCurrentHealth = RuntimeAttributes["HP"];
         buffs = new List<Buff>();
         counter.Reset();
         fTotalDmgReceived = 0;
 
-        ApAdapted = RuntimeAttributes["IAD"] < RuntimeAttributes["IAP"];
-        if (rune.strStones.Contains("AbsoluteFocus"))
-        {
-            Debug.Log("AbsoluteFocus detected");
-            if (fCurrentHealth >= 0.7 * RuntimeAttributes["HP"])
-            {
-                if (ApAdapted)
-                {
-                    RuntimeAttributes["AP"] += (float)(5.0 + 2.06 * (intHeroLevel - 1));
-                }
-                else
-                {
-                    RuntimeAttributes["AD"] += (float)(3.0 + 1.24 * (intHeroLevel - 1));
-                }
-            }
-        }
+        
         if (RuntimeAttributes.ContainsKey("Unique_Passive_Echo"))
         {
             Debug.Log("Echo Detected");
@@ -131,6 +114,8 @@ public abstract class Hero {
     }
     public void Update(List<SpellCast> spellCasts = null)
     {
+        NormalUpdate();
+
         if (spellCasts != null)
         {
             foreach (SpellCast spellCast in spellCasts)
@@ -139,9 +124,7 @@ public abstract class Hero {
                 ReceiveSpell(spellCast);
             }
         }
-
-        NormalUpdate();
-
+        
         if (fCurrentHealth < 1f)
             Debug.LogError("Enemy is dead");
 
@@ -262,8 +245,47 @@ public abstract class Hero {
             ReceiveHealing(RuntimeAttributes["HealthRegen"] * 0.1f);
         }
 
+        UpdateRuntimeAttributes();
+
     }
 
+    protected void UpdateRuntimeAttributes()
+    {
+        //fCurrentHealth = RuntimeAttributes["HP"];
+        RuntimeAttributes["AP"] = BaseAttributes["AP"];
+        RuntimeAttributes["AD"] = BaseAttributes["AD"];
+
+        foreach (Buff bf in buffs)
+        {
+            if (bf.Equals(Buff.Spellbinder_Active))
+            {
+                RuntimeAttributes["AP"] = BaseAttributes["AP"] + int.Parse(bf.strDescription);
+                Debug.Log("bounous AP from Spellbinder");
+            }
+            if (bf.Equals(Buff.SuddenImpact))
+            {
+                RuntimeAttributes["APPenetration"] = BaseAttributes["APPenetration"] + 6;
+                RuntimeAttributes["Lethality"] = BaseAttributes["Lethality"] + 7;
+                Debug.Log("bounous AP penetration from SuddenImpact");
+            }
+        }
+        ApAdapted = RuntimeAttributes["IAD"] < RuntimeAttributes["IAP"];
+        if (rune.strStones.Contains("AbsoluteFocus"))
+        {
+            Debug.Log("Updating AbsoluteFocus Status");
+            if (fCurrentHealth >= 0.7 * RuntimeAttributes["HP"])
+            {
+                if (ApAdapted)
+                {
+                    RuntimeAttributes["AP"] += (float)(5.0 + 2.06 * (intHeroLevel - 1));
+                }
+                else
+                {
+                    RuntimeAttributes["AD"] += (float)(3.0 + 1.24 * (intHeroLevel - 1));
+                }
+            }
+        }
+    }
 
 
     protected void ReceiveBuff(Buff buff)
@@ -457,18 +479,16 @@ public abstract class Hero {
         }
         heroInfo.spellPanel.Initialize(spellList, this);
     }
-}
 
-public class Annie_Test : Hero
-{
-    private SpellCastProperty spellCastProperty;
-
-    public SpellCast CastSpell(string spell)
+    public SpellCast CastSpell(BaseSpell baseSpell)
     {
+        SpellCastProperty spellCastProperty = null;
+
         int[] levels = new int[4] { heroInfo.GetLevel("Q"), heroInfo.GetLevel("W"), heroInfo.GetLevel("E"), heroInfo.GetLevel("R") };//0=Q 5=HeroLevel
 
         Amplifier amplifier = GetBaseAmplifier();
-        foreach(Buff bf in buffs)
+
+        /*foreach (Buff bf in buffs)
         {
             if (bf.Equals(Buff.Spellbinder_Active))
             {
@@ -481,9 +501,480 @@ public class Annie_Test : Hero
                 RuntimeAttributes["Lethality"] = BaseAttributes["Lethality"] + 7;
                 Debug.Log("bounous AP penetration from SuddenImpact");
             }
+        }*/
+
+        GameDebugUtility.Debug_ShowDictionary("Cast Base Spell ", RuntimeAttributes);
+
+        SpellCast spellcast = new SpellCast();
+
+        string msg;
+
+        switch (baseSpell.spellName)
+        {
+            case "A":
+                spellcast.dDamage = RuntimeAttributes["AD"];
+                spellcast.strDmgType = "AD";
+                msg = "Auto Attacking, Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = true,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false
+                };
+                break;
+            case "Electrocute":
+                spellcast.dDamage = 40 + 10 * intHeroLevel + 0.3 * RuntimeAttributes["AP"];
+                spellcast.strDmgType = "AP";
+                ReceiveBuff(new Debuff
+                {
+                    intDuration = (25 - 2 * intHeroLevel) * 100,
+                    intTimeOfStart = intTime,
+                    strName = "ElectrocuteCD",
+                    strDescription = "ElectrocuteCD"
+                });
+                msg = "Casting Electrocute at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                break;
+            case "ArcaneComet":
+                spellcast.dDamage = 15.88 + 4.12 * intHeroLevel + 0.2 * RuntimeAttributes["AP"];
+                spellcast.strDmgType = "AP";
+                ReceiveBuff(new Debuff
+                {
+                    intDuration = (int)((20 - 0.71 * (intHeroLevel - 1)) * 100),
+                    intTimeOfStart = intTime,
+                    strName = "ArcaneCometCD",
+                    strDescription = "ArcaneCometCD"
+                });
+                msg = "Casting ArcaneComet at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                break;
+            case "Scorch":
+                spellcast.dDamage = 10 + 1.18 * (intHeroLevel - 1);
+                spellcast.strDmgType = "AP";
+                msg = "Casting Scorch at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
+                ReceiveBuff(Debuff.ScorchCD);
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = false,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                break;
+            case "Echo":
+                spellcast.dDamage = 100 + 0.10 * RuntimeAttributes["AP"];
+                spellcast.strDmgType = "AP";
+                msg = "Casting Echo, Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                counter.EchoCount = 0;
+                break;
+            case "HextechRevolver":
+                if (buffs.Contains(Debuff.HextechCD))
+                {
+                    Debug.Log("Hextech in CD");
+                    break;
+                }
+                spellcast.dDamage = 50 + 4.41 * intHeroLevel;
+                spellcast.strDmgType = "AP";
+                msg = "Casting HextechRevolver at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                ReceiveBuff(Debuff.HextechCD);
+                break;
+            case "HextechProtobelt_01":
+                if (buffs.Contains(Debuff.HextechCD))
+                {
+                    Debug.Log("Hextech in CD");
+                    break;
+                }
+                int rockets = (int)RuntimeAttributes["Unique_Active_FireBolt"];
+                double oneRocketDmg = 75 + 4.41 * intHeroLevel + 0.25 * RuntimeAttributes["AP"];
+                spellcast.dDamage = oneRocketDmg + 0.1 * Mathf.Clamp((rockets - 1), 0, 7);
+                spellcast.strDmgType = "AP";
+                msg = "Casting Protobelt at level " + intHeroLevel + ", " + rockets + " rockets fired, Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = false,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = true,
+                    canTriggerArcaneComet = true,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = true,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false,
+                    isDisplacement = true
+                };
+
+                break;
+            case "HextechGunblade":
+                if (buffs.Contains(Debuff.HextechCD))
+                {
+                    Debug.Log("Hextech in CD");
+                    break;
+                }
+                spellcast.dDamage = 175 + 78/17*(intHeroLevel-1) + 0.30 * RuntimeAttributes["AP"];
+                spellcast.strDmgType = "AP";
+                msg = "Casting HextechGunblade at level " + intHeroLevel + ", Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                ReceiveBuff(Debuff.HextechCD);
+                break;
+            case "SpellBlade_LichBane":
+                spellcast.dDamage = 0.75 * RuntimeAttributes["BAD"] + 0.5 * RuntimeAttributes["AP"];
+                spellcast.strDmgType = "AP";
+                msg = "Casting SpellBlade_LichBane, Raw Damage is: " + spellcast.dDamage;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = true,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                ReceiveBuff(Debuff.SpellBladeCD);
+                break;
+            case "Ignite":
+                spellcast.listBuffs.Add(new DoT()
+                {
+                    isDamage = true,
+                    intDuration = 500,
+                    intInterval = 100,
+                    intTickNumber = 5,
+                    strDmgType = "True",
+                    fDmgPerTick = (float)0.2 * (55 + 25 * intHeroLevel),
+                    strDescription = "Ignite: deal 55 + 25 * level true damage in 5 seconds",
+                    strName = "Ignite",
+                    source = this
+                });
+                spellcast.listBuffs.Add(new Debuff()
+                {
+                    intDuration = 500,
+                    strDescription = "Healing Reduction from Ignite",
+                    strName = "Healing Reduction from Ignite"
+                });
+                msg = "Casting Ignite at level " + intHeroLevel;
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg, intTime);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = true,
+                    isSingleTarget = true,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = false,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                break;
+            case "Flash":
+                spellcast.strDmgType = "NotDamage";
+                msg = "Flashed";
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = false,
+                    isSingleTarget = false,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = false,
+                    canStackEcho = false,
+                    canTriggerScorch = false,
+                    isDisplacement = true
+                };
+                break;
+            case "Spellbinder":
+                ReceiveBuff(new Buff()
+                {
+                    intDuration = 500,
+                    source = this,
+                    strName = "Spellbinder_Active",
+                    strDescription = RuntimeAttributes["Unique_Active_Spellbinder"].ToString()
+                });
+                msg = "Casting Spellbinder with " + RuntimeAttributes["Unique_Active_Spellbinder"].ToString() + "stacks";
+                Debug.Log(msg);
+                GameDebugUtility.AddDebugMsg(msg);
+                spellCastProperty = new SpellCastProperty()
+                {
+                    isInCombat = false,
+                    isSingleTarget = false,
+                    canGiveSpellBlade = false,
+                    canTriggerElectrocute = false,
+                    canTriggerArcaneComet = false,
+                    canTriggerOnHit = false,
+                    canTriggerEcho = false,
+                    canTriggerCorruptingPotion = false,
+                    canStackEcho = false,
+                    canTriggerScorch = false
+                };
+                break;
+            default:
+                Debug.LogError("SpellCastNotRecognized: " + baseSpell.spellName);
+                break;
         }
 
-        GameDebugUtility.Debug_ShowDictionary("Cast Skill ", RuntimeAttributes);
+        if (rune.strStones.Contains("Electrocute") && !buffs.Contains(Debuff.ElectrocuteCD) && spellCastProperty.canTriggerElectrocute)
+        {
+            counter.intElectrocuteCount += 1;
+        }
+
+        if (rune.strStones.Contains("ArcaneComet") && spellCastProperty.canTriggerArcaneComet)
+        {
+            if (!buffs.Contains(Debuff.ArcaneCometCD))
+            {
+                spellcast.strAdditionalInfo.Add("ArcaneComet");
+            }
+            else
+            {
+                if (spellCastProperty.isSingleTarget)
+                {
+                    ReduceBuffTime("ArcaneCometCD", 0.2f);
+                }
+                else
+                {
+                    ReduceBuffTime("ArcaneCometCD", 0.1f);
+                }
+            }
+        }
+
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_TouchOfCorruption") && spellCastProperty.canTriggerCorruptingPotion)
+        {
+            if (spellCastProperty.isSingleTarget)
+            {
+                spellcast.listBuffs.Add(new DoT()
+                {
+                    isDamage = true,
+                    intDuration = 300,
+                    intInterval = 100,
+                    intTickNumber = 3,
+                    strDmgType = "AP",
+                    fDmgPerTick = (float)(0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                    strDescription = "CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                    strName = "CorruptingPotion",
+                    source = this
+                });
+
+            }
+            else
+            {
+                spellcast.listBuffs.Add(new DoT()
+                {
+                    isDamage = true,
+                    intDuration = 300,
+                    intInterval = 100,
+                    intTickNumber = 3,
+                    strDmgType = "AP",
+                    fDmgPerTick = (float)(0.5 * 0.3333 * (15 + 0.88 * heroInfo.GetLevel("Level"))),
+                    strDescription = "(Halved)CorruptingPotion: deal 15 + 0.88 * level AP damage in 3 seconds",
+                    strName = "CorruptingPotion_Halved",
+                    source = this
+                });
+            }
+        }
+
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_Echo") && spellCastProperty.canTriggerEcho)
+        {
+            if (counter.EchoCount >= 100)
+            {
+                spellcast.strAdditionalInfo.Add("Echo");
+            }
+            else
+            {
+                if (spellCastProperty.canStackEcho)
+                {
+                    counter.EchoCount += 10;
+                }
+            }
+
+        }
+
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_SpellBlade") && !buffs.Contains(Debuff.SpellBladeCD) && spellCastProperty.canGiveSpellBlade)
+        {
+            ReceiveBuff(Buff.SpellBlade);
+        }
+        if (spellCastProperty.canTriggerOnHit)
+        {
+            if (buffs.Contains(Buff.Hextech) && !buffs.Contains(Debuff.HextechCD))
+            {
+                spellcast.strAdditionalInfo.Add("HextechRevolver");
+            }
+
+            if (buffs.Contains(Buff.SpellBlade) && !buffs.Contains(Debuff.SpellBladeCD))
+            {
+                if (RuntimeAttributes.ContainsKey("Unique_Passive_SpellBlade"))
+                {
+                    spellcast.strAdditionalInfo.Add("SpellBlade_LichBane");
+                }
+            }
+        }
+        if (rune.strStones.Contains("Scorch") && !buffs.Contains(Debuff.ScorchCD) && spellCastProperty.canTriggerScorch)
+        {
+            spellcast.strAdditionalInfo.Add("Scorch");
+        }
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_Icy") && spellCastProperty.canTriggerEcho)
+        {
+            spellcast.listBuffs.Add(Debuff.Icy);
+        }
+        if (RuntimeAttributes.ContainsKey("Unique_Passive_Torment") && spellCastProperty.canTriggerEcho)
+        {
+            DoT dot = (DoT)DoT.Torment.MakeCopy();
+            dot.source = this;
+            spellcast.listBuffs.Add(dot);
+        }
+        if (spellCastProperty.isInCombat)
+        {
+            ReceiveBuff(Buff.InCombat);
+        }
+        if (rune.strStones.Contains("SuddenImpact") && spellCastProperty.isDisplacement && !buffs.Contains(Debuff.SuddentImpactCD))
+        {
+            ReceiveBuff(Buff.SuddenImpact);
+        }
+
+
+        if (counter.intElectrocuteCount == 3)
+        {
+            counter.intElectrocuteCount = 0;
+            spellcast.strAdditionalInfo.Add("Electrocute");
+        }
+
+        spellcast.source = this;
+        Debug.Log("Total price: " + RuntimeAttributes["price"]);
+        GameDebugUtility.AddDebugMsg("Total price: " + RuntimeAttributes["price"]);
+        return spellcast;
+    }
+
+
+}
+
+public class Annie_Test : Hero
+{
+
+    public SpellCast CastSpell(string spell)
+    {
+
+        SpellCastProperty spellCastProperty = null;
+
+        int[] levels = new int[4] { heroInfo.GetLevel("Q"), heroInfo.GetLevel("W"), heroInfo.GetLevel("E"), heroInfo.GetLevel("R") };//0=Q 5=HeroLevel
+
+        Amplifier amplifier = GetBaseAmplifier();
+
+        /*foreach(Buff bf in buffs)
+        {
+            if (bf.Equals(Buff.Spellbinder_Active))
+            {
+                RuntimeAttributes["AP"] = BaseAttributes["AP"] + int.Parse(bf.strDescription);
+                Debug.Log("bounous AP from Spellbinder");
+            }
+            if (bf.Equals(Buff.SuddenImpact))
+            {
+                RuntimeAttributes["APPenetration"] = BaseAttributes["APPenetration"] + 6;
+                RuntimeAttributes["Lethality"] = BaseAttributes["Lethality"] + 7;
+                Debug.Log("bounous AP penetration from SuddenImpact");
+            }
+        }*/
+
+        GameDebugUtility.Debug_ShowDictionary("Cast Spell ", RuntimeAttributes);
         
         SpellCast spellcast = new SpellCast();
 
@@ -678,7 +1169,8 @@ public class Annie_Test : Hero
                     Debug.Log("R has not been learnt");
                 }
                 break;
-            case "A":
+            //Do not discard in case of unknown bugs
+            /*case "A":
                 spellcast.dDamage = RuntimeAttributes["AD"];
                 spellcast.strDmgType = "AD";
                 msg = "Auto Attacking, Raw Damage is: " + spellcast.dDamage;
@@ -942,8 +1434,9 @@ public class Annie_Test : Hero
                     canTriggerScorch = false
                 };
                 break;
+            */
             default:
-                Debug.LogError("SpellCastNotRecognized");
+                Debug.LogError("SpellCastNotRecognized:" + spell);
                 break;
         }
 
@@ -1090,4 +1583,20 @@ public class SpellCastProperty {
     public bool canStackEcho = true;
     public bool canTriggerScorch = false;
     public bool isDisplacement = false;
+}
+public class BaseSpell
+{
+    public string spellName;
+    public static BaseSpell A = new BaseSpell { spellName = "A" };
+    public static BaseSpell Electrocute = new BaseSpell { spellName = "Electrocute" };
+    public static BaseSpell ArcaneComet = new BaseSpell { spellName = "ArcaneComet" };
+    public static BaseSpell Scorch = new BaseSpell { spellName = "Scorch" };
+    public static BaseSpell Echo = new BaseSpell { spellName = "Echo" };
+    public static BaseSpell HextechRevolver = new BaseSpell { spellName = "HextechRevolver" };
+    public static BaseSpell HextechProtobelt_01 = new BaseSpell { spellName = "HextechProtobelt_01" };
+    public static BaseSpell HextechGunblade = new BaseSpell { spellName = "HextechGunblade" };
+    public static BaseSpell SpellBlade_LichBane = new BaseSpell { spellName = "SpellBlade_LichBane" };
+    public static BaseSpell Spellbinder = new BaseSpell { spellName = "Spellbinder" };
+    public static BaseSpell Flash = new BaseSpell { spellName = "Flash" };
+    public static BaseSpell Ignite = new BaseSpell { spellName = "Ignite" };
 }

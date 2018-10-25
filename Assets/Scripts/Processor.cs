@@ -121,7 +121,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         return;
     }
 
-    public void Calculate(Dictionary<int, string> spellCastsSequence)
+    public void Calculate(Dictionary<int, string> spellCastsSequence)//Not in use
     {
         Debug.Log("Calculating using advanced technologies... ");
         GameDebugUtility.AddDebugMsg("--------------Calculating using advanced technologies...--------- ");
@@ -130,9 +130,36 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         {
             if (spellCastsSequence.ContainsKey(intTime))
             {
-                List<SpellCast> spellCasts=  new List<SpellCast>();
-                SpellCast spellCast = annie.CastSpell(spellCastsSequence[intTime]);
+                List<SpellCast> spellCasts =  new List<SpellCast>();
+                SpellCast spellCast;
+                switch (spellCastsSequence[intTime])
+                {
+                    case "A":
+                        spellCast = annie.CastSpell(BaseSpell.A);
+                        break;
+                    case "HextechProtobelt_01":
+                        spellCast = annie.CastSpell(BaseSpell.HextechProtobelt_01);
+                        break;
+                    case "HextechGunblade":
+                        spellCast = annie.CastSpell(BaseSpell.HextechGunblade);
+                        break;
+                    case "Spellbinder":
+                        spellCast = annie.CastSpell(BaseSpell.Spellbinder);
+                        break;
+                    case "Flash":
+                        spellCast = annie.CastSpell(BaseSpell.Flash);
+                        break;
+                    case "Ignite":
+                        spellCast = annie.CastSpell(BaseSpell.Ignite);
+                        break;
+                    default:
+                        Debug.Log("Current casting: " + spellCastsSequence[intTime]);
+                        spellCast = annie.CastSpell(spellCastsSequence[intTime]);
+                        break;
+                }
+
                 spellCasts.Add(spellCast);
+
                 foreach (string addInfo in spellCast.strAdditionalInfo)
                 {
                     if (addInfo.Equals("Electrocute"))
@@ -187,33 +214,58 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
                 if (spellCastsSequence[intTime].caster.heroName.Equals("Annie"))
                 {
                     List<SpellCast> spellCasts = new List<SpellCast>();
-                    SpellCast spellCast = annie.CastSpell(spellCastsSequence[intTime].strSpell);
+                    SpellCast spellCast;
+                    switch (spellCastsSequence[intTime].strSpell)
+                    {
+                        case "A":
+                            spellCast = annie.CastSpell(BaseSpell.A);
+                            break;
+                        case "HextechProtobelt_01":
+                            spellCast = annie.CastSpell(BaseSpell.HextechProtobelt_01);
+                            break;
+                        case "HextechGunblade":
+                            spellCast = annie.CastSpell(BaseSpell.HextechGunblade);
+                            break;
+                        case "Spellbinder":
+                            spellCast = annie.CastSpell(BaseSpell.Spellbinder);
+                            break;
+                        case "Flash":
+                            spellCast = annie.CastSpell(BaseSpell.Flash);
+                            break;
+                        case "Ignite":
+                            spellCast = annie.CastSpell(BaseSpell.Ignite);
+                            break;
+                        default:
+                            Debug.Log("Current casting: " + spellCastsSequence[intTime]);
+                            spellCast = annie.CastSpell(spellCastsSequence[intTime].strSpell);
+                            break;
+                    }
                     spellCasts.Add(spellCast);
                     foreach (string addInfo in spellCast.strAdditionalInfo)
                     {
                         if (addInfo.Equals("Electrocute"))
                         {
-                            spellCasts.Add(annie.CastSpell("Electrocute"));
+                            spellCasts.Add(annie.CastSpell(BaseSpell.Electrocute));
                         }
                         if (addInfo.Equals("ArcaneComet"))
                         {
-                            spellCasts.Add(annie.CastSpell("ArcaneComet"));
+                            spellCasts.Add(annie.CastSpell(BaseSpell.ArcaneComet));
                         }
                         if (addInfo.Equals("Echo"))
                         {
-                            spellCasts.Add(annie.CastSpell("Echo"));
+                            spellCasts.Add(annie.CastSpell(BaseSpell.Echo));
                         }
                         if (addInfo.Equals("HextechRevolver"))
                         {
-                            spellCasts.Add(annie.CastSpell("HextechRevolver"));
+                            spellCasts.Add(annie.CastSpell(BaseSpell.HextechRevolver));
                         }
                         if (addInfo.Equals("SpellBlade_LichBane"))
                         {
-                            spellCasts.Add(annie.CastSpell("SpellBlade_LichBane"));
+                            spellCasts.Add(annie.CastSpell(BaseSpell.SpellBlade_LichBane));
                         }
                         if (addInfo.EndsWith("Scorch"))
                         {
-                            spellCasts.Add(annie.CastSpell("Scorch"));
+                            spellCasts.Add(annie.CastSpell(BaseSpell.Scorch));
                         }
                     }
                     enemy.Update(spellCasts);
@@ -227,27 +279,27 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
                     {
                         if (addInfo.Equals("Electrocute"))
                         {
-                            spellCasts.Add(enemy.CastSpell("Electrocute"));
+                            spellCasts.Add(enemy.CastSpell(BaseSpell.Electrocute));
                         }
                         if (addInfo.Equals("ArcaneComet"))
                         {
-                            spellCasts.Add(enemy.CastSpell("ArcaneComet"));
+                            spellCasts.Add(enemy.CastSpell(BaseSpell.ArcaneComet));
                         }
                         if (addInfo.Equals("Echo"))
                         {
-                            spellCasts.Add(enemy.CastSpell("Echo"));
+                            spellCasts.Add(enemy.CastSpell(BaseSpell.Echo));
                         }
                         if (addInfo.Equals("HextechRevolver"))
                         {
-                            spellCasts.Add(enemy.CastSpell("HextechRevolver"));
+                            spellCasts.Add(enemy.CastSpell(BaseSpell.HextechRevolver));
                         }
                         if (addInfo.Equals("SpellBlade_LichBane"))
                         {
-                            spellCasts.Add(enemy.CastSpell("SpellBlade_LichBane"));
+                            spellCasts.Add(enemy.CastSpell(BaseSpell.SpellBlade_LichBane));
                         }
                         if (addInfo.EndsWith("Scorch"))
                         {
-                            spellCasts.Add(enemy.CastSpell("Scorch"));
+                            spellCasts.Add(enemy.CastSpell(BaseSpell.Scorch));
                         }
                     }
                     annie.Update(spellCasts);

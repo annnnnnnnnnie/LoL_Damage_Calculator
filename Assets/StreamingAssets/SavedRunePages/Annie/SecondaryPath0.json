@@ -17,7 +17,7 @@
                 "ManaflowBand",
                 "NimbusCloak"
             ],
-            "stoneChoiced": ""
+            "stoneChoiced": "ManaflowBand"
         },
         {
             "strName": "SorceryStone_2",
@@ -35,7 +35,7 @@
                 "Waterwalking",
                 "GatheringStorm"
             ],
-            "stoneChoiced": "Scorch"
+            "stoneChoiced": ""
         }
     ]
 }

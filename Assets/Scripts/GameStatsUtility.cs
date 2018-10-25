@@ -252,7 +252,34 @@ public static class GameStatsUtility
 
         //---mana--------------------------------------------------------
         //---CDR---------------------------------------------------------
-
+        int icd = 0;
+        if (d0.ContainsKey("Unique_Passive_Haste"))
+        {
+            Debug.Log("Unique_Passive_Haste Detected");
+            icd += 10;
+        }
+        if (d0.ContainsKey("Unique_CDR_FiendishCodex"))
+        {
+            Debug.Log("Unique_CDR_FiendishCodex Detected");
+            icd += 10;
+        }
+        if (d0.ContainsKey("Unique_CDR_Frostfang"))
+        {
+            Debug.Log("Unique_CDR_Frostfang Detected");
+            icd += 10;
+        }
+        if (d0.ContainsKey("Unique_CDR_EyeOfFrost"))
+        {
+            Debug.Log("Unique_CDR_EyeOfFrost Detected");
+            icd += 10;
+        }
+        if (d0.ContainsKey("Unique_CDR_LostChapter"))
+        {
+            Debug.Log("Unique_CDR_LostChapter Detected");
+            icd += 10;
+        }
+        Debug.Log("Item CDR: " + icd + "%");
+        
         //---CDR---------------------------------------------------------
         //Item passives----------------------------------------------------
         int doOrDiePassive = 0;
@@ -437,6 +464,7 @@ public static class GameStatsUtility
         d1.Add("BAD", bad);
         d1.Add("IAD", iad);
         d1.Add("IAP", iap);
+        d1.Add("ICD", icd);
         d1.Add("MR", bmr + imr);
         d1.Add("Armor", iam + bam + ram);
         d1.Add("HP", bhp + ihp + rhp);

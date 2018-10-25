@@ -110,12 +110,6 @@ public class Rune
     }
 }
 
-public class Extra
-{
-    public Rune rune;
-    public Shield shield;
-    public Halo halo;
-}
 
 public class Shield
 {
