@@ -3512,7 +3512,7 @@ GameObject:
   - component: {fileID: 2050690482}
   - component: {fileID: 2050690484}
   m_Layer: 5
-  m_Name: HomeScreen
+  m_Name: HomeScreen(Adjust Total Time here)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

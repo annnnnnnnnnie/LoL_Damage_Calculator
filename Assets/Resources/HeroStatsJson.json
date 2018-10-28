@@ -20,7 +20,7 @@
 		"fMSGrowth": 0
 	},
 	{
-		"strHeroName": "Ziggs",
+		"strHeroName": "Enemy",
 		"fBaseHP": 524,
 		"fHPGrowth": 88,
 		"fBaseAD":50.41,
@@ -39,7 +39,7 @@
 		"fMSGrowth": 0
 	},
 	{
-	"strHeroName": "Enemy",
+	"strHeroName": "MuTouRen",
 		"fBaseHP": 10000,
 		"fHPGrowth": 0,
 		"fBaseAD":50.41,

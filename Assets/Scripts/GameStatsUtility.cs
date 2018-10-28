@@ -278,6 +278,11 @@ public static class GameStatsUtility
             Debug.Log("Unique_CDR_LostChapter Detected");
             icd += 10;
         }
+        if (d0.ContainsKey("CDR"))
+        {
+            Debug.Log("CDR items Detected");
+            icd += (int)d0["CDR"];
+        }
         Debug.Log("Item CDR: " + icd + "%");
         
         //---CDR---------------------------------------------------------
@@ -465,9 +470,11 @@ public static class GameStatsUtility
         d1.Add("IAD", iad);
         d1.Add("IAP", iap);
         d1.Add("ICD", icd);
+        d1.Add("CDR", 0);
         d1.Add("MR", bmr + imr);
         d1.Add("Armor", iam + bam + ram);
         d1.Add("HP", bhp + ihp + rhp);
+        d1.Add("MaxHP", bhp + ihp + rhp); 
         d1.Add("Mana", totalMana);
         d1.Add("APPenetration", apPene);
         d1.Add("APPPenetration", apPercentPene);

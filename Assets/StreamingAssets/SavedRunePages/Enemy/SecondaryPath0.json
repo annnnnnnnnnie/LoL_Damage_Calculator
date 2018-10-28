@@ -1,39 +1,40 @@
 {
-    "pathName": "Inspiration",
+    "pathName": "Precision",
     "keyStone": {
-        "strName": "keyStone_Inspiration",
+        "strName": "keyStone_Precision",
         "stoneChoices": [
-            "GlacialAugment",
-            "Kleptomancy",
-            "UnsealedSpellbook"
+            "PressTheAttack",
+            "LethalTempo",
+            "FleetFootwork",
+            "Conqueror"
         ],
         "stoneChoiced": ""
     },
     "runeStones": [
         {
-            "strName": "InspirationStone_1",
+            "strName": "PrecisionStone_1",
             "stoneChoices": [
-                "HextechFlashtraption",
-                "MagicalFootwear",
-                "PerfectTiming"
+                "Overheal",
+                "Triumph",
+                "PresenceOfMind"
             ],
-            "stoneChoiced": "PerfectTiming"
+            "stoneChoiced": "Triumph"
         },
         {
-            "strName": "InspirationStone_2",
+            "strName": "PrecisionStone_2",
             "stoneChoices": [
-                "FuturesMarket",
-                "MinionDematerializer",
-                "BiscuitDelivery"
+                "Legend_Alacrity",
+                "Legend_Tenacity",
+                "Legend_Bloodline"
             ],
-            "stoneChoiced": "MinionDematerializer"
+            "stoneChoiced": "Legend_Alacrity"
         },
         {
-            "strName": "InspirationStone_3",
+            "strName": "PrecisionStone_3",
             "stoneChoices": [
-                "CosmicInsight",
-                "ApproachVelocity",
-                "TimeWarpTonic"
+                "CoupDeGrace",
+                "CutDown",
+                "LastStand"
             ],
             "stoneChoiced": ""
         }

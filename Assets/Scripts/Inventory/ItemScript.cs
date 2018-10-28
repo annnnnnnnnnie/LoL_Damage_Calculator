@@ -110,11 +110,6 @@ public class Rune
     }
 }
 
-
-public class Shield
-{
-
-}
 public class Halo
 {
 

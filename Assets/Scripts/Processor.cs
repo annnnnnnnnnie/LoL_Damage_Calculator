@@ -19,7 +19,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
     private int intTime;
     private ItemSlot currentItemSlot;
     private Annie_Test annie;
-    private Annie_Test enemy;
+    private Enemy_Test enemy;
     private List<SpellListItem> spellList;
 
     private List<DoT> dotDamages;
@@ -36,7 +36,7 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
         annie = new Annie_Test();
         annie.Initialize("Annie", heroInfoPrefab, heroInfoHolderTransform, this);
         
-        enemy = new Annie_Test();
+        enemy = new Enemy_Test();
         enemy.Initialize("Enemy", heroInfoPrefab, heroInfoHolderTransform, this);
 
         displayPanel.Initialize();
@@ -273,7 +273,32 @@ public class Processor : MonoBehaviour//Attached to HomeScreen
                 else if (spellCastsSequence[intTime].caster.heroName.Equals("Enemy"))
                 {
                     List<SpellCast> spellCasts = new List<SpellCast>();
-                    SpellCast spellCast = enemy.CastSpell(spellCastsSequence[intTime].strSpell);
+                    SpellCast spellCast;
+                    switch (spellCastsSequence[intTime].strSpell)
+                    {
+                        case "A":
+                            spellCast = enemy.CastSpell(BaseSpell.A);
+                            break;
+                        case "HextechProtobelt_01":
+                            spellCast = enemy.CastSpell(BaseSpell.HextechProtobelt_01);
+                            break;
+                        case "HextechGunblade":
+                            spellCast = enemy.CastSpell(BaseSpell.HextechGunblade);
+                            break;
+                        case "Spellbinder":
+                            spellCast = enemy.CastSpell(BaseSpell.Spellbinder);
+                            break;
+                        case "Flash":
+                            spellCast = enemy.CastSpell(BaseSpell.Flash);
+                            break;
+                        case "Ignite":
+                            spellCast = enemy.CastSpell(BaseSpell.Ignite);
+                            break;
+                        default:
+                            Debug.Log("Current casting: " + spellCastsSequence[intTime]);
+                            spellCast = enemy.CastSpell(spellCastsSequence[intTime].strSpell);
+                            break;
+                    }
                     spellCasts.Add(spellCast);
                     foreach (string addInfo in spellCast.strAdditionalInfo)
                     {
@@ -348,13 +373,14 @@ public class SpellCast
         return str.ToString();
     }
 }
-public class Buff
+public class Buff //Remember to override the MakeCopy() method
 {
     public int intTimeOfStart = 0;
     public string strName;
     public string strDescription;
     public int intDuration;
     public Hero source;
+
     public static Buff Hextech = new Buff { strName = "Hextech", intDuration = 9999 };
     public static Buff SpellBlade = new Buff { strName = "SpellBlade", intDuration = 9999 };
     public static Buff InCombat = new Buff { strName = "InCombat", intDuration = 500};
@@ -387,6 +413,31 @@ public class Buff
         return 1581483051 + EqualityComparer<string>.Default.GetHashCode(strName);
     }
 }
+
+public class Shield : Buff
+{
+    public float fStrength;
+    public bool isWhiteShield = true;
+    public bool isDecaying = false;
+    public float fDecayingConstant = 0f;
+
+    public override Buff MakeCopy()
+    {
+        return new Shield()
+        {
+            intTimeOfStart = intTimeOfStart,
+            strName = strName,
+            strDescription = strDescription,
+            intDuration = intDuration,
+            source = source,
+            fStrength =fStrength,
+            isWhiteShield = isWhiteShield,
+            isDecaying = isDecaying,
+            fDecayingConstant = fDecayingConstant
+        };
+    }
+}
+
 public class Debuff : Buff
 {
     public static Debuff ElectrocuteCD = new Debuff { strName = "ElectrocuteCD" };
@@ -397,7 +448,7 @@ public class Debuff : Buff
     public static Debuff ScorchCD = new Debuff { strName = "ScorchCD", intDuration = 100 };
     public static Debuff CheapShotCD = new Debuff { strName = "CheapShotCD", intDuration = 400 };
     public static Debuff SuddentImpactCD = new Debuff { strName = "SuddentImpactCD", intDuration = 400 };
-    public static Debuff NullifyingOrbCD = new Debuff { strName = "NullifyingOrbCD"};
+    public static Debuff NullifyingOrbCD = new Debuff { strName = "NullifyingOrbCD", intDuration = 6000};
     public static Debuff Stun = new Debuff { strName = "Stun"};
     public static Debuff Icy = new Debuff { strName = "Icy", intDuration = 100 };
     public static Debuff CheapShotDebuff = new Debuff { strName = "CheapShotDebuff", intDuration = 9999 };

@@ -10,8 +10,20 @@ namespace DebugScript
         {
             Parent parent = new Parent();
             Child child = new Child();
-
-            Display(child);
+            List<Parent> peoples = new List<Parent>();
+            peoples.Add(new Parent { Hour = 1 });
+            peoples.Add(new Parent { Hour = 2 });
+            peoples.Add(new Child { Hour = 1, Min = 5 });
+            peoples.Add(new Child { Hour = 2, Min = 10 });
+            List<Parent> Childs = peoples.FindAll(x => x is Child);
+            foreach(Child c in Childs)
+            {
+                c.Display();
+            }
+            foreach (Child p in peoples)//Cannot cast
+            {
+                p.Display();
+            }
         }
 
         public void Display(Parent parent)
