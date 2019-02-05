@@ -820,6 +820,7 @@ public abstract class Hero {
                 ReceiveBuff(Debuff.SpellBladeCD);
                 break;
             case "Ignite":
+                spellcast.strDmgType = "Not Damage";
                 spellcast.listBuffs.Add(new DoT()
                 {
                     isDamage = true,

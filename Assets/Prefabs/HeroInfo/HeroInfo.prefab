@@ -362,7 +362,7 @@ MonoBehaviour:
   levelCompornentPrefab: {fileID: 1937378429715188, guid: fa19f385574ce88418dad8af7d2f3e9a,
     type: 2}
   isShowingHeroLevelOnly: 0
-  initialLevels: 0b00000003000000050000000100000002000000
+  initialLevels: 0600000003000000010000000100000001000000
 --- !u!114 &114713336602326350
 MonoBehaviour:
   m_ObjectHideFlags: 1

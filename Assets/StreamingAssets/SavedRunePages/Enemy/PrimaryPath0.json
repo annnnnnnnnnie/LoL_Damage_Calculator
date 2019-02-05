@@ -7,7 +7,7 @@
             "ArcaneComet",
             "PhaseRush"
         ],
-        "stoneChoiced": ""
+        "stoneChoiced": "ArcaneComet"
     },
     "runeStones": [
         {
@@ -17,7 +17,7 @@
                 "ManaflowBand",
                 "NimbusCloak"
             ],
-            "stoneChoiced": "NullifyingOrb"
+            "stoneChoiced": "ManaflowBand"
         },
         {
             "strName": "SorceryStone_2",
